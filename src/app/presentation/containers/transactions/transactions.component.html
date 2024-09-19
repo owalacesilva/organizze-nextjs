@@ -1,0 +1,19 @@
+<h1>Recent Transactions</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Item</th>
+      <th scope="col">Date</th>
+      <th scope="col">Category</th>
+      <th scope="col">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let transaction of transactions">
+      <td>{{ transaction.description }}</td>
+      <td>{{ transaction.createdAt }}</td>
+      <td>{{ transaction.category.name }}</td>
+      <td>{{ transaction.amount }}</td>
+    </tr>
+  </tbody>
+</table>
