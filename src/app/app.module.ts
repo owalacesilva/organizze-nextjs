@@ -6,7 +6,9 @@ import {
   CategoryService,
   ContextComponent,
   SidebarComponent,
+  TransactionFormComponent,
   TransactionsComponent,
+  TransactionService,
 } from '@org/presentation';
 import {
   provideRouter,
@@ -16,6 +18,7 @@ import {
 } from '@angular/router';
 import { routes } from 'src/app/app.routes';
 import provideRepositoryProviders from 'src/app/presentation/providers/repositories';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -23,6 +26,7 @@ import provideRepositoryProviders from 'src/app/presentation/providers/repositor
     SidebarComponent,
     CategoriesComponent,
     TransactionsComponent,
+    TransactionFormComponent,
   ],
   imports: [
     BrowserModule,
@@ -30,10 +34,12 @@ import provideRepositoryProviders from 'src/app/presentation/providers/repositor
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
+    ReactiveFormsModule,
   ],
   providers: [
     provideRouter(routes),
     ...provideRepositoryProviders(),
+    TransactionService,
     CategoryService,
   ],
   bootstrap: [ContextComponent],

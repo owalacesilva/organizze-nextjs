@@ -1,0 +1,125 @@
+<div>
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+    <!-- Transaction type -->
+    <div class="row">
+      <div class="col">
+        <input type="radio" id="radio1" name="radio" value="1" />
+        <label for="radio1">Despesa</label>
+      </div>
+      <div class="col">
+        <input type="radio" id="radio2" name="radio" value="2" />
+        <label for="radio2">Receita</label>
+      </div>
+    </div>
+
+    <!-- Description-->
+    <div class="row">
+      <div class="col">
+        <label for="description">Descrição:</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          class="form-control"
+          maxlength="50"
+          formControlName="description"
+        />
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Amount -->
+      <div class="col">
+        <label for="amount">Valor:</label>
+        <input
+          type="number"
+          id="value"
+          name="value"
+          class="form-control"
+          min="1"
+          max="10000"
+          required
+          formControlName="amount"
+        />
+      </div>
+      <!-- Date-->
+      <div class="col">
+        <label for="date">Data:</label>
+        <input
+          type="date"
+          id="date"
+          name="date"
+          class="form-control"
+          required
+          formControlName="date"
+        />
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Account -->
+      <div class="col">
+        <label for="account">Conta:</label>
+        <select
+          id="account"
+          name="account"
+          class="form-control"
+          formControlName="account"
+        >
+          <option value="account1">Conta 1</option>
+          <option value="account2">Conta 2</option>
+          <option value="account3">Conta 3</option>
+        </select>
+      </div>
+      <!-- Transaction Categories -->
+      <div class="col">
+        <label for="category">Categoria:</label>
+        <select
+          id="category"
+          name="category"
+          class="form-control"
+          required
+          formControlName="category"
+        >
+          <option value="" disabled selected>Selecione uma categoria</option>
+          <option *ngFor="let category of categories" [value]="category.name">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Tags -->
+      <div class="col">
+        <label for="tags">Tags:</label>
+        <input
+          type="text"
+          id="tags"
+          name="tags"
+          class="form-control"
+          formControlName="tags"
+        />
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Notes -->
+      <div class="col">
+        <label for="notes">Anotações:</label>
+        <textarea
+          id="notes"
+          name="notes"
+          rows="4"
+          cols="50"
+          class="form-control"
+          maxlength="200"
+          formControlName="notes"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-success">Criar transação</button>
+  </form>
+</div>

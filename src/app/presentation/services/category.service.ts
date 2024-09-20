@@ -6,7 +6,7 @@ import { ICategoryRepository } from '@org/domain';
 })
 export class CategoryService {
   constructor(
-    @Inject('TRANSACTION_REPOSITORY')
+    @Inject('CATEGORY_REPOSITORY')
     private repository: ICategoryRepository,
   ) {}
 

@@ -1,5 +1,7 @@
-import { TransactionMapper } from '@org/data/firebase/mappers/transaction.mapper';
+import { TransactionMapper } from '@org/data';
 import { ITransaction, ITransactionRepository } from '@org/domain';
+
+const transactions: Array<ITransaction> = new Array();
 
 export class TransactionFirebaseRepository implements ITransactionRepository {
   /**
@@ -8,24 +10,11 @@ export class TransactionFirebaseRepository implements ITransactionRepository {
    */
   async getAll(): Promise<ITransaction[]> {
     return Promise.resolve<ITransaction[]>(
-      [
-        {
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          description: 'Transaction 1',
-          categoryId: '1',
-          annotation: 'Annotation 1',
-          amount: 100,
-        },
-        {
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          description: 'Transaction 2',
-          categoryId: '2',
-          annotation: 'Annotation 2',
-          amount: 200,
-        },
-      ].map(TransactionMapper.toDomain),
+      transactions.map(TransactionMapper.toDomain),
     );
+  }
+
+  async create(transaction: ITransaction): Promise<void> {
+    transactions.push(transaction);
   }
 }

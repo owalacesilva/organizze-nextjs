@@ -6,10 +6,15 @@ import { ITransactionRepository } from '@org/domain';
 })
 export class TransactionService {
   constructor(
-    @Inject('TRANSACTION_REPOSITORY') private repository: ITransactionRepository
+    @Inject('TRANSACTION_REPOSITORY')
+    private repository: ITransactionRepository,
   ) {}
 
   async getAll() {
     return this.repository.getAll();
+  }
+
+  async create(transaction: any) {
+    return this.repository.create(transaction);
   }
 }
