@@ -1,0 +1,62 @@
+<div>
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <div class="col">
+        <label for="name">Nome:</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-control"
+          maxlength="50"
+          formControlName="name"
+        />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="type">Tipo:</label>
+        <div class="form-check">
+          <input
+            type="radio"
+            id="expenses"
+            name="type"
+            value="expenses"
+            class="form-check-input"
+            formControlName="type"
+          />
+          <label for="radio1" class="form-check-label">Despesa</label>
+        </div>
+        <div class="form-check">
+          <input
+            type="radio"
+            id="earnings"
+            name="type"
+            value="earnings"
+            class="form-check-input"
+            formControlName="type"
+          />
+          <label for="radio2" class="form-check-label">Receita</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="description">Descrição:</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          class="form-control"
+          maxlength="50"
+          formControlName="description"
+        />
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-success">Criar categoria</button>
+  </form>
+</div>

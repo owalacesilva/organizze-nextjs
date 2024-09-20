@@ -9,4 +9,10 @@ export interface ICategoryRepository {
    * @returns A list of categories
    */
   getAll(): Promise<ICategory[]>;
+
+  /**
+   * Create a category
+   * @param category The category to create
+   */
+  create(category: ICategory): Promise<void>;
 }

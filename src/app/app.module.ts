@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import {
   CategoriesComponent,
+  CategoryFormComponent,
   CategoryService,
   ContextComponent,
   SidebarComponent,
@@ -27,6 +28,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     CategoriesComponent,
     TransactionsComponent,
     TransactionFormComponent,
+    CategoryFormComponent,
   ],
   imports: [
     BrowserModule,

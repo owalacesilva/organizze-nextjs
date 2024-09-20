@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { ICategoryRepository } from '@org/domain';
+import { ICategory, ICategoryRepository } from '@org/domain';
 
 @Injectable({
   providedIn: 'root',
@@ -12,5 +12,9 @@ export class CategoryService {
 
   async getAll() {
     return this.repository.getAll();
+  }
+
+  async create(category: ICategory) {
+    return this.repository.create(category);
   }
 }

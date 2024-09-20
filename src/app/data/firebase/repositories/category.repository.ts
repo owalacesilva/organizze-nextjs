@@ -1,5 +1,7 @@
 import { CategoryMapper } from '@org/data';
-import { CategoryTypeEnum, ICategory, ICategoryRepository } from '@org/domain';
+import { ICategory, ICategoryRepository } from '@org/domain';
+
+const categories: Array<ICategory> = new Array();
 
 export class CategoryFirebaseRepository implements ICategoryRepository {
   /**
@@ -8,30 +10,15 @@ export class CategoryFirebaseRepository implements ICategoryRepository {
    */
   async getAll(): Promise<ICategory[]> {
     return Promise.resolve<ICategory[]>(
-      [
-        {
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          name: 'Alimentação',
-          description: 'Gastos com alimentação',
-          color: 'red',
-          children: [],
-          parentId: '',
-          type: CategoryTypeEnum.EXPENSES,
-          available: true,
-        },
-        {
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          name: 'Salário',
-          description: 'Ganhos com salário',
-          color: 'green',
-          children: [],
-          parentId: '',
-          type: CategoryTypeEnum.EARNINGS,
-          available: true,
-        },
-      ].map(CategoryMapper.toDomain),
+      categories.map(CategoryMapper.toDomain),
     );
+  }
+
+  /**
+   * Create a category
+   * @param category The category to create
+   */
+  async create(category: ICategory): Promise<void> {
+    categories.push(category);
   }
 }
