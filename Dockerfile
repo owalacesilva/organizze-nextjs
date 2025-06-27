@@ -4,11 +4,8 @@ WORKDIR /app
 
 RUN apt update && apt install -y curl
 
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json 
 COPY package*.json ./
-
-# Install angular cli
-RUN npm install -g @angular/cli
 
 # Install dependencies
 RUN npm install
@@ -17,4 +14,4 @@ RUN npm install
 COPY . .
 
 # Build the project
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "dev"]

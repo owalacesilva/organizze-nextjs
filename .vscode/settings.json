@@ -5,12 +5,12 @@
   "editor.renderLineHighlight": "all",
   "editor.semanticHighlighting.enabled": false,
   "editor.minimap.enabled": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "biomejs.biome",
 
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.quoteStyle": "single",
 
-  "workbench.colorTheme": "Min Dark",
+  "workbench.colorTheme": "Default Dark Modern",
   "workbench.iconTheme": "symbols",
   "workbench.startupEditor": "newUntitledFile",
   "workbench.editor.labelFormat": "short",
@@ -22,14 +22,14 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[javascript]": {
     "editor.fontSize": 12,
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[json]": {
     "editor.fontSize": 12,
