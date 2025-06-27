@@ -1,5 +1,4 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
-{
+/* To learn more about this file see: https://angular.io/config/tsconfig. */{
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
@@ -17,7 +16,7 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022",
+    "module": "esnext",
     "useDefineForClassFields": false,
     "strictPropertyInitialization": false,
     "lib": [
@@ -25,21 +24,59 @@
       "dom"
     ],
     "paths": {
-      "@org/shared": ["src/app/shared"],
-      "@org/domain": ["src/app/domain"],
-      "@org/domain/*": ["src/app/domain/*"],
-      "@org/data": ["src/app/data"],
-      "@org/data/*": ["src/app/data/*"],
-      "@org/presentation": ["src/app/presentation"],
-      "@org/presentation/*": ["src/app/presentation/*"],
-      "@org/assets": ["src/assets"],
-      "@org/assets/*": ["src/assets/*"],
-    }
+      "@org/shared": [
+        "src/app/shared"
+      ],
+      "@org/domain": [
+        "src/app/domain"
+      ],
+      "@org/domain/*": [
+        "src/app/domain/*"
+      ],
+      "@org/data": [
+        "src/app/data"
+      ],
+      "@org/data/*": [
+        "src/app/data/*"
+      ],
+      "@org/presentation": [
+        "src/app/presentation"
+      ],
+      "@org/presentation/*": [
+        "src/app/presentation/*"
+      ],
+      "@org/assets": [
+        "src/assets"
+      ],
+      "@org/assets/*": [
+        "src/assets/*"
+      ]
+    },
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
