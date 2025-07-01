@@ -6,6 +6,7 @@
   "editor.semanticHighlighting.enabled": false,
   "editor.minimap.enabled": true,
   "editor.defaultFormatter": "biomejs.biome",
+  "explorer.autoReveal": true,
 
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.quoteStyle": "single",
