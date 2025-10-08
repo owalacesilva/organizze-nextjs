@@ -1,3 +1,10 @@
+import Layout from "@/components/layout";
+import DashboardSection from "@/components/section/dashboard";
+
 export default function Home() {
-	return <h1>Hello Next.js!</h1>;
+	return (
+		<Layout breadcrumbTitle="Dashboard">
+			<DashboardSection />
+		</Layout>
+	);
 }

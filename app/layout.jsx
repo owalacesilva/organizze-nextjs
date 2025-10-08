@@ -1,5 +1,5 @@
-import { ThemeProvider } from "@/components/elements/theme-provider";
 import { Rubik } from "next/font/google";
+import { ThemeProvider } from "@/components/elements/theme-provider";
 import "./globals.css";
 const rubik = Rubik({
 	weight: ["400", "500", "700"],
