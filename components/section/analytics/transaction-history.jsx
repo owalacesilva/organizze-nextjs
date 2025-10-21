@@ -1,11 +1,30 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	ArrowRightIcon,
 	CalendarIcon,
@@ -16,8 +35,16 @@ import {
 	SearchIcon,
 	ShoppingBagIcon,
 	TrendingUpIcon,
-} from "lucide-react"
-import { useState } from "react"
+} from "lucide-react";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
 
 // Transaction data
 const transactions = [
@@ -129,12 +156,93 @@ const transactions = [
 		color: "bg-green-500",
 		currency: "USD",
 	},
-]
+];
+
+function AddTransactionForm() {
+	return (
+		<div className="space-y-4 sm:space-y-6">
+			<div className="space-y-1 sm:space-y-2">
+				<label className="text-xs sm:text-sm text-muted-foreground">
+					Category
+				</label>
+				<Select>
+					<SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
+						<SelectValue placeholder="Earning" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="earning">Earning</SelectItem>
+						<SelectItem value="billing">Billing</SelectItem>
+						<SelectItem value="technical">Technical</SelectItem>
+						<SelectItem value="feature">Feature Request</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			<div className="space-y-1 sm:space-y-2">
+				<label className="text-xs sm:text-sm text-muted-foreground">
+					Account
+				</label>
+				<Select>
+					<SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
+						<SelectValue placeholder="Earning" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="earning">Earning</SelectItem>
+						<SelectItem value="support">Support Team</SelectItem>
+						<SelectItem value="technical">Technical Team</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<div className="space-y-1 sm:space-y-2">
+					<label
+						htmlFor="transaction-date"
+						className="text-xs sm:text-sm text-muted-foreground"
+					>
+						Date
+					</label>
+					<Input
+						id="transaction-date"
+						type="date"
+						className="h-8 sm:h-10 text-xs sm:text-sm"
+					/>
+				</div>
+
+				<div className="space-y-1 sm:space-y-2">
+					<label
+						htmlFor="transaction-amount"
+						className="text-xs sm:text-sm text-muted-foreground"
+					>
+						Amount
+					</label>
+					<Input
+						id="transaction-amount"
+						type="number"
+						className="h-8 sm:h-10 text-xs sm:text-sm"
+					/>
+				</div>
+			</div>
+
+			<div className="space-y-1 sm:space-y-2">
+				<label className="text-xs sm:text-sm text-muted-foreground">
+					Description
+				</label>
+				<Textarea
+					className="min-h-[120px] sm:min-h-[150px] text-xs sm:text-sm"
+					placeholder="Type your message here."
+				/>
+			</div>
+
+			<Button className="w-full h-8 sm:h-10 text-xs sm:text-sm">Submit</Button>
+		</div>
+	);
+}
 
 export const TransactionHistory = () => {
-	const [searchTerm, setSearchTerm] = useState("")
-	const [selectedPeriod, setSelectedPeriod] = useState("all")
-	const [activeTab, setActiveTab] = useState("all")
+	const [searchTerm, setSearchTerm] = useState("");
+	const [selectedPeriod, setSelectedPeriod] = useState("all");
+	const [activeTab, setActiveTab] = useState("all");
 
 	// Format currency
 	const formatCurrency = (value) => {
@@ -143,37 +251,58 @@ export const TransactionHistory = () => {
 			currency: "USD",
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
-		}).format(value)
-	}
+		}).format(value);
+	};
 
 	// Format date
 	const formatDate = (dateString) => {
-		const date = new Date(dateString)
+		const date = new Date(dateString);
 		return new Intl.DateTimeFormat("en-US", {
 			month: "short",
 			day: "numeric",
-		}).format(date)
-	}
+		}).format(date);
+	};
 
 	// Filter transactions based on search term and active tab
 	const filteredTransactions = transactions.filter((transaction) => {
 		// Filter by search term
 		const matchesSearch =
-			transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			transaction.description
+				.toLowerCase()
+				.includes(searchTerm.toLowerCase()) ||
 			transaction.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			transaction.account.toLowerCase().includes(searchTerm.toLowerCase())
+			transaction.account.toLowerCase().includes(searchTerm.toLowerCase());
 
 		// Filter by transaction type
-		const matchesType = activeTab === "all" || transaction.type === activeTab
+		const matchesType = activeTab === "all" || transaction.type === activeTab;
 
-		return matchesSearch && matchesType
-	})
+		return matchesSearch && matchesType;
+	});
 
 	return (
 		<Card className="border shadow-sm">
 			<CardHeader className="p-4 sm:p-6">
-				<CardTitle className="text-base sm:text-lg">Transaction History</CardTitle>
-				<CardDescription className="text-xs sm:text-sm">Your recent financial activities</CardDescription>
+				<CardTitle className="text-base sm:text-lg">
+					Transaction History
+				</CardTitle>
+				<Dialog>
+					<DialogTrigger asChild>
+						<Button className="w-full sm:w-auto h-8 sm:h-10 text-xs sm:text-sm">
+							Add Transaction
+						</Button>
+					</DialogTrigger>
+					<DialogContent className="sm:max-w-[500px] p-4 sm:p-6 w-[calc(100%-2rem)] sm:w-auto">
+						<DialogHeader>
+							<DialogTitle className="text-base sm:text-lg">
+								Add Transaction
+							</DialogTitle>
+						</DialogHeader>
+						<AddTransactionForm />
+					</DialogContent>
+				</Dialog>
+				<CardDescription className="text-xs sm:text-sm">
+					Your recent financial activities
+				</CardDescription>
 				<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-3 sm:mt-4">
 					<div className="relative flex-1 max-w-full sm:max-w-sm">
 						<SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
@@ -196,10 +325,18 @@ export const TransactionHistory = () => {
 								<SelectItem value="quarter">Last 90 Days</SelectItem>
 							</SelectContent>
 						</Select>
-						<Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-8 w-8 sm:h-10 sm:w-10"
+						>
 							<FilterIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 						</Button>
-						<Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-8 w-8 sm:h-10 sm:w-10"
+						>
 							<CalendarIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 						</Button>
 					</div>
@@ -233,10 +370,18 @@ export const TransactionHistory = () => {
 							<TableHeader>
 								<TableRow>
 									<TableHead className="text-xs sm:text-sm">Category</TableHead>
-									<TableHead className="text-xs sm:text-sm hidden sm:table-cell">Date</TableHead>
-									<TableHead className="text-xs sm:text-sm">Description</TableHead>
-									<TableHead className="text-xs sm:text-sm hidden md:table-cell">Account</TableHead>
-									<TableHead className="text-xs sm:text-sm text-right">Amount</TableHead>
+									<TableHead className="text-xs sm:text-sm hidden sm:table-cell">
+										Date
+									</TableHead>
+									<TableHead className="text-xs sm:text-sm">
+										Description
+									</TableHead>
+									<TableHead className="text-xs sm:text-sm hidden md:table-cell">
+										Account
+									</TableHead>
+									<TableHead className="text-xs sm:text-sm text-right">
+										Amount
+									</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -245,10 +390,14 @@ export const TransactionHistory = () => {
 										<TableRow key={transaction.id}>
 											<TableCell className="py-2 sm:py-4">
 												<div className="flex items-center gap-1.5 sm:gap-2">
-													<div className={`${transaction.color} p-1.5 sm:p-2 rounded-full`}>
+													<div
+														className={`${transaction.color} p-1.5 sm:p-2 rounded-full`}
+													>
 														<transaction.icon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
 													</div>
-													<span className="text-xs sm:text-sm">{transaction.category}</span>
+													<span className="text-xs sm:text-sm">
+														{transaction.category}
+													</span>
 												</div>
 											</TableCell>
 											<TableCell className="py-2 sm:py-4 text-xs sm:text-sm hidden sm:table-cell">
@@ -261,8 +410,13 @@ export const TransactionHistory = () => {
 												{transaction.account}
 											</TableCell>
 											<TableCell
-												className={`py-2 sm:py-4 text-right text-xs sm:text-sm font-medium ${transaction.amount > 0 ? "text-green-500" : transaction.amount < 0 ? "text-red-500" : ""
-													}`}
+												className={`py-2 sm:py-4 text-right text-xs sm:text-sm font-medium ${
+													transaction.amount > 0
+														? "text-green-500"
+														: transaction.amount < 0
+															? "text-red-500"
+															: ""
+												}`}
 											>
 												{transaction.amount > 0 ? "+" : ""}
 												{formatCurrency(transaction.amount)}
@@ -271,7 +425,10 @@ export const TransactionHistory = () => {
 									))
 								) : (
 									<TableRow>
-										<TableCell colSpan={5} className="text-center py-6 text-xs sm:text-sm text-muted-foreground">
+										<TableCell
+											colSpan={5}
+											className="text-center py-6 text-xs sm:text-sm text-muted-foreground"
+										>
 											No transactions found
 										</TableCell>
 									</TableRow>
@@ -284,15 +441,19 @@ export const TransactionHistory = () => {
 				{filteredTransactions.length > 0 && (
 					<div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mt-4">
 						<p className="text-xs sm:text-sm text-muted-foreground">
-							Showing {filteredTransactions.length} of {transactions.length} transactions
+							Showing {filteredTransactions.length} of {transactions.length}{" "}
+							transactions
 						</p>
-						<Button variant="outline" size="sm" className="text-xs sm:text-sm h-8 sm:h-9 w-full sm:w-auto">
+						<Button
+							variant="outline"
+							size="sm"
+							className="text-xs sm:text-sm h-8 sm:h-9 w-full sm:w-auto"
+						>
 							View All Transactions
 						</Button>
 					</div>
 				)}
 			</CardContent>
 		</Card>
-	)
-}
-
+	);
+};

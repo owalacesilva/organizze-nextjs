@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Car, Film, GraduationCap, Scissors, Smartphone } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Car, Film, GraduationCap, Scissors, Smartphone } from "lucide-react";
 
 const transactions = [
 	{
@@ -47,7 +47,7 @@ const transactions = [
 		amount: -12.99,
 		currency: "USD",
 	},
-]
+];
 
 export function TransactionHistory() {
 	return (
@@ -60,17 +60,27 @@ export function TransactionHistory() {
 					<table className="w-full caption-bottom text-sm">
 						<thead>
 							<tr className="border-b border-border">
-								<th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Category</th>
-								<th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Date</th>
-								<th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Description</th>
-								<th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Amount</th>
-								<th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Currency</th>
+								<th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+									Category
+								</th>
+								<th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+									Date
+								</th>
+								<th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+									Description
+								</th>
+								<th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+									Amount
+								</th>
+								<th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+									Currency
+								</th>
 							</tr>
 						</thead>
 						<tbody>
 							{transactions.map((transaction, index) => {
-								const Icon = transaction.icon
-								const isLastRow = index === transactions.length - 1
+								const Icon = transaction.icon;
+								const isLastRow = index === transactions.length - 1;
 								return (
 									<tr
 										key={index}
@@ -78,7 +88,9 @@ export function TransactionHistory() {
 									>
 										<td className="p-4">
 											<div className="flex items-center gap-3">
-												<div className={`${transaction.iconColor} p-2 rounded-full`}>
+												<div
+													className={`${transaction.iconColor} p-2 rounded-full`}
+												>
 													<Icon className="h-4 w-4 text-white" />
 												</div>
 												<span>{transaction.category}</span>
@@ -86,16 +98,17 @@ export function TransactionHistory() {
 										</td>
 										<td className="p-4">{transaction.date}</td>
 										<td className="p-4">{transaction.description}</td>
-										<td className="p-4 text-right">{transaction.amount.toFixed(2)}</td>
+										<td className="p-4 text-right">
+											{transaction.amount.toFixed(2)}
+										</td>
 										<td className="p-4 text-right">{transaction.currency}</td>
 									</tr>
-								)
+								);
 							})}
 						</tbody>
 					</table>
 				</div>
 			</CardContent>
 		</Card>
-	)
+	);
 }
-
