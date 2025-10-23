@@ -225,10 +225,14 @@ function AddTransactionForm() {
 			</div>
 
 			<div className="space-y-1 sm:space-y-2">
-				<label className="text-xs sm:text-sm text-muted-foreground">
+				<label
+					htmlFor="transaction-description"
+					className="text-xs sm:text-sm text-muted-foreground"
+				>
 					Description
 				</label>
 				<Textarea
+					id="transaction-description"
 					className="min-h-[120px] sm:min-h-[150px] text-xs sm:text-sm"
 					placeholder="Type your message here."
 				/>
