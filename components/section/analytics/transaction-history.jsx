@@ -35,6 +35,7 @@ import {
 	SearchIcon,
 	ShoppingBagIcon,
 	TrendingUpIcon,
+	Loader2,
 } from "lucide-react";
 import {
 	Dialog,
@@ -43,153 +44,146 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { useTransactions } from "@/hooks/useTransactions";
 
-// Transaction data
-const transactions = [
-	{
-		id: 1,
-		date: "2025-03-28",
-		description: "Salary Deposit",
-		account: "Checking Account",
-		amount: 3200,
-		type: "income",
-		category: "Income",
-		icon: DollarSignIcon,
-		color: "bg-green-500",
-		currency: "USD",
-	},
-	{
-		id: 2,
-		date: "2025-03-27",
-		description: "Grocery Store",
-		account: "Checking Account",
-		amount: -120,
-		type: "expense",
-		category: "Food",
-		icon: ShoppingBagIcon,
-		color: "bg-orange-500",
-		currency: "USD",
-	},
-	{
-		id: 3,
-		date: "2025-03-25",
-		description: "Monthly Transfer",
-		account: "Savings Account",
-		amount: 500,
-		type: "transfer",
-		category: "Transfer",
-		icon: ArrowRightIcon,
-		color: "bg-blue-500",
-		currency: "USD",
-	},
-	{
-		id: 4,
-		date: "2025-03-22",
-		description: "Dividend Payment",
-		account: "Investment Account",
-		amount: 75,
-		type: "income",
-		category: "Investment",
-		icon: TrendingUpIcon,
-		color: "bg-purple-500",
-		currency: "USD",
-	},
-	{
-		id: 5,
-		date: "2025-03-20",
-		description: "Utility Bill",
-		account: "Checking Account",
-		amount: -85,
-		type: "expense",
-		category: "Utilities",
-		icon: HomeIcon,
-		color: "bg-yellow-500",
-		currency: "USD",
-	},
-	{
-		id: 6,
-		date: "2025-03-18",
-		description: "Restaurant",
-		account: "Checking Account",
-		amount: -65,
-		type: "expense",
-		category: "Dining",
-		icon: CreditCardIcon,
-		color: "bg-red-500",
-		currency: "USD",
-	},
-	{
-		id: 7,
-		date: "2025-03-15",
-		description: "Online Shopping",
-		account: "Checking Account",
-		amount: -120,
-		type: "expense",
-		category: "Shopping",
-		icon: ShoppingBagIcon,
-		color: "bg-pink-500",
-		currency: "USD",
-	},
-	{
-		id: 8,
-		date: "2025-03-10",
-		description: "Rent Payment",
-		account: "Checking Account",
-		amount: -1200,
-		type: "expense",
-		category: "Housing",
-		icon: HomeIcon,
-		color: "bg-indigo-500",
-		currency: "USD",
-	},
-	{
-		id: 9,
-		date: "2025-03-05",
-		description: "Freelance Income",
-		account: "Checking Account",
-		amount: 850,
-		type: "income",
-		category: "Income",
-		icon: DollarSignIcon,
-		color: "bg-green-500",
-		currency: "USD",
-	},
-];
+// Icon mapping for dynamic icon rendering
+const iconMap = {
+	DollarSignIcon: DollarSignIcon,
+	ShoppingBagIcon: ShoppingBagIcon,
+	ArrowRightIcon: ArrowRightIcon,
+	TrendingUpIcon: TrendingUpIcon,
+	HomeIcon: HomeIcon,
+	CreditCardIcon: CreditCardIcon,
+};
 
-function AddTransactionForm() {
+function AddTransactionForm({ onSubmit, loading = false }) {
+	const [formData, setFormData] = useState({
+		category: "",
+		account: "",
+		date: "",
+		amount: "",
+		description: "",
+		type: "expense",
+	});
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		if (
+			!formData.category ||
+			!formData.account ||
+			!formData.date ||
+			!formData.amount ||
+			!formData.description
+		) {
+			alert("Please fill in all fields");
+			return;
+		}
+
+		try {
+			await onSubmit({
+				...formData,
+				amount:
+					formData.type === "expense"
+						? -Math.abs(parseFloat(formData.amount))
+						: parseFloat(formData.amount),
+			});
+
+			// Reset form
+			setFormData({
+				category: "",
+				account: "",
+				date: "",
+				amount: "",
+				description: "",
+				type: "expense",
+			});
+		} catch (error) {
+			console.error("Error submitting transaction:", error);
+			alert("Failed to add transaction. Please try again.");
+		}
+	};
+
+	const handleInputChange = (field, value) => {
+		setFormData((prev) => ({
+			...prev,
+			[field]: value,
+		}));
+	};
+
 	return (
-		<div className="space-y-4 sm:space-y-6">
+		<form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
 			<div className="space-y-1 sm:space-y-2">
-				<label className="text-xs sm:text-sm text-muted-foreground">
-					Category
+				<label
+					htmlFor="transaction-type"
+					className="text-xs sm:text-sm text-muted-foreground"
+				>
+					Type
 				</label>
-				<Select>
+				<Select
+					value={formData.type}
+					onValueChange={(value) => handleInputChange("type", value)}
+				>
 					<SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
-						<SelectValue placeholder="Earning" />
+						<SelectValue placeholder="Select type" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="earning">Earning</SelectItem>
-						<SelectItem value="billing">Billing</SelectItem>
-						<SelectItem value="technical">Technical</SelectItem>
-						<SelectItem value="feature">Feature Request</SelectItem>
+						<SelectItem value="income">Income</SelectItem>
+						<SelectItem value="expense">Expense</SelectItem>
+						<SelectItem value="transfer">Transfer</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
 
 			<div className="space-y-1 sm:space-y-2">
-				<label className="text-xs sm:text-sm text-muted-foreground">
-					Account
+				<label
+					htmlFor="transaction-category"
+					className="text-xs sm:text-sm text-muted-foreground"
+				>
+					Category
 				</label>
-				<Select>
+				<Select
+					value={formData.category}
+					onValueChange={(value) => handleInputChange("category", value)}
+				>
 					<SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
-						<SelectValue placeholder="Earning" />
+						<SelectValue placeholder="Select category" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="earning">Earning</SelectItem>
-						<SelectItem value="support">Support Team</SelectItem>
-						<SelectItem value="technical">Technical Team</SelectItem>
+						<SelectItem value="Income">Income</SelectItem>
+						<SelectItem value="Food">Food</SelectItem>
+						<SelectItem value="Transfer">Transfer</SelectItem>
+						<SelectItem value="Investment">Investment</SelectItem>
+						<SelectItem value="Utilities">Utilities</SelectItem>
+						<SelectItem value="Dining">Dining</SelectItem>
+						<SelectItem value="Shopping">Shopping</SelectItem>
+						<SelectItem value="Housing">Housing</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			<div className="space-y-1 sm:space-y-2">
+				<label
+					htmlFor="transaction-account"
+					className="text-xs sm:text-sm text-muted-foreground"
+				>
+					Account
+				</label>
+				<Select
+					value={formData.account}
+					onValueChange={(value) => handleInputChange("account", value)}
+				>
+					<SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
+						<SelectValue placeholder="Select account" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="Checking Account">Checking Account</SelectItem>
+						<SelectItem value="Savings Account">Savings Account</SelectItem>
+						<SelectItem value="Investment Account">
+							Investment Account
+						</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
@@ -205,7 +199,10 @@ function AddTransactionForm() {
 					<Input
 						id="transaction-date"
 						type="date"
+						value={formData.date}
+						onChange={(e) => handleInputChange("date", e.target.value)}
 						className="h-8 sm:h-10 text-xs sm:text-sm"
+						required
 					/>
 				</div>
 
@@ -219,7 +216,12 @@ function AddTransactionForm() {
 					<Input
 						id="transaction-amount"
 						type="number"
+						step="0.01"
+						min="0"
+						value={formData.amount}
+						onChange={(e) => handleInputChange("amount", e.target.value)}
 						className="h-8 sm:h-10 text-xs sm:text-sm"
+						required
 					/>
 				</div>
 			</div>
@@ -233,13 +235,29 @@ function AddTransactionForm() {
 				</label>
 				<Textarea
 					id="transaction-description"
+					value={formData.description}
+					onChange={(e) => handleInputChange("description", e.target.value)}
 					className="min-h-[120px] sm:min-h-[150px] text-xs sm:text-sm"
-					placeholder="Type your message here."
+					placeholder="Enter transaction description..."
+					required
 				/>
 			</div>
 
-			<Button className="w-full h-8 sm:h-10 text-xs sm:text-sm">Submit</Button>
-		</div>
+			<Button
+				type="submit"
+				className="w-full h-8 sm:h-10 text-xs sm:text-sm"
+				disabled={loading}
+			>
+				{loading ? (
+					<>
+						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						Adding...
+					</>
+				) : (
+					"Add Transaction"
+				)}
+			</Button>
+		</form>
 	);
 }
 
@@ -247,6 +265,69 @@ export const TransactionHistory = () => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedPeriod, setSelectedPeriod] = useState("all");
 	const [activeTab, setActiveTab] = useState("all");
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+	// Use the custom hook for transaction management
+	const {
+		transactions,
+		loading,
+		error,
+		pagination,
+		summary,
+		addTransaction,
+		searchTransactionsByTerm,
+		filterByType,
+		refreshTransactions,
+		clearError,
+	} = useTransactions();
+
+	// Handle search with debouncing
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			if (searchTerm.trim()) {
+				searchTransactionsByTerm(searchTerm, {
+					type: activeTab !== "all" ? activeTab : undefined,
+				});
+			} else if (activeTab !== "all") {
+				filterByType(activeTab);
+			} else {
+				refreshTransactions();
+			}
+		}, 500);
+
+		return () => clearTimeout(timeoutId);
+	}, [
+		searchTerm,
+		activeTab,
+		searchTransactionsByTerm,
+		filterByType,
+		refreshTransactions,
+	]);
+
+	// Handle tab change
+	const handleTabChange = (newTab) => {
+		setActiveTab(newTab);
+		if (newTab === "all") {
+			if (searchTerm.trim()) {
+				searchTransactionsByTerm(searchTerm);
+			} else {
+				refreshTransactions();
+			}
+		} else {
+			filterByType(newTab, searchTerm.trim() ? { search: searchTerm } : {});
+		}
+	};
+
+	// Handle adding new transaction
+	const handleAddTransaction = async (transactionData) => {
+		try {
+			await addTransaction(transactionData);
+			setIsDialogOpen(false);
+		} catch (error) {
+			// Error is handled in the hook, but we could show a toast here
+			console.error("Failed to add transaction:", error);
+		}
+	};
 
 	// Format currency
 	const formatCurrency = (value) => {
@@ -267,46 +348,60 @@ export const TransactionHistory = () => {
 		}).format(date);
 	};
 
-	// Filter transactions based on search term and active tab
-	const filteredTransactions = transactions.filter((transaction) => {
-		// Filter by search term
-		const matchesSearch =
-			transaction.description
-				.toLowerCase()
-				.includes(searchTerm.toLowerCase()) ||
-			transaction.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			transaction.account.toLowerCase().includes(searchTerm.toLowerCase());
-
-		// Filter by transaction type
-		const matchesType = activeTab === "all" || transaction.type === activeTab;
-
-		return matchesSearch && matchesType;
-	});
+	// Get icon component from string
+	const getIconComponent = (iconName) => {
+		const IconComponent = iconMap[iconName] || DollarSignIcon;
+		return IconComponent;
+	};
 
 	return (
 		<Card className="border shadow-sm">
 			<CardHeader className="p-4 sm:p-6">
-				<CardTitle className="text-base sm:text-lg">
-					Transaction History
-				</CardTitle>
-				<Dialog>
-					<DialogTrigger asChild>
-						<Button className="w-full sm:w-auto h-8 sm:h-10 text-xs sm:text-sm">
-							Add Transaction
-						</Button>
-					</DialogTrigger>
-					<DialogContent className="sm:max-w-[500px] p-4 sm:p-6 w-[calc(100%-2rem)] sm:w-auto">
-						<DialogHeader>
-							<DialogTitle className="text-base sm:text-lg">
+				<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+					<div>
+						<CardTitle className="text-base sm:text-lg">
+							Transaction History
+						</CardTitle>
+						<CardDescription className="text-xs sm:text-sm">
+							Your recent financial activities
+						</CardDescription>
+					</div>
+					<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+						<DialogTrigger asChild>
+							<Button className="w-full sm:w-auto h-8 sm:h-10 text-xs sm:text-sm">
 								Add Transaction
-							</DialogTitle>
-						</DialogHeader>
-						<AddTransactionForm />
-					</DialogContent>
-				</Dialog>
-				<CardDescription className="text-xs sm:text-sm">
-					Your recent financial activities
-				</CardDescription>
+							</Button>
+						</DialogTrigger>
+						<DialogContent className="sm:max-w-[500px] p-4 sm:p-6 w-[calc(100%-2rem)] sm:w-auto">
+							<DialogHeader>
+								<DialogTitle className="text-base sm:text-lg">
+									Add Transaction
+								</DialogTitle>
+							</DialogHeader>
+							<AddTransactionForm
+								onSubmit={handleAddTransaction}
+								loading={loading}
+							/>
+						</DialogContent>
+					</Dialog>
+				</div>
+
+				{error && (
+					<div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+						<div className="flex justify-between items-center">
+							<p className="text-sm text-red-600">{error}</p>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={clearError}
+								className="text-red-600 hover:text-red-800"
+							>
+								×
+							</Button>
+						</div>
+					</div>
+				)}
+
 				<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-3 sm:mt-4">
 					<div className="relative flex-1 max-w-full sm:max-w-sm">
 						<SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
@@ -349,7 +444,7 @@ export const TransactionHistory = () => {
 			<CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
 				<div className="overflow-x-auto -mx-4 sm:mx-0 pb-1 sm:pb-0">
 					<div className="px-4 sm:px-0 mb-3 sm:mb-4">
-						<Tabs defaultValue="all" onValueChange={setActiveTab}>
+						<Tabs value={activeTab} onValueChange={handleTabChange}>
 							<TabsList className="h-8 sm:h-10">
 								<TabsTrigger value="all" className="text-xs sm:text-sm">
 									All
@@ -370,90 +465,130 @@ export const TransactionHistory = () => {
 
 				<div className="overflow-x-auto -mx-4 sm:mx-0">
 					<div className="inline-block min-w-full align-middle px-4 sm:px-0">
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead className="text-xs sm:text-sm">Category</TableHead>
-									<TableHead className="text-xs sm:text-sm hidden sm:table-cell">
-										Date
-									</TableHead>
-									<TableHead className="text-xs sm:text-sm">
-										Description
-									</TableHead>
-									<TableHead className="text-xs sm:text-sm hidden md:table-cell">
-										Account
-									</TableHead>
-									<TableHead className="text-xs sm:text-sm text-right">
-										Amount
-									</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{filteredTransactions.length > 0 ? (
-									filteredTransactions.map((transaction) => (
-										<TableRow key={transaction.id}>
-											<TableCell className="py-2 sm:py-4">
-												<div className="flex items-center gap-1.5 sm:gap-2">
-													<div
-														className={`${transaction.color} p-1.5 sm:p-2 rounded-full`}
+						{loading ? (
+							<div className="flex items-center justify-center py-8">
+								<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+								<span className="ml-2 text-sm text-muted-foreground">
+									Loading transactions...
+								</span>
+							</div>
+						) : (
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead className="text-xs sm:text-sm">
+											Category
+										</TableHead>
+										<TableHead className="text-xs sm:text-sm hidden sm:table-cell">
+											Date
+										</TableHead>
+										<TableHead className="text-xs sm:text-sm">
+											Description
+										</TableHead>
+										<TableHead className="text-xs sm:text-sm hidden md:table-cell">
+											Account
+										</TableHead>
+										<TableHead className="text-xs sm:text-sm text-right">
+											Amount
+										</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{transactions.length > 0 ? (
+										transactions.map((transaction) => {
+											const IconComponent = getIconComponent(transaction.icon);
+											return (
+												<TableRow key={transaction.id}>
+													<TableCell className="py-2 sm:py-4">
+														<div className="flex items-center gap-1.5 sm:gap-2">
+															<div
+																className={`${transaction.color} p-1.5 sm:p-2 rounded-full`}
+															>
+																<IconComponent className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+															</div>
+															<span className="text-xs sm:text-sm">
+																{transaction.category}
+															</span>
+														</div>
+													</TableCell>
+													<TableCell className="py-2 sm:py-4 text-xs sm:text-sm hidden sm:table-cell">
+														{formatDate(transaction.date)}
+													</TableCell>
+													<TableCell className="py-2 sm:py-4 text-xs sm:text-sm max-w-[120px] sm:max-w-none truncate">
+														{transaction.description}
+													</TableCell>
+													<TableCell className="py-2 sm:py-4 text-xs sm:text-sm hidden md:table-cell">
+														{transaction.account}
+													</TableCell>
+													<TableCell
+														className={`py-2 sm:py-4 text-right text-xs sm:text-sm font-medium ${
+															transaction.amount > 0
+																? "text-green-500"
+																: transaction.amount < 0
+																	? "text-red-500"
+																	: ""
+														}`}
 													>
-														<transaction.icon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-													</div>
-													<span className="text-xs sm:text-sm">
-														{transaction.category}
-													</span>
-												</div>
-											</TableCell>
-											<TableCell className="py-2 sm:py-4 text-xs sm:text-sm hidden sm:table-cell">
-												{formatDate(transaction.date)}
-											</TableCell>
-											<TableCell className="py-2 sm:py-4 text-xs sm:text-sm max-w-[120px] sm:max-w-none truncate">
-												{transaction.description}
-											</TableCell>
-											<TableCell className="py-2 sm:py-4 text-xs sm:text-sm hidden md:table-cell">
-												{transaction.account}
-											</TableCell>
+														{transaction.amount > 0 ? "+" : ""}
+														{formatCurrency(transaction.amount)}
+													</TableCell>
+												</TableRow>
+											);
+										})
+									) : (
+										<TableRow>
 											<TableCell
-												className={`py-2 sm:py-4 text-right text-xs sm:text-sm font-medium ${
-													transaction.amount > 0
-														? "text-green-500"
-														: transaction.amount < 0
-															? "text-red-500"
-															: ""
-												}`}
+												colSpan={5}
+												className="text-center py-6 text-xs sm:text-sm text-muted-foreground"
 											>
-												{transaction.amount > 0 ? "+" : ""}
-												{formatCurrency(transaction.amount)}
+												{searchTerm
+													? "No transactions found matching your search"
+													: "No transactions found"}
 											</TableCell>
 										</TableRow>
-									))
-								) : (
-									<TableRow>
-										<TableCell
-											colSpan={5}
-											className="text-center py-6 text-xs sm:text-sm text-muted-foreground"
-										>
-											No transactions found
-										</TableCell>
-									</TableRow>
-								)}
-							</TableBody>
-						</Table>
+									)}
+								</TableBody>
+							</Table>
+						)}
 					</div>
 				</div>
 
-				{filteredTransactions.length > 0 && (
+				{transactions.length > 0 && !loading && (
 					<div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mt-4">
-						<p className="text-xs sm:text-sm text-muted-foreground">
-							Showing {filteredTransactions.length} of {transactions.length}{" "}
-							transactions
-						</p>
+						<div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+							<p>
+								Showing {transactions.length}
+								{pagination.total && ` of ${pagination.total}`} transactions
+							</p>
+							{summary && (
+								<div className="flex flex-wrap gap-4 text-xs">
+									<span className="text-green-600">
+										Income: {formatCurrency(summary.totalIncome)}
+									</span>
+									<span className="text-red-600">
+										Expenses: {formatCurrency(summary.totalExpenses)}
+									</span>
+									<span className="text-blue-600">
+										Net: {formatCurrency(summary.netAmount)}
+									</span>
+								</div>
+							)}
+						</div>
 						<Button
 							variant="outline"
 							size="sm"
 							className="text-xs sm:text-sm h-8 sm:h-9 w-full sm:w-auto"
+							onClick={() => refreshTransactions()}
+							disabled={loading}
 						>
-							View All Transactions
+							{loading ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Refreshing...
+								</>
+							) : (
+								"Refresh"
+							)}
 						</Button>
 					</div>
 				)}
