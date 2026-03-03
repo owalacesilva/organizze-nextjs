@@ -1,62 +1,62 @@
 {
-  "editor.formatOnSave": true,
-  "editor.fontSize": 12,
-  "editor.lineHeight": 1.6,
-  "editor.renderLineHighlight": "all",
-  "editor.semanticHighlighting.enabled": false,
-  "editor.minimap.enabled": true,
-  "editor.defaultFormatter": "biomejs.biome",
-  "explorer.autoReveal": true,
+	"editor.formatOnSave": true,
+	"editor.fontSize": 14,
+	"editor.lineHeight": 1.6,
+	"editor.renderLineHighlight": "all",
+	"editor.semanticHighlighting.enabled": false,
+	"editor.minimap.enabled": true,
+	"editor.defaultFormatter": "biomejs.biome",
+	"explorer.autoReveal": true,
 
-  "typescript.preferences.importModuleSpecifier": "non-relative",
-  "typescript.preferences.quoteStyle": "single",
+	"typescript.preferences.importModuleSpecifier": "non-relative",
+	"typescript.preferences.quoteStyle": "single",
 
-  "workbench.colorTheme": "Default Dark Modern",
-  "workbench.iconTheme": "symbols",
-  "workbench.startupEditor": "newUntitledFile",
-  "workbench.editor.labelFormat": "short",
-  "workbench.activityBar.location": "default",
-  "explorer.fileNesting.enabled": true,
+	"workbench.colorTheme": "Default Dark Modern",
+	"workbench.iconTheme": "symbols",
+	"workbench.startupEditor": "newUntitledFile",
+	"workbench.editor.labelFormat": "short",
+	"workbench.activityBar.location": "default",
+	"explorer.fileNesting.enabled": true,
 
-  "[typescript]": {
-    "editor.fontSize": 12,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[javascript]": {
-    "editor.fontSize": 12,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[json]": {
-    "editor.fontSize": 12,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2
-  },
-  "[yaml]": {
-    "editor.fontSize": 12,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "editor.autoIndent": "advanced",
-    "editor.formatOnSave": true,
-    "diffEditor.ignoreTrimWhitespace": false
-  },
-  "[html]": {
-    "editor.suggest.insertMode": "replace",
-    "editor.fontSize": 12,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2
-  },
+	"[typescript]": {
+		"editor.fontSize": 12,
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[javascript]": {
+		"editor.fontSize": 12,
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[json]": {
+		"editor.fontSize": 12,
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2
+	},
+	"[yaml]": {
+		"editor.fontSize": 12,
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
+		"editor.autoIndent": "advanced",
+		"editor.formatOnSave": true,
+		"diffEditor.ignoreTrimWhitespace": false
+	},
+	"[html]": {
+		"editor.suggest.insertMode": "replace",
+		"editor.fontSize": 12,
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2
+	},
 
-  "jest.runMode": {
-    "type": "on-demand",
-    // "testFileOnly": true,
-    "coverage": false,
-    "runAllTestsOnStartup": false,
-    "showInlineError": true
-  }
+	"jest.runMode": {
+		"type": "on-demand",
+		// "testFileOnly": true,
+		"coverage": false,
+		"runAllTestsOnStartup": false,
+		"showInlineError": true
+	}
 }
