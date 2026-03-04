@@ -19,14 +19,14 @@
 	"explorer.fileNesting.enabled": true,
 
 	"[typescript]": {
-		"editor.fontSize": 12,
+		"editor.fontSize": 14,
 		"editor.insertSpaces": true,
 		"editor.tabSize": 2,
 		"editor.formatOnSave": true,
 		"editor.defaultFormatter": "biomejs.biome"
 	},
 	"[javascript]": {
-		"editor.fontSize": 12,
+		"editor.fontSize": 14,
 		"editor.insertSpaces": true,
 		"editor.tabSize": 2,
 		"editor.formatOnSave": true,

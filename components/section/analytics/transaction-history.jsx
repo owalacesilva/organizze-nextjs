@@ -51,6 +51,7 @@ import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useTransactions } from "@/hooks/useTransactions";
+import { useGetTransactionById } from "@/app/api/transactions/hooks";
 
 // Icon mapping for dynamic icon rendering
 const iconMap = {
@@ -406,6 +407,13 @@ export const TransactionHistory = () => {
 		refreshTransactions,
 		clearError,
 	} = useTransactions();
+
+	const { transaction: transactionDetail } = useGetTransactionById(
+		selectedTransaction ? selectedTransaction.id : null,
+		{
+			enabled: !!selectedTransaction,
+		},
+	);
 
 	// Handle search with debouncing
 	useEffect(() => {
