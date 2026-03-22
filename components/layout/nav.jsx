@@ -1,7 +1,12 @@
-"use client"
+"use client";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import {
 	BarChart3,
 	Headphones,
@@ -12,9 +17,9 @@ import {
 	Target,
 	User,
 	Wallet,
-} from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const items = [
 	{ title: "Dashboard", icon: LayoutDashboard, href: "/" },
@@ -26,16 +31,21 @@ const items = [
 	{ title: "Support", icon: Headphones, href: "/support" },
 	{ title: "Referrals", icon: LinkIcon, href: "/referrals" },
 	{ title: "Settings", icon: Settings, href: "/settings" },
-]
+];
 
 export function MainNav({ variant = "desktop" }) {
-	const pathname = usePathname()
-	const isDesktop = variant === "desktop"
+	const pathname = usePathname();
+	const isDesktop = variant === "desktop";
 
 	return (
 		<TooltipProvider delayDuration={300}>
 			<nav
-				className={cn("flex relative", isDesktop ? "flex-col gap-2" : "flex-row items-center justify-around w-full")}
+				className={cn(
+					"flex relative",
+					isDesktop
+						? "flex-col gap-2"
+						: "flex-row items-center justify-around w-full",
+				)}
 			>
 				{items.map((item) =>
 					isDesktop ? (
@@ -52,7 +62,12 @@ export function MainNav({ variant = "desktop" }) {
 									<span className="sr-only">{item.title}</span>
 								</Link>
 							</TooltipTrigger>
-							<TooltipContent side="right" align="center" sideOffset={12} className="z-50">
+							<TooltipContent
+								side="right"
+								align="center"
+								sideOffset={12}
+								className="z-50"
+							>
 								{item.title}
 							</TooltipContent>
 						</Tooltip>
@@ -73,6 +88,5 @@ export function MainNav({ variant = "desktop" }) {
 				)}
 			</nav>
 		</TooltipProvider>
-	)
+	);
 }
-

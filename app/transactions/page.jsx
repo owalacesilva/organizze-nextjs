@@ -3,7 +3,7 @@ import { TransactionHistory } from "@/components/section/analytics/transaction-h
 
 export default function TransactionsPage() {
 	return (
-		<Layout breadcrumbTitle="Extrato">
+		<Layout breadcrumbTitle="Movimentações">
 			<TransactionHistory></TransactionHistory>
 		</Layout>
 	);

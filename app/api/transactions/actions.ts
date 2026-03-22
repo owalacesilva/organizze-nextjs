@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/app/api";
 import type {
 	TransactionByIdResponse,
 	TransactionsResponse,
@@ -9,7 +10,7 @@ import type {
 } from "@/app/api/transactions/types";
 
 export const getTransactions = async (): Promise<TransactionsResponse> => {
-	const response = await fetch("/api/transactions", {
+	const response = await fetch(`${API_BASE_URL}/api/transactions`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -26,7 +27,7 @@ export const getTransactions = async (): Promise<TransactionsResponse> => {
 export const getTransactionById = async (
 	id: number | string,
 ): Promise<TransactionByIdResponse> => {
-	const response = await fetch(`/api/transactions/${id}`, {
+	const response = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -43,7 +44,7 @@ export const getTransactionById = async (
 export const createTransaction = async (
 	data: CreateTransactionRequest,
 ): Promise<CreateTransactionResponse> => {
-	const response = await fetch("/api/transactions", {
+	const response = await fetch(`${API_BASE_URL}/api/transactions`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -62,7 +63,7 @@ export const updateTransaction = async (
 	id: number | string,
 	data: UpdateTransactionRequest,
 ): Promise<UpdateTransactionResponse> => {
-	const response = await fetch(`/api/transactions/${id}`, {
+	const response = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json",
@@ -87,7 +88,7 @@ export const editTransaction = async (
 export const deleteTransaction = async (
 	id: number | string,
 ): Promise<DeleteTransactionResponse> => {
-	const response = await fetch(`/api/transactions/${id}`, {
+	const response = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
 		method: "DELETE",
 		headers: {
 			"Content-Type": "application/json",

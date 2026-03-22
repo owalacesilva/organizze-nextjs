@@ -51,7 +51,10 @@ import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useTransactions } from "@/hooks/useTransactions";
-import { useGetTransactionById } from "@/app/api/transactions/hooks";
+import {
+	useGetTransactionById,
+	useGetTransactions,
+} from "@/app/api/transactions/hooks";
 
 // Icon mapping for dynamic icon rendering
 const iconMap = {
@@ -396,8 +399,9 @@ export const TransactionHistory = () => {
 
 	// Use the custom hook for transaction management
 	const {
-		transactions,
-		loading,
+		data: { transactions = [] } = {},
+		isPending,
+		isError,
 		error,
 		pagination,
 		summary,
@@ -406,14 +410,14 @@ export const TransactionHistory = () => {
 		filterByType,
 		refreshTransactions,
 		clearError,
-	} = useTransactions();
+	} = useGetTransactions();
 
-	const { transaction: transactionDetail } = useGetTransactionById(
-		selectedTransaction ? selectedTransaction.id : null,
-		{
-			enabled: !!selectedTransaction,
-		},
-	);
+	// const { transaction: transactionDetail } = useGetTransactionById(
+	// 	selectedTransaction ? selectedTransaction.id : null,
+	// 	{
+	// 		enabled: !!selectedTransaction,
+	// 	},
+	// );
 
 	// Handle search with debouncing
 	useEffect(() => {
@@ -495,33 +499,33 @@ export const TransactionHistory = () => {
 					<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
 						<div>
 							<CardTitle className="text-base sm:text-lg">
-								Transaction History
+								Movimentacoes
 							</CardTitle>
 							<CardDescription className="text-xs sm:text-sm">
-								Your recent financial activities
+								Suas atividades financeiras recentes
 							</CardDescription>
 						</div>
 						<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 							<DialogTrigger asChild>
 								<Button className="w-full sm:w-auto h-8 sm:h-10 text-xs sm:text-sm">
-									Add Transaction
+									Adicionar movimentacao
 								</Button>
 							</DialogTrigger>
 							<DialogContent className="sm:max-w-[500px] p-4 sm:p-6 w-[calc(100%-2rem)] sm:w-auto">
 								<DialogHeader>
 									<DialogTitle className="text-base sm:text-lg">
-										Add Transaction
+										Adicionar movimentacao
 									</DialogTitle>
 								</DialogHeader>
 								<AddTransactionForm
 									onSubmit={handleAddTransaction}
-									loading={loading}
+									loading={isPending}
 								/>
 							</DialogContent>
 						</Dialog>
 					</div>
 
-					{error && (
+					{isError && (
 						<div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
 							<div className="flex justify-between items-center">
 								<p className="text-sm text-red-600">{error}</p>
@@ -553,10 +557,10 @@ export const TransactionHistory = () => {
 									<SelectValue placeholder="Select period" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="all">All Transactions</SelectItem>
-									<SelectItem value="week">Last 7 Days</SelectItem>
-									<SelectItem value="month">Last 30 Days</SelectItem>
-									<SelectItem value="quarter">Last 90 Days</SelectItem>
+									<SelectItem value="all">Todas</SelectItem>
+									<SelectItem value="week">Ultimos 7 dias</SelectItem>
+									<SelectItem value="month">Ultimos 30 dias</SelectItem>
+									<SelectItem value="quarter">Ultimos 90 dias</SelectItem>
 								</SelectContent>
 							</Select>
 							<Button
@@ -600,11 +604,11 @@ export const TransactionHistory = () => {
 
 					<div className="overflow-x-auto -mx-4 sm:mx-0">
 						<div className="inline-block min-w-full align-middle px-4 sm:px-0">
-							{loading ? (
+							{isPending ? (
 								<div className="flex items-center justify-center py-8">
 									<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
 									<span className="ml-2 text-sm text-muted-foreground">
-										Loading transactions...
+										Carregando...
 									</span>
 								</div>
 							) : (

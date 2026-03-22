@@ -1,5 +1,6 @@
 import { Rubik } from "next/font/google";
 import { ThemeProvider } from "@/components/elements/theme-provider";
+import { Providers } from "@/components/elements/providers";
 import "./globals.css";
 const rubik = Rubik({
 	weight: ["400", "500", "700"],
@@ -22,7 +23,7 @@ export default function RootLayout({ children }) {
 					enableSystem
 					disableTransitionOnChange
 				>
-					{children}
+					<Providers>{children}</Providers>
 				</ThemeProvider>
 			</body>
 		</html>
