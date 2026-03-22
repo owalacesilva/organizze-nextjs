@@ -20,6 +20,12 @@
 	"workbench.activityBar.location": "default",
 	"explorer.fileNesting.enabled": true,
 
+	"github.copilot.chat.commitMessageGeneration.instructions": [
+		{
+			"file": ".github/commit-instructions.md"
+		}
+	],
+
 	"[typescript]": {
 		"editor.fontSize": 14,
 		"editor.insertSpaces": true,
