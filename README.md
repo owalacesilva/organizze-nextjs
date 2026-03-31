@@ -25,3 +25,74 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## Project Structure
+```plain
+my-nextjs-app/
+├── app/                          # App Router
+│   ├── (auth)/                  # Route groups
+│   ├── (dashboard)/
+│   ├── (marketing)/
+│   ├── api/                     # API routes
+│   │   ├── auth/
+│   │   ├── users/
+│   │   ├── transactions/
+│   │   └── webhooks/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── src/                         # Source code (optional)
+│   ├── components/              # UI components
+│   │   ├── ui/                  # Base UI components
+│   │   ├── forms/               # Form components
+│   │   ├── layout/              # Layout components
+│   │   ├── charts/              # Chart components
+│   │   └── modals/              # Modal components
+│   ├── lib/                     # Core utilities
+│   │   ├── api.ts               # API client
+│   │   ├── auth.ts              # Authentication
+│   │   ├── db.ts                # Database connection
+│   │   ├── utils.ts             # Utilities
+│   │   ├── validations/         # Schema validations
+│   │   └── constants.ts         # App constants
+│   ├── hooks/                   # Custom hooks
+│   │   ├── useAuth.ts
+│   │   ├── useLocalStorage.ts
+│   │   └── useTransactions.ts
+│   ├── context/                 # Context providers
+│   │   ├── auth-context.tsx
+│   │   └── theme-context.tsx
+│   ├── store/                   # State management
+│   │   ├── slices/
+│   │   └── index.ts
+│   ├── types/                   # TypeScript type definitions
+│   │   ├── auth.ts
+│   │   ├── api.ts
+│   │   └── global.d.ts
+│   └── styles/                  # Styling
+│       ├── globals.css
+│       ├── components.css
+│       └── utilities.css
+├── public/                      # Static assets
+│   ├── images/
+│   ├── icons/
+│   ├── logos/
+│   └── documents/
+├── docs/                        # Documentation
+├── tests/                       # Test files
+│   ├── __mocks__/
+│   ├── components/
+│   ├── pages/
+│   └── utils/
+├── prisma/                      # Database schema (if using Prisma)
+├── .env.local                   # Environment variables
+├── .env.example
+├── .gitignore
+├── .eslintrc.json
+├── .prettierrc
+├── next.config.js
+├── tailwind.config.js
+├── tsconfig.json
+├── package.json
+└── README.md
+```
