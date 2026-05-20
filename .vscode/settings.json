@@ -13,7 +13,7 @@
 	"typescript.preferences.importModuleSpecifier": "non-relative",
 	"typescript.preferences.quoteStyle": "single",
 
-	"workbench.colorTheme": "Default Dark Modern",
+	"workbench.colorTheme": "Dark Modern",
 	"workbench.iconTheme": "symbols",
 	"workbench.startupEditor": "newUntitledFile",
 	"workbench.editor.labelFormat": "short",

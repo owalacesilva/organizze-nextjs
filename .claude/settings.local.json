@@ -1,0 +1,41 @@
+{
+	"$schema": "https://json.schemastore.org/claude-code-settings.json",
+	"permissions": {
+		"allow": [
+			"Read",
+			"Glob",
+			"Grep",
+			"Bash(npm *)",
+			"Bash(yarn *)",
+			"Bash(pnpm *)",
+			"Bash(git status)",
+			"Bash(git diff*)",
+			"Bash(git log*)",
+			"Bash(git branch*)"
+		],
+		"deny": [
+			"Read(./node_modules/*)",
+			"Edit(./node_modules/*)",
+			"Write(./node_modules/*)",
+			"Read(./.next/*)",
+			"Edit(./.next/*)",
+			"Write(./.next/*)",
+			"Read(./dist/*)",
+			"Edit(./dist/*)",
+			"Write(./dist/*)",
+			"Read(./.angular/*)",
+			"Edit(./.angular/*)",
+			"Write(./.angular/*)",
+			"Read(./coverage/*)",
+			"Edit(./coverage/*)",
+			"Write(./coverage/*)",
+			"Read(./tmp/*)",
+			"Edit(./tmp/*)",
+			"Write(./tmp/*)",
+			"Edit(./package-lock.json)",
+			"Edit(./yarn.lock)",
+			"Edit(./pnpm-lock.yaml)"
+		]
+	},
+	"env": {}
+}
