@@ -1,6 +1,7 @@
 import { Rubik } from "next/font/google";
 import { ThemeProvider } from "@/components/elements/theme-provider";
 import { Providers } from "@/components/elements/providers";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 const rubik = Rubik({
 	weight: ["400", "500", "700"],
@@ -23,7 +24,10 @@ export default function RootLayout({ children }) {
 					enableSystem
 					disableTransitionOnChange
 				>
-					<Providers>{children}</Providers>
+					<Providers>
+					{children}
+					<Toaster richColors position="top-right" />
+				</Providers>
 				</ThemeProvider>
 			</body>
 		</html>

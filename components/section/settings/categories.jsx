@@ -13,10 +13,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, GripVertical, Pencil, Trash2 } from "lucide-react"
-import { useState } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Eye, GripVertical, Loader2, Pencil, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { useCreateCategory, useGetCategories } from "@/app/api/categories/hooks"
 
-// Icons for categories
 import {
 	Banknote,
 	Briefcase,
@@ -43,159 +45,176 @@ import {
 	Utensils,
 } from "lucide-react"
 
+const NAME_TO_ICON = {
+	beauty: "sparkles",
+	bills: "file",
+	fees: "file",
+	car: "car",
+	education: "education",
+	entertainment: "entertainment",
+	family: "family",
+	food: "food",
+	drink: "food",
+	salary: "salary",
+	groceries: "groceries",
+	healthcare: "healthcare",
+	health: "healthcare",
+	home: "home",
+	shopping: "shopping",
+	sports: "sports",
+	hobbies: "hobbies",
+	hobby: "hobbies",
+	travel: "travel",
+	transport: "transport",
+	work: "work",
+	business: "business",
+	client: "client",
+	gifts: "gifts",
+	gift: "gifts",
+	insurance: "insurance",
+	loan: "loan",
+	income: "salary",
+	earnings: "salary",
+	other: "other",
+}
+
+const getIconNameFromCategoryName = (name = "") => {
+	const lower = name.toLowerCase()
+	for (const [keyword, iconName] of Object.entries(NAME_TO_ICON)) {
+		if (lower.includes(keyword)) return iconName
+	}
+	return "other"
+}
+
+const getIconComponent = (iconName) => {
+	switch (iconName) {
+		case "sparkles": return <Sparkles className="h-4 w-4" />
+		case "file": return <FileText className="h-4 w-4" />
+		case "car": return <Car className="h-4 w-4" />
+		case "education": return <GraduationCap className="h-4 w-4" />
+		case "entertainment": return <Film className="h-4 w-4" />
+		case "family": return <Users className="h-4 w-4" />
+		case "food": return <Utensils className="h-4 w-4" />
+		case "salary": return <DollarSign className="h-4 w-4" />
+		case "groceries": return <ShoppingBag className="h-4 w-4" />
+		case "healthcare": return <Heart className="h-4 w-4" />
+		case "home": return <Home className="h-4 w-4" />
+		case "shopping": return <ShoppingCart className="h-4 w-4" />
+		case "sports": return <Dumbbell className="h-4 w-4" />
+		case "hobbies": return <Briefcase className="h-4 w-4" />
+		case "travel": return <Plane className="h-4 w-4" />
+		case "transport": return <Bus className="h-4 w-4" />
+		case "work": return <Briefcase className="h-4 w-4" />
+		case "business": return <Building className="h-4 w-4" />
+		case "client": return <UserCheck className="h-4 w-4" />
+		case "gifts": return <Gift className="h-4 w-4" />
+		case "insurance": return <Umbrella className="h-4 w-4" />
+		case "loan": return <Banknote className="h-4 w-4" />
+		case "circle-dollar": return <CircleDollarSign className="h-4 w-4" />
+		default: return <FileQuestion className="h-4 w-4" />
+	}
+}
+
+const enrichCategory = (cat) => ({
+	...cat,
+	iconName: getIconNameFromCategoryName(cat.name),
+})
+
+const CategoriesListSkeleton = () => (
+	<div className="space-y-1">
+		{Array.from({ length: 4 }).map((_, i) => (
+			<div key={i} className="flex items-center justify-between py-3 border-b last:border-0">
+				<div className="flex items-center gap-3">
+					<Skeleton className="h-4 w-4" />
+					<Skeleton className="h-8 w-8 rounded-full" />
+					<Skeleton className="h-4 w-28" />
+				</div>
+				<div className="flex items-center gap-1">
+					<Skeleton className="h-8 w-8 rounded-full" />
+					<Skeleton className="h-8 w-8 rounded-full" />
+					<Skeleton className="h-8 w-8 rounded-full" />
+				</div>
+			</div>
+		))}
+	</div>
+)
+
 export default function Categories() {
+	const { data: categoriesData, isLoading: isCategoriesLoading } = useGetCategories()
+	const createCategoryMutation = useCreateCategory()
+
+	const [expenseCategories, setExpenseCategories] = useState([])
+	const [incomeCategories, setIncomeCategories] = useState([])
+
+	useEffect(() => {
+		if (!categoriesData?.categories) return
+		setExpenseCategories(
+			categoriesData.categories
+				.filter((c) => c.type === "expenses")
+				.map(enrichCategory),
+		)
+		setIncomeCategories(
+			categoriesData.categories
+				.filter((c) => c.type === "earnings")
+				.map(enrichCategory),
+		)
+	}, [categoriesData])
+
+	const [newForm, setNewForm] = useState({ name: "", type: "", iconName: "", color: "" })
+
+	const handleCreateCategory = async () => {
+		if (!newForm.name || !newForm.type) {
+			toast.error("Please fill in the required fields (name and type).")
+			return
+		}
+
+		try {
+			await createCategoryMutation.mutateAsync({
+				name: newForm.name,
+				description: "",
+				type: newForm.type,
+				color: newForm.color ? `bg-${newForm.color}-500` : "bg-gray-500",
+			})
+			toast.success("Category created successfully!")
+			setNewForm({ name: "", type: "", iconName: "", color: "" })
+		} catch {
+			toast.error("Failed to create category. Please try again.")
+		}
+	}
+
 	const [editDialogOpen, setEditDialogOpen] = useState(false)
 	const [currentCategory, setCurrentCategory] = useState(null)
 	const [draggedCategory, setDraggedCategory] = useState(null)
 	const [dragOverCategory, setDragOverCategory] = useState(null)
 
-	const [expenseCategories, setExpenseCategories] = useState([
-		{ id: 1, name: "Beauty", icon: <Sparkles className="h-4 w-4" />, color: "bg-pink-500", iconName: "sparkles" },
-		{ id: 2, name: "Bills & Fees", icon: <FileText className="h-4 w-4" />, color: "bg-teal-500", iconName: "file" },
-		{ id: 3, name: "Car", icon: <Car className="h-4 w-4" />, color: "bg-cyan-500", iconName: "car" },
-		{
-			id: 4,
-			name: "Education",
-			icon: <GraduationCap className="h-4 w-4" />,
-			color: "bg-blue-500",
-			iconName: "education",
-		},
-		{
-			id: 5,
-			name: "Entertainment",
-			icon: <Film className="h-4 w-4" />,
-			color: "bg-blue-500",
-			iconName: "entertainment",
-		},
-		{ id: 6, name: "Family", icon: <Users className="h-4 w-4" />, color: "bg-indigo-500", iconName: "family" },
-		{ id: 7, name: "Food & Drink", icon: <Utensils className="h-4 w-4" />, color: "bg-purple-500", iconName: "food" },
-		{ id: 8, name: "Salary", icon: <DollarSign className="h-4 w-4" />, color: "bg-purple-500", iconName: "salary" },
-		{
-			id: 9,
-			name: "Groceries",
-			icon: <ShoppingBag className="h-4 w-4" />,
-			color: "bg-pink-500",
-			iconName: "groceries",
-		},
-		{ id: 10, name: "Healthcare", icon: <Heart className="h-4 w-4" />, color: "bg-red-500", iconName: "healthcare" },
-		{ id: 11, name: "Home", icon: <Home className="h-4 w-4" />, color: "bg-purple-500", iconName: "home" },
-		{ id: 12, name: "Shopping", icon: <ShoppingCart className="h-4 w-4" />, color: "bg-red-500", iconName: "shopping" },
-		{ id: 13, name: "Sports", icon: <Dumbbell className="h-4 w-4" />, color: "bg-orange-500", iconName: "sports" },
-		{ id: 14, name: "Hobbies", icon: <Briefcase className="h-4 w-4" />, color: "bg-green-500", iconName: "hobbies" },
-		{ id: 15, name: "Travel", icon: <Plane className="h-4 w-4" />, color: "bg-teal-500", iconName: "travel" },
-		{ id: 16, name: "Transport", icon: <Bus className="h-4 w-4" />, color: "bg-cyan-500", iconName: "transport" },
-		{ id: 17, name: "Work", icon: <Briefcase className="h-4 w-4" />, color: "bg-indigo-500", iconName: "work" },
-	])
+	const [editForm, setEditForm] = useState({ name: "", iconName: "", color: "" })
 
-	const [incomeCategories, setIncomeCategories] = useState([
-		{
-			id: 1,
-			name: "Salary",
-			icon: <CircleDollarSign className="h-4 w-4" />,
-			color: "bg-purple-500",
-			iconName: "salary",
-		},
-		{ id: 2, name: "Business", icon: <Building className="h-4 w-4" />, color: "bg-red-500", iconName: "business" },
-		{ id: 3, name: "Client", icon: <UserCheck className="h-4 w-4" />, color: "bg-orange-500", iconName: "client" },
-		{ id: 4, name: "Gifts", icon: <Gift className="h-4 w-4" />, color: "bg-amber-500", iconName: "gifts" },
-		{ id: 5, name: "Insurance", icon: <Umbrella className="h-4 w-4" />, color: "bg-amber-500", iconName: "insurance" },
-		{ id: 6, name: "Loan", icon: <Banknote className="h-4 w-4" />, color: "bg-green-500", iconName: "loan" },
-		{ id: 7, name: "Other", icon: <FileQuestion className="h-4 w-4" />, color: "bg-teal-500", iconName: "other" },
-	])
-
-	// Form state for editing
-	const [editForm, setEditForm] = useState({
-		name: "",
-		iconName: "",
-		color: "",
-	})
-
-	// Handle opening the edit dialog
 	const handleEditClick = (category, type) => {
 		setCurrentCategory({ ...category, type })
 		setEditForm({
 			name: category.name,
 			iconName: category.iconName,
-			color: category.color.replace("bg-", ""),
+			color: category.color?.replace("bg-", "") ?? "",
 		})
 		setEditDialogOpen(true)
 	}
 
-	// Handle saving the edited category
 	const handleSaveEdit = () => {
-		if (currentCategory) {
-			const updatedCategory = {
-				...currentCategory,
-				name: editForm.name,
-				iconName: editForm.iconName,
-				color: `bg-${editForm.color}`,
-				icon: getIconComponent(editForm.iconName),
-			}
-
-			if (currentCategory.type === "expense") {
-				setExpenseCategories(expenseCategories.map((cat) => (cat.id === currentCategory.id ? updatedCategory : cat)))
-			} else {
-				setIncomeCategories(incomeCategories.map((cat) => (cat.id === currentCategory.id ? updatedCategory : cat)))
-			}
+		if (!currentCategory) return
+		const updatedCategory = {
+			...currentCategory,
+			name: editForm.name,
+			iconName: editForm.iconName,
+			color: `bg-${editForm.color}`,
+		}
+		if (currentCategory.type === "expenses") {
+			setExpenseCategories((prev) => prev.map((cat) => (cat.id === currentCategory.id ? updatedCategory : cat)))
+		} else {
+			setIncomeCategories((prev) => prev.map((cat) => (cat.id === currentCategory.id ? updatedCategory : cat)))
 		}
 		setEditDialogOpen(false)
 	}
 
-	// Get icon component based on name
-	const getIconComponent = (iconName) => {
-		switch (iconName) {
-			case "sparkles":
-				return <Sparkles className="h-4 w-4" />
-			case "file":
-				return <FileText className="h-4 w-4" />
-			case "car":
-				return <Car className="h-4 w-4" />
-			case "education":
-				return <GraduationCap className="h-4 w-4" />
-			case "entertainment":
-				return <Film className="h-4 w-4" />
-			case "family":
-				return <Users className="h-4 w-4" />
-			case "food":
-				return <Utensils className="h-4 w-4" />
-			case "salary":
-				return <DollarSign className="h-4 w-4" />
-			case "groceries":
-				return <ShoppingBag className="h-4 w-4" />
-			case "healthcare":
-				return <Heart className="h-4 w-4" />
-			case "home":
-				return <Home className="h-4 w-4" />
-			case "shopping":
-				return <ShoppingCart className="h-4 w-4" />
-			case "sports":
-				return <Dumbbell className="h-4 w-4" />
-			case "hobbies":
-				return <Briefcase className="h-4 w-4" />
-			case "travel":
-				return <Plane className="h-4 w-4" />
-			case "transport":
-				return <Bus className="h-4 w-4" />
-			case "work":
-				return <Briefcase className="h-4 w-4" />
-			case "business":
-				return <Building className="h-4 w-4" />
-			case "client":
-				return <UserCheck className="h-4 w-4" />
-			case "gifts":
-				return <Gift className="h-4 w-4" />
-			case "insurance":
-				return <Umbrella className="h-4 w-4" />
-			case "loan":
-				return <Banknote className="h-4 w-4" />
-			case "other":
-				return <FileQuestion className="h-4 w-4" />
-			default:
-				return <FileQuestion className="h-4 w-4" />
-		}
-	}
-
-	// Drag and drop handlers
 	const handleDragStart = (e, category, type) => {
 		setDraggedCategory({ ...category, type })
 	}
@@ -207,29 +226,15 @@ export default function Categories() {
 
 	const handleDrop = (e, category, type) => {
 		e.preventDefault()
-
 		if (draggedCategory && draggedCategory.type === type) {
-			if (type === "expense") {
-				const updatedCategories = [...expenseCategories]
-				const draggedIndex = updatedCategories.findIndex((cat) => cat.id === draggedCategory.id)
-				const dropIndex = updatedCategories.findIndex((cat) => cat.id === category.id)
-
-				const [removed] = updatedCategories.splice(draggedIndex, 1)
-				updatedCategories.splice(dropIndex, 0, removed)
-
-				setExpenseCategories(updatedCategories)
-			} else {
-				const updatedCategories = [...incomeCategories]
-				const draggedIndex = updatedCategories.findIndex((cat) => cat.id === draggedCategory.id)
-				const dropIndex = updatedCategories.findIndex((cat) => cat.id === category.id)
-
-				const [removed] = updatedCategories.splice(draggedIndex, 1)
-				updatedCategories.splice(dropIndex, 0, removed)
-
-				setIncomeCategories(updatedCategories)
-			}
+			const setter = type === "expenses" ? setExpenseCategories : setIncomeCategories
+			const list = type === "expenses" ? [...expenseCategories] : [...incomeCategories]
+			const draggedIndex = list.findIndex((cat) => cat.id === draggedCategory.id)
+			const dropIndex = list.findIndex((cat) => cat.id === category.id)
+			const [removed] = list.splice(draggedIndex, 1)
+			list.splice(dropIndex, 0, removed)
+			setter(list)
 		}
-
 		setDraggedCategory(null)
 		setDragOverCategory(null)
 	}
@@ -251,7 +256,7 @@ export default function Categories() {
 			<div className="flex items-center gap-3">
 				<GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
 				<div className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${category.color}`}>
-					{category.icon}
+					{getIconComponent(category.iconName)}
 				</div>
 				<span>{category.name}</span>
 			</div>
@@ -285,18 +290,22 @@ export default function Categories() {
 						<CardContent className="space-y-4">
 							<div className="space-y-2">
 								<label className="text-sm font-medium">Name</label>
-								<Input placeholder="category name" />
+								<Input
+									placeholder="category name"
+									value={newForm.name}
+									onChange={(e) => setNewForm({ ...newForm, name: e.target.value })}
+								/>
 							</div>
 
 							<div className="space-y-2">
 								<label className="text-sm font-medium">Type</label>
-								<Select>
+								<Select value={newForm.type} onValueChange={(value) => setNewForm({ ...newForm, type: value })}>
 									<SelectTrigger>
 										<SelectValue placeholder="Choose..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="expense">Expense</SelectItem>
-										<SelectItem value="income">Income</SelectItem>
+										<SelectItem value="expenses">Expense</SelectItem>
+										<SelectItem value="earnings">Income</SelectItem>
 									</SelectContent>
 								</Select>
 							</div>
@@ -304,7 +313,7 @@ export default function Categories() {
 							<div className="grid grid-cols-2 gap-4">
 								<div className="space-y-2">
 									<label className="text-sm font-medium">Icon</label>
-									<Select>
+									<Select value={newForm.iconName} onValueChange={(value) => setNewForm({ ...newForm, iconName: value })}>
 										<SelectTrigger>
 											<SelectValue placeholder="Choose..." />
 										</SelectTrigger>
@@ -332,7 +341,7 @@ export default function Categories() {
 
 								<div className="space-y-2">
 									<label className="text-sm font-medium">Color</label>
-									<Select>
+									<Select value={newForm.color} onValueChange={(value) => setNewForm({ ...newForm, color: value })}>
 										<SelectTrigger>
 											<SelectValue placeholder="Choose..." />
 										</SelectTrigger>
@@ -359,11 +368,23 @@ export default function Categories() {
 								</div>
 							</div>
 
-							<Button className="w-full">Create new category</Button>
+							<Button
+								className="w-full"
+								onClick={handleCreateCategory}
+								disabled={createCategoryMutation.isPending}
+							>
+								{createCategoryMutation.isPending ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Creating...
+									</>
+								) : (
+									"Create new category"
+								)}
+							</Button>
 						</CardContent>
 					</Card>
 				</div>
-
 
 				<div className="md:col-span-2 space-y-6">
 					<Card>
@@ -371,9 +392,15 @@ export default function Categories() {
 							<CardTitle>Income Categories</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{incomeCategories.map((category) => (
-								<CategoryItem key={category.id} category={category} type="income" />
-							))}
+							{isCategoriesLoading ? (
+								<CategoriesListSkeleton />
+							) : incomeCategories.length === 0 ? (
+								<p className="text-sm text-muted-foreground py-2">No income categories yet.</p>
+							) : (
+								incomeCategories.map((category) => (
+									<CategoryItem key={category.id} category={category} type="earnings" />
+								))
+							)}
 						</CardContent>
 					</Card>
 
@@ -382,9 +409,15 @@ export default function Categories() {
 							<CardTitle>Expense Categories</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{expenseCategories.map((category) => (
-								<CategoryItem key={category.id} category={category} type="expense" />
-							))}
+							{isCategoriesLoading ? (
+								<CategoriesListSkeleton />
+							) : expenseCategories.length === 0 ? (
+								<p className="text-sm text-muted-foreground py-2">No expense categories yet.</p>
+							) : (
+								expenseCategories.map((category) => (
+									<CategoryItem key={category.id} category={category} type="expenses" />
+								))
+							)}
 						</CardContent>
 					</Card>
 				</div>
@@ -490,4 +523,3 @@ export default function Categories() {
 		</div>
 	)
 }
-
