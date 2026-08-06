@@ -3,7 +3,7 @@ import GoalsSection from "@/components/section/goals";
 
 export default function GoalsPage() {
 	return (
-		<Layout breadcrumbTitle="Goals">
+		<Layout breadcrumbTitleKey="nav.goals">
 			<GoalsSection />
 		</Layout>
 	);

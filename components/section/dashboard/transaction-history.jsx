@@ -1,4 +1,8 @@
+"use client";
+
+import { DataTablePagination } from "@/components/elements/data-table-pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { usePagination } from "@/hooks/usePagination";
 import { Car, Film, GraduationCap, Scissors, Smartphone } from "lucide-react";
 
 const transactions = [
@@ -50,6 +54,8 @@ const transactions = [
 ];
 
 export function TransactionHistory() {
+	const pagination = usePagination(transactions, { initialPageSize: 5 });
+
 	return (
 		<Card>
 			<CardHeader>
@@ -78,9 +84,9 @@ export function TransactionHistory() {
 							</tr>
 						</thead>
 						<tbody>
-							{transactions.map((transaction, index) => {
+							{pagination.pageItems.map((transaction, index) => {
 								const Icon = transaction.icon;
-								const isLastRow = index === transactions.length - 1;
+								const isLastRow = index === pagination.pageItems.length - 1;
 								return (
 									<tr
 										key={index}
@@ -108,6 +114,7 @@ export function TransactionHistory() {
 						</tbody>
 					</table>
 				</div>
+				<DataTablePagination {...pagination} pageSizeOptions={[5, 10, 25]} />
 			</CardContent>
 		</Card>
 	);

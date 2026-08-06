@@ -3,7 +3,7 @@ import WalletsSection from "@/components/section/wallets";
 
 export default function WalletsPage() {
 	return (
-		<Layout breadcrumbTitle="Wallets">
+		<Layout breadcrumbTitleKey="nav.wallets">
 			<WalletsSection />
 		</Layout>
 	);

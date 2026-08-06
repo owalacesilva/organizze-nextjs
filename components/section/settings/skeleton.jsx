@@ -1,0 +1,25 @@
+"use client";
+
+import {
+	SkeletonFormCard,
+	SkeletonPage,
+	SkeletonTabs,
+} from "@/components/elements/skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
+
+/** Mirrors SettingsSection: tab strip on desktop, a select on mobile. */
+export function SettingsSkeleton() {
+	return (
+		<SkeletonPage>
+			<Skeleton className="h-9 w-full md:hidden" />
+			<SkeletonTabs count={7} className="hidden md:flex" />
+
+			<div className="space-y-4 pt-2">
+				<SkeletonFormCard fields={4} />
+				<SkeletonFormCard fields={2} />
+			</div>
+		</SkeletonPage>
+	);
+}
+
+export default SettingsSkeleton;

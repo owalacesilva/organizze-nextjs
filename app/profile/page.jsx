@@ -3,7 +3,7 @@ import ProfileSection from "@/components/section/profile";
 
 export default function ProfilePage() {
 	return (
-		<Layout breadcrumbTitle="Profile">
+		<Layout breadcrumbTitleKey="nav.profile">
 			<ProfileSection />
 		</Layout>
 	);

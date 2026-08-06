@@ -1,6 +1,8 @@
 "use client"
 
+import { DataTablePagination } from "@/components/elements/data-table-pagination"
 import { Card, CardContent } from "@/components/ui/card"
+import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 import { Building2, Car, CreditCard, FileText, Plus, ShoppingBag, Wallet } from "lucide-react"
 import { useState } from "react"
@@ -75,6 +77,7 @@ const transactions = [
 
 export default function BankingDashboard() {
 	const [activeAccount, setActiveAccount] = useState("cash")
+	const transactionsPagination = usePagination(transactions, { initialPageSize: 5 })
 
 	return (
 		<div className="py-4 sm:py-6">
@@ -268,7 +271,7 @@ export default function BankingDashboard() {
 											</tr>
 										</thead>
 										<tbody>
-											{transactions.map((transaction, index) => (
+											{transactionsPagination.pageItems.map((transaction, index) => (
 												<tr key={index} className="border-b last:border-b-0">
 													<td className="py-3 sm:py-4">
 														<div className="flex items-center gap-2 sm:gap-3">
@@ -292,6 +295,10 @@ export default function BankingDashboard() {
 									</table>
 								</div>
 							</div>
+							<DataTablePagination
+								{...transactionsPagination}
+								pageSizeOptions={[5, 10, 25]}
+							/>
 						</CardContent>
 					</Card>
 				</div>

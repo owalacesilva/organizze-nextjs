@@ -3,7 +3,7 @@ import SettingsSection from "@/components/section/settings";
 
 export default function SettingsPage() {
 	return (
-		<Layout breadcrumbTitle="Settings">
+		<Layout breadcrumbTitleKey="nav.settings">
 			<SettingsSection />
 		</Layout>
 	);

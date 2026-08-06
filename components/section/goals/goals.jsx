@@ -1,9 +1,11 @@
 "use client"
 
+import { DataTablePagination } from "@/components/elements/data-table-pagination"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 import { Building2, Car, CreditCard, Gamepad, Home, Plane, Plus, Wallet } from "lucide-react"
 
@@ -153,7 +155,7 @@ function GoalCard({ goal, isActive = false }) {
 
 function GoalDetails({ goal }) {
 	const percentage = (goal.saved / goal.target) * 100
-	const remaining = goal.target - goal.saved
+	const historyPagination = usePagination(history, { initialPageSize: 5 })
 
 	return (
 		<div className="space-y-4 sm:space-y-6">
@@ -259,7 +261,7 @@ function GoalDetails({ goal }) {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{history.map((item) => (
+								{historyPagination.pageItems.map((item) => (
 									<TableRow key={item.date}>
 										<TableCell className="text-xs sm:text-sm py-2 sm:py-4">{item.date}</TableCell>
 										<TableCell className="text-xs sm:text-sm py-2 sm:py-4">{item.wallet}</TableCell>
@@ -275,6 +277,11 @@ function GoalDetails({ goal }) {
 							</TableBody>
 						</Table>
 					</div>
+					<DataTablePagination
+						{...historyPagination}
+						pageSizeOptions={[5, 10, 25]}
+						className="px-4 sm:px-0"
+					/>
 				</CardContent>
 			</Card>
 		</div>

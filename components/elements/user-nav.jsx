@@ -18,9 +18,9 @@ export function UserNav() {
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant="ghost"
-					className="h-9 w-9 rounded-full hover:bg-transparent"
+					className="h-8 w-8 rounded-full hover:bg-transparent"
 				>
-					<Avatar className="h-8 w-8">
+					<Avatar className="h-7 w-7">
 						<AvatarImage
 							src="/images/avatar/1.jpg?height=32&width=32"
 							alt="@hafsa"

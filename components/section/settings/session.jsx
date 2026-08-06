@@ -1,6 +1,10 @@
+"use client"
+
+import { DataTablePagination } from "@/components/elements/data-table-pagination"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { usePagination } from "@/hooks/usePagination"
 import { CheckCircle, FileText, XCircle } from "lucide-react"
 
 export default function Session() {
@@ -117,6 +121,8 @@ export default function Session() {
 		},
 	]
 
+	const activityPagination = usePagination(accountActivity, { initialPageSize: 5 })
+
 	return (
 		<div className="space-y-6">
 			{/* Third-Party Applications */}
@@ -229,7 +235,7 @@ export default function Session() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{accountActivity.map((activity) => (
+							{activityPagination.pageItems.map((activity) => (
 								<TableRow key={activity.id}>
 									<TableCell className="text-sm">{activity.action}</TableCell>
 									<TableCell className="text-sm">{activity.source}</TableCell>
@@ -244,6 +250,10 @@ export default function Session() {
 							))}
 						</TableBody>
 					</Table>
+					<DataTablePagination
+						{...activityPagination}
+						pageSizeOptions={[5, 10, 25]}
+					/>
 				</CardContent>
 			</Card>
 

@@ -60,7 +60,7 @@ export function UserNotification() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="icon" className="h-9 w-9 rounded-full relative hover:bg-transparent">
+				<Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full hover:bg-transparent">
 					<Bell className="h-4 w-4" />
 					{unreadCount > 0 && (
 						<Badge

@@ -14,6 +14,15 @@
 
 @layer base {
 	:root {
+		/* Layout chrome. Kept as variables so the sidebar toggle can animate the
+		   offsets of the header, footer and main content from a single source. */
+		--header-height: 3.5rem;
+		--footer-height: 3rem;
+		--mobile-nav-height: 3.5rem;
+		--sidebar-width: 14rem;
+		--sidebar-width-collapsed: 4rem;
+		--sidebar-w: var(--sidebar-width-collapsed);
+
 		--background: 220 33% 98%;
 		--foreground: 222 47% 11%;
 
@@ -99,5 +108,28 @@
 
 	body {
 		@apply bg-background text-foreground;
+	}
+}
+
+@layer components {
+	/* Set by <Layout>; every chrome element reads --sidebar-w so they stay in sync. */
+	[data-sidebar-state="expanded"] {
+		--sidebar-w: var(--sidebar-width);
+	}
+
+	[data-sidebar-state="collapsed"] {
+		--sidebar-w: var(--sidebar-width-collapsed);
+	}
+
+	.sidebar-transition {
+		transition-property: width, left, padding-left;
+		transition-duration: 200ms;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.sidebar-transition {
+			transition-duration: 0ms;
+		}
 	}
 }

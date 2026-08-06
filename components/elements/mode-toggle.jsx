@@ -19,7 +19,7 @@ export function ModeToggle() {
 	}
 
 	if (!mounted) {
-		return <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-transparent" />
+		return <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-transparent" />
 	}
 
 	return (
@@ -27,7 +27,7 @@ export function ModeToggle() {
 			variant="ghost"
 			size="icon"
 			onClick={toggleTheme}
-			className="h-9 w-9 rounded-full relative hover:bg-transparent"
+			className="relative h-8 w-8 rounded-full hover:bg-transparent"
 			aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
 		>
 			<Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

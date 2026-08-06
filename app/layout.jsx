@@ -1,8 +1,11 @@
-import { Rubik } from "next/font/google";
-import { ThemeProvider } from "@/components/elements/theme-provider";
+import { I18nProvider } from "@/components/elements/i18n-provider";
 import { Providers } from "@/components/elements/providers";
+import { ThemeProvider } from "@/components/elements/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { defaultLocale } from "@/lib/i18n/config";
+import { Rubik } from "next/font/google";
 import "./globals.css";
+
 const rubik = Rubik({
 	weight: ["400", "500", "700"],
 	subsets: ["latin"],
@@ -16,7 +19,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
 	return (
-		<html lang="en" suppressHydrationWarning>
+		// `lang` is kept in sync with the active locale by <I18nProvider>.
+		<html lang={defaultLocale} suppressHydrationWarning>
 			<body className={rubik.className}>
 				<ThemeProvider
 					attribute="class"
@@ -24,10 +28,12 @@ export default function RootLayout({ children }) {
 					enableSystem
 					disableTransitionOnChange
 				>
-					<Providers>
-					{children}
-					<Toaster richColors position="top-right" />
-				</Providers>
+					<I18nProvider>
+						<Providers>
+							{children}
+							<Toaster richColors position="top-right" />
+						</Providers>
+					</I18nProvider>
 				</ThemeProvider>
 			</body>
 		</html>
