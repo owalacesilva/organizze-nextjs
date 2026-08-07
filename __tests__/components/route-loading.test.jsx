@@ -16,6 +16,8 @@ import { SessionProvider } from "next-auth/react";
 
 jest.mock("next/navigation", () => ({
 	usePathname: () => "/",
+	// The header mounts the search dialog, which routes on select.
+	useRouter: () => ({ push: jest.fn() }),
 }));
 
 const routes = [
