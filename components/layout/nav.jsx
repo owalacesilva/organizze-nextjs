@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import {
 	ArrowLeftRight,
 	BarChart3,
+	CandlestickChart,
 	LayoutDashboard,
 	Lightbulb,
 	PiggyBank,
@@ -30,6 +31,7 @@ const items = [
 	{ key: "wallets", icon: Wallet, href: "/wallets" },
 	{ key: "budgets", icon: PiggyBank, href: "/budgets" },
 	{ key: "goals", icon: Target, href: "/goals" },
+	{ key: "quotes", icon: CandlestickChart, href: "/quotes" },
 	{ key: "analytics", icon: BarChart3, href: "/analytics" },
 	{ key: "insights", icon: Lightbulb, href: "/insights" },
 	{ key: "import", icon: Upload, href: "/import" },

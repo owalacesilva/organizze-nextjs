@@ -5,6 +5,7 @@ import DashboardLoading from "@/app/dashboard/loading";
 import GoalsLoading from "@/app/goals/loading";
 import RootLoading from "@/app/loading";
 import ProfileLoading from "@/app/profile/loading";
+import QuotesLoading from "@/app/quotes/loading";
 import SettingsLoading from "@/app/settings/loading";
 import TransactionsLoading from "@/app/transactions/loading";
 import WalletsLoading from "@/app/wallets/loading";
@@ -15,6 +16,8 @@ import { SessionProvider } from "next-auth/react";
 
 jest.mock("next/navigation", () => ({
 	usePathname: () => "/",
+	// The header mounts the search dialog, which routes on select.
+	useRouter: () => ({ push: jest.fn() }),
 }));
 
 const routes = [
@@ -25,6 +28,7 @@ const routes = [
 	["/wallets", WalletsLoading, "Carteiras"],
 	["/budgets", BudgetsLoading, "Orçamentos"],
 	["/goals", GoalsLoading, "Metas"],
+	["/quotes", QuotesLoading, "Cotações"],
 	["/profile", ProfileLoading, "Perfil"],
 	["/settings", SettingsLoading, "Configurações"],
 	["/categories", CategoriesLoading, "Categorias"],

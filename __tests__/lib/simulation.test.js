@@ -3,6 +3,7 @@ import {
 	resetSimulation,
 	simulatedBudgets,
 	simulatedImports,
+	simulatedQuotes,
 	simulatedTags,
 	simulatedTransactions,
 	simulatedWallets,
@@ -173,5 +174,55 @@ describe("simulatedImports", () => {
 
 		const { imports: after } = await simulatedImports.list();
 		expect(after).toHaveLength(before.length);
+	});
+});
+
+describe("simulatedQuotes", () => {
+	it("serves a list per asset class", async () => {
+		const [stocks, fiis, treasury, currencies, crypto] = await Promise.all([
+			simulatedQuotes.stocks(),
+			simulatedQuotes.fiis(),
+			simulatedQuotes.treasury(),
+			simulatedQuotes.currencies(),
+			simulatedQuotes.crypto(),
+		]);
+
+		expect(stocks.quotes.length).toBeGreaterThan(0);
+		expect(fiis.quotes.length).toBeGreaterThan(0);
+		expect(treasury.quotes.length).toBeGreaterThan(0);
+		expect(currencies.quotes.length).toBeGreaterThan(0);
+		expect(crypto.quotes.length).toBeGreaterThan(0);
+
+		expect(stocks.quotes[0]).toMatchObject({
+			symbol: expect.any(String),
+			price: expect.any(Number),
+			changePercent: expect.any(Number),
+		});
+	});
+
+	it("keeps prices stable across reads and only moves the timestamp", async () => {
+		const first = await simulatedQuotes.stocks();
+		const second = await simulatedQuotes.stocks();
+
+		const strip = ({ updatedAt, ...quote }) => quote;
+		expect(second.quotes.map(strip)).toEqual(first.quotes.map(strip));
+		expect(Date.parse(second.quotes[0].updatedAt)).toBeGreaterThanOrEqual(
+			Date.parse(first.quotes[0].updatedAt),
+		);
+	});
+
+	it("stamps every row in a response with the same timestamp", async () => {
+		const { quotes } = await simulatedQuotes.crypto();
+		const stamps = new Set(quotes.map((quote) => quote.updatedAt));
+
+		expect(stamps.size).toBe(1);
+	});
+
+	it("hands out copies, so a caller cannot mutate the seed", async () => {
+		const { quotes } = await simulatedQuotes.fiis();
+		quotes[0].price = -1;
+
+		const { quotes: fresh } = await simulatedQuotes.fiis();
+		expect(fresh[0].price).toBeGreaterThan(0);
 	});
 });
