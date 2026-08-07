@@ -1,55 +1,106 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+"use client";
 
-const expenses = [
-	{ category: "Food", amount: 1200, percentage: 38, color: "bg-orange-500" },
-	{ category: "Transport", amount: 700, percentage: 22, color: "bg-orange-300" },
-	{ category: "Healthcare", amount: 400, percentage: 12, color: "bg-yellow-400" },
-	{ category: "Education", amount: 300, percentage: 9, color: "bg-green-400" },
-	{ category: "Clothes", amount: 250, percentage: 8, color: "bg-green-500" },
-	{ category: "Pets", amount: 180, percentage: 6, color: "bg-blue-400" },
-	{ category: "Entertainment", amount: 150, percentage: 5, color: "bg-gray-400" },
-]
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
+import { useMemo } from "react";
+import { useDashboardData } from "./use-dashboard-data";
+
+/** Deterministic palette so a category keeps its colour between renders. */
+const COLORS = [
+	"bg-indigo-500",
+	"bg-sky-500",
+	"bg-amber-500",
+	"bg-emerald-500",
+	"bg-rose-500",
+	"bg-violet-500",
+	"bg-slate-400",
+];
 
 export function ExpensesBreakdown() {
-	const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0)
+	const { t, formatCurrency } = useTranslation();
+	const { transactions } = useDashboardData();
+
+	const { rows, total } = useMemo(() => {
+		const startOfMonth = new Date();
+		startOfMonth.setDate(1);
+
+		const byCategory = new Map();
+		let sum = 0;
+
+		for (const transaction of transactions) {
+			if (transaction.amount >= 0) continue;
+			if (new Date(transaction.date) < startOfMonth) continue;
+
+			const name = transaction.categoryName || t("dashboard.uncategorized");
+			const amount = Math.abs(transaction.amount);
+			byCategory.set(name, (byCategory.get(name) ?? 0) + amount);
+			sum += amount;
+		}
+
+		const sorted = [...byCategory.entries()]
+			.sort(([, a], [, b]) => b - a)
+			.map(([name, amount], index) => ({
+				name,
+				amount,
+				percentage: sum > 0 ? (amount / sum) * 100 : 0,
+				color: COLORS[index % COLORS.length],
+			}));
+
+		return { rows: sorted, total: sum };
+	}, [transactions, t]);
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Monthly Expenses</CardTitle>
+				<CardTitle>{t("dashboard.expensesByCategory")}</CardTitle>
+				<p className="text-xs text-muted-foreground">
+					{formatCurrency(total)}
+				</p>
 			</CardHeader>
 			<CardContent>
-				{/* Progress Bar */}
-				<div className="h-2 w-full flex rounded-full overflow-hidden mb-6">
-					{expenses.map((expense, index) => (
-						<div key={expense.category} className={cn(expense.color)} style={{ width: `${expense.percentage}%` }} />
-					))}
-				</div>
-
-				{/* Expenses List */}
-				<div className="space-y-0">
-					{expenses.map((expense, index) => (
-						<div
-							key={expense.category}
-							className={cn(
-								"flex items-center justify-between py-3",
-								index !== expenses.length - 1 && "border-b border-border",
-							)}
-						>
-							<div className="flex items-center gap-2">
-								<div className={cn("h-3 w-3 rounded-full", expense.color)} />
-								<span className="text-sm text-muted-foreground">{expense.category}</span>
-							</div>
-							<div className="flex items-center gap-4">
-								<span className="text-sm font-medium">${expense.amount.toLocaleString()}</span>
-								<span className="text-sm text-muted-foreground w-8">{expense.percentage}%</span>
-							</div>
+				{rows.length === 0 ? (
+					<p className="py-6 text-center text-xs text-muted-foreground">
+						{t("dashboard.empty")}
+					</p>
+				) : (
+					<>
+						<div className="mb-3 flex h-1.5 w-full overflow-hidden rounded-full">
+							{rows.map((row) => (
+								<div
+									key={row.name}
+									className={cn(row.color)}
+									style={{ width: `${row.percentage}%` }}
+								/>
+							))}
 						</div>
-					))}
-				</div>
+
+						<ul className="divide-y">
+							{rows.map((row) => (
+								<li
+									key={row.name}
+									className="flex items-center justify-between gap-2 py-1.5"
+								>
+									<span className="flex min-w-0 items-center gap-1.5">
+										<span className={cn("h-2 w-2 shrink-0 rounded-full", row.color)} />
+										<span className="truncate text-xs text-muted-foreground">
+											{row.name}
+										</span>
+									</span>
+									<span className="flex shrink-0 items-center gap-2">
+										<span className="text-xs font-medium tabular-nums">
+											{formatCurrency(row.amount)}
+										</span>
+										<span className="w-8 text-right text-[11px] text-muted-foreground">
+											{Math.round(row.percentage)}%
+										</span>
+									</span>
+								</li>
+							))}
+						</ul>
+					</>
+				)}
 			</CardContent>
 		</Card>
-	)
+	);
 }
-

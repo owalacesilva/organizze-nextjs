@@ -1,73 +1,80 @@
-import { Facebook, Github, Linkedin, Twitter } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import AuthForm from "./AuthForm"
+"use client";
+
+import { useTranslation } from "@/hooks/useTranslation";
+import { BRAND_NAME } from "@/lib/brand";
+import { Facebook, Github, Linkedin, Twitter } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import AuthForm from "./AuthForm";
+
+const SOCIAL_LINKS = [
+	{ key: "facebook", Icon: Facebook },
+	{ key: "twitter", Icon: Twitter },
+	{ key: "linkedin", Icon: Linkedin },
+	{ key: "github", Icon: Github },
+];
 
 export default function LoginPage() {
+	const { t } = useTranslation();
+
 	return (
 		<div className="flex min-h-screen items-center justify-center p-0">
-			<div className="flex w-full max-w-4xl min-h-[500px] overflow-hidden rounded-xl shadow-lg">
-				{/* Left side - Primary background with mountain image */}
-				<div className="relative hidden w-1/2 bg-primary md:block rounded-l-xl">
+			<div className="flex min-h-[500px] w-full max-w-4xl overflow-hidden rounded-xl border shadow-lg">
+				<div className="relative hidden w-1/2 bg-primary md:block">
 					<div className="absolute inset-0 z-0">
 						<Image
-							src="/images/1.jpg?height=800&width=600"
-							alt="Mountain landscape"
+							src="/images/1.jpg"
+							alt=""
 							fill
 							className="object-cover opacity-50"
 							priority
 						/>
 					</div>
-					<div className="relative z-10 flex h-full flex-col justify-between p-6 lg:p-8 text-primary-foreground">
+
+					<div className="relative z-10 flex h-full flex-col justify-between p-3 text-primary-foreground lg:p-8">
 						<Link href="/">
-							<img src="/images/logo-white.png" alt="Logo" className="h-8 w-auto" />
-							<h2 className="mt-6 text-xl font-semibold">Welcome to Evank</h2>
+							<Image
+								src="/images/logo-white.png"
+								alt={BRAND_NAME}
+								width={96}
+								height={32}
+								className="h-8 w-auto"
+							/>
+							<p className="mt-3 text-sm font-semibold">
+								{t("auth.welcome", { brand: BRAND_NAME })}
+							</p>
 						</Link>
-						<div className="space-y-4">
-							<div className="flex space-x-4">
-								<Link
-									href="#"
-									className="rounded-full bg-primary-foreground/20 p-2 transition-colors hover:bg-primary-foreground/30"
-								>
-									<Facebook size={20} />
-								</Link>
-								<Link
-									href="#"
-									className="rounded-full bg-primary-foreground/20 p-2 transition-colors hover:bg-primary-foreground/30"
-								>
-									<Twitter size={20} />
-								</Link>
-								<Link
-									href="#"
-									className="rounded-full bg-primary-foreground/20 p-2 transition-colors hover:bg-primary-foreground/30"
-								>
-									<Linkedin size={20} />
-								</Link>
-								<Link
-									href="#"
-									className="rounded-full bg-primary-foreground/20 p-2 transition-colors hover:bg-primary-foreground/30"
-								>
-									<Github size={20} />
-								</Link>
+
+						<div className="space-y-2">
+							<div className="flex gap-2">
+								{SOCIAL_LINKS.map(({ key, Icon }) => (
+									<Link
+										key={key}
+										href="#"
+										aria-label={key}
+										className="rounded-full bg-primary-foreground/20 p-2 transition-colors hover:bg-primary-foreground/30"
+									>
+										<Icon size={16} />
+									</Link>
+								))}
 							</div>
-							<div className="space-y-1 text-sm">
+
+							<div className="space-y-1 text-xs">
 								<Link href="#" className="block hover:underline">
-									Have an issue with 2-factor authentication?
+									{t("auth.twoFactorHelp")}
 								</Link>
 								<Link href="#" className="block hover:underline">
-									Privacy Policy
+									{t("auth.privacyPolicy")}
 								</Link>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				{/* Right side - White background with login form */}
-				<div className="w-full md:w-1/2 flex flex-col">
+				<div className="flex w-full flex-col md:w-1/2">
 					<AuthForm />
 				</div>
 			</div>
 		</div>
-	)
+	);
 }
-

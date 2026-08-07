@@ -51,7 +51,8 @@
 		--input: 220 13% 91%;
 		--ring: 222 47% 11%;
 
-		--radius: 0.75rem;
+		/* Single knob for the whole radius scale — see tailwind.config.ts. */
+		--radius: 0.5rem;
 
 		--success: 142 76% 36%;
 		--success-foreground: 210 40% 98%;

@@ -67,6 +67,7 @@ const config: Config = {
 				},
 				navy: "hsl(var(--navy))",
 			},
+			/** Derived from --radius, so the whole scale moves from one token. */
 			borderRadius: {
 				lg: "var(--radius)",
 				md: "calc(var(--radius) - 2px)",

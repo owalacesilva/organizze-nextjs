@@ -197,6 +197,44 @@ describe("TransactionsSection", () => {
 		).toBeInTheDocument();
 	});
 
+	it("expands a row in place and collapses it again", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await screen.findByText("Salário de março");
+		expect(await rowCount()).toBe(10);
+
+		await user.click(
+			screen.getAllByRole("button", { name: "Mostrar detalhes" })[0],
+		);
+
+		// The detail row is rendered right below the one that was expanded.
+		expect(await rowCount()).toBe(11);
+		expect(screen.getByText("Renda")).toBeInTheDocument();
+
+		await user.click(screen.getByRole("button", { name: "Ocultar detalhes" }));
+		expect(await rowCount()).toBe(10);
+	});
+
+	it("expands and collapses every row on the page at once", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await screen.findByText("Salário de março");
+
+		await user.click(
+			screen.getByRole("button", { name: "Expandir todas as linhas" }),
+		);
+		expect(await rowCount()).toBe(20);
+
+		await user.click(
+			screen.getByRole("button", { name: "Recolher todas as linhas" }),
+		);
+		expect(await rowCount()).toBe(10);
+	});
+
 	it("posts a negative amount when creating an expense", async () => {
 		const user = userEvent.setup();
 		mockApi();

@@ -29,13 +29,7 @@ export default function AuthForm({ currentState }) {
 			case "verify-email":
 				return <EmailVerification onStateChange={setAuthState} email={email} />
 			case "success":
-				return (
-					<Success
-						onStateChange={setAuthState}
-						message="Your account has been successfully created and verified."
-						nextState="signin"
-					/>
-				)
+				return <Success onStateChange={setAuthState} nextState="signin" />
 			default:
 				return null
 		}
@@ -43,7 +37,7 @@ export default function AuthForm({ currentState }) {
 
 	return (
 		<div className="flex items-center justify-center h-full w-full">
-			<Card className="w-full h-full border-0 md:border shadow-none md:shadow-sm flex flex-col rounded-xl md:rounded-none md:rounded-r-xl">
+			<Card className="flex h-full w-full flex-col border-0 md:border">
 				{renderAuthComponent()}
 			</Card>
 		</div>

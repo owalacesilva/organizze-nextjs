@@ -1,54 +1,59 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import {
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ResetPassword({ onStateChange }) {
-	const [email, setEmail] = useState("")
+	const { t } = useTranslation();
+	const [email, setEmail] = useState("");
 
-	const handleSubmit = async (e) => {
-		e.preventDefault()
-		// Here you would typically send a request to your backend to initiate the password reset process
-		console.log("Resetting password for:", email)
-		// If successful, show a success message and return to sign in
-		alert("Password reset link sent to your email")
-		onStateChange("signin")
-	}
+	const handleSubmit = (event) => {
+		event.preventDefault();
+		toast.success(t("auth.reset.sent"));
+		onStateChange("signin");
+	};
 
 	return (
-		<div className="flex flex-col justify-center h-full">
-			<CardHeader className="space-y-1 pb-6">
-				<CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+		<div className="flex h-full flex-col justify-center">
+			<CardHeader>
+				<CardTitle className="text-base">{t("auth.reset.title")}</CardTitle>
 			</CardHeader>
-			<CardContent className="px-6 pb-4 flex-grow">
-				<form onSubmit={handleSubmit} className="flex flex-col h-full justify-center">
-					<div className="grid w-full items-center gap-4">
-						<div className="flex flex-col space-y-1.5">
-							<Label htmlFor="email">Email</Label>
-							<Input
-								id="email"
-								type="email"
-								placeholder="Enter your email"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								required
-							/>
-						</div>
+
+			<CardContent className="flex-grow">
+				<form onSubmit={handleSubmit} className="space-y-3">
+					<div className="space-y-1">
+						<Label htmlFor="reset-email">{t("auth.fields.email")}</Label>
+						<Input
+							id="reset-email"
+							type="email"
+							placeholder={t("auth.fields.emailPlaceholder")}
+							value={email}
+							onChange={(event) => setEmail(event.target.value)}
+							required
+						/>
 					</div>
-					<Button className="w-full mt-6" type="submit">
-						Reset Password
+
+					<Button className="w-full" type="submit">
+						{t("auth.reset.submit")}
 					</Button>
 				</form>
 			</CardContent>
-			<CardFooter className="px-6 py-4 border-t mt-auto">
-				<Button variant="link" className="h-auto p-0" onClick={() => onStateChange("signin")}>
-					Remember your password? Sign In
+
+			<CardFooter className="mt-auto border-t pt-3">
+				<Button variant="link" onClick={() => onStateChange("signin")}>
+					{t("auth.reset.remember")}
 				</Button>
 			</CardFooter>
 		</div>
-	)
+	);
 }
-

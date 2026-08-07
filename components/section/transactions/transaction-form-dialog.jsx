@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -71,7 +72,7 @@ function validate(form, t) {
 }
 
 /**
- * Create/edit dialog. `transaction` being set switches it to edit mode.
+ * Create/edit panel. `transaction` being set switches it to edit mode.
  * `onSubmit` receives the API payload and may return a promise.
  */
 export function TransactionFormDialog({
@@ -86,7 +87,7 @@ export function TransactionFormDialog({
 	const [form, setForm] = useState(() => toFormState(transaction));
 	const [errors, setErrors] = useState({});
 
-	// Reload the form whenever the dialog opens for a different row.
+	// Reload the form whenever the panel opens for a different row.
 	useEffect(() => {
 		if (open) {
 			setForm(toFormState(transaction));
@@ -121,143 +122,130 @@ export function TransactionFormDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-[480px]">
+			<DialogContent closeLabel={t("common.close")}>
 				<DialogHeader>
-					<DialogTitle className="text-base">
+					<DialogTitle>
 						{transaction ? t("transactions.edit") : t("transactions.add")}
 					</DialogTitle>
-					<DialogDescription className="text-xs">
-						{t("transactions.subtitle")}
-					</DialogDescription>
+					<DialogDescription>{t("transactions.subtitle")}</DialogDescription>
 				</DialogHeader>
 
-				<form onSubmit={handleSubmit} className="space-y-3" noValidate>
-					<div className="grid grid-cols-2 gap-3">
-						<div className="space-y-1">
-							<Label htmlFor="transaction-type" className="text-xs">
-								{t("transactions.fields.type")}
-							</Label>
-							<Select value={form.type} onValueChange={set("type")}>
-								<SelectTrigger id="transaction-type" className="h-8 text-xs">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="expense" className="text-xs">
-										{t("transactions.types.expense")}
-									</SelectItem>
-									<SelectItem value="income" className="text-xs">
-										{t("transactions.types.income")}
-									</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-
-						<div className="space-y-1">
-							<Label htmlFor="transaction-amount" className="text-xs">
-								{t("transactions.fields.amount")}
-							</Label>
-							<Input
-								id="transaction-amount"
-								type="number"
-								min="0"
-								step="0.01"
-								inputMode="decimal"
-								value={form.amount}
-								onChange={(event) => set("amount")(event.target.value)}
-								placeholder={t("transactions.placeholders.amount")}
-								aria-invalid={Boolean(errors.amount)}
-								className={cn("h-8 text-xs", errors.amount && "border-destructive")}
-							/>
-							{fieldError("amount")}
-						</div>
-					</div>
-
-					<div className="grid grid-cols-2 gap-3">
-						<div className="space-y-1">
-							<Label htmlFor="transaction-category" className="text-xs">
-								{t("transactions.fields.category")}
-							</Label>
-							<Select value={form.categoryId} onValueChange={set("categoryId")}>
-								<SelectTrigger
-									id="transaction-category"
-									aria-invalid={Boolean(errors.categoryId)}
-									className={cn(
-										"h-8 text-xs",
-										errors.categoryId && "border-destructive",
-									)}
-								>
-									<SelectValue
-										placeholder={t("transactions.placeholders.selectCategory")}
-									/>
-								</SelectTrigger>
-								<SelectContent>
-									{categories.map((category) => (
-										<SelectItem
-											key={category.id}
-											value={String(category.id)}
-											className="text-xs"
-										>
-											{category.name}
+				<form onSubmit={handleSubmit} noValidate>
+					<DialogBody>
+						<div className="grid grid-cols-2 gap-2">
+							<div className="space-y-1">
+								<Label htmlFor="transaction-type">
+									{t("transactions.fields.type")}
+								</Label>
+								<Select value={form.type} onValueChange={set("type")}>
+									<SelectTrigger id="transaction-type">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="expense">
+											{t("transactions.types.expense")}
 										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							{fieldError("categoryId")}
+										<SelectItem value="income">
+											{t("transactions.types.income")}
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+
+							<div className="space-y-1">
+								<Label htmlFor="transaction-amount">
+									{t("transactions.fields.amount")}
+								</Label>
+								<Input
+									id="transaction-amount"
+									type="number"
+									min="0"
+									step="0.01"
+									inputMode="decimal"
+									value={form.amount}
+									onChange={(event) => set("amount")(event.target.value)}
+									placeholder={t("transactions.placeholders.amount")}
+									aria-invalid={Boolean(errors.amount)}
+									className={cn(errors.amount && "border-destructive")}
+								/>
+								{fieldError("amount")}
+							</div>
+						</div>
+
+						<div className="grid grid-cols-2 gap-2">
+							<div className="space-y-1">
+								<Label htmlFor="transaction-category">
+									{t("transactions.fields.category")}
+								</Label>
+								<Select
+									value={form.categoryId}
+									onValueChange={set("categoryId")}
+								>
+									<SelectTrigger
+										id="transaction-category"
+										aria-invalid={Boolean(errors.categoryId)}
+										className={cn(errors.categoryId && "border-destructive")}
+									>
+										<SelectValue
+											placeholder={t("transactions.placeholders.selectCategory")}
+										/>
+									</SelectTrigger>
+									<SelectContent>
+										{categories.map((category) => (
+											<SelectItem key={category.id} value={String(category.id)}>
+												{category.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{fieldError("categoryId")}
+							</div>
+
+							<div className="space-y-1">
+								<Label htmlFor="transaction-date">
+									{t("transactions.fields.date")}
+								</Label>
+								<Input
+									id="transaction-date"
+									type="date"
+									value={form.date}
+									onChange={(event) => set("date")(event.target.value)}
+									aria-invalid={Boolean(errors.date)}
+									className={cn(errors.date && "border-destructive")}
+								/>
+								{fieldError("date")}
+							</div>
 						</div>
 
 						<div className="space-y-1">
-							<Label htmlFor="transaction-date" className="text-xs">
-								{t("transactions.fields.date")}
+							<Label htmlFor="transaction-description">
+								{t("transactions.fields.description")}
 							</Label>
-							<Input
-								id="transaction-date"
-								type="date"
-								value={form.date}
-								onChange={(event) => set("date")(event.target.value)}
-								aria-invalid={Boolean(errors.date)}
-								className={cn("h-8 text-xs", errors.date && "border-destructive")}
+							<Textarea
+								id="transaction-description"
+								value={form.description}
+								onChange={(event) => set("description")(event.target.value)}
+								placeholder={t("transactions.placeholders.description")}
+								aria-invalid={Boolean(errors.description)}
+								className={cn(
+									"min-h-[72px]",
+									errors.description && "border-destructive",
+								)}
 							/>
-							{fieldError("date")}
+							{fieldError("description")}
 						</div>
-					</div>
+					</DialogBody>
 
-					<div className="space-y-1">
-						<Label htmlFor="transaction-description" className="text-xs">
-							{t("transactions.fields.description")}
-						</Label>
-						<Textarea
-							id="transaction-description"
-							value={form.description}
-							onChange={(event) => set("description")(event.target.value)}
-							placeholder={t("transactions.placeholders.description")}
-							aria-invalid={Boolean(errors.description)}
-							className={cn(
-								"min-h-[72px] text-xs",
-								errors.description && "border-destructive",
-							)}
-						/>
-						{fieldError("description")}
-					</div>
-
-					<DialogFooter className="gap-2 sm:gap-2">
+					<DialogFooter>
 						<Button
 							type="button"
 							variant="outline"
-							size="sm"
-							className="h-8 text-xs"
 							onClick={() => onOpenChange(false)}
 						>
 							{t("common.cancel")}
 						</Button>
-						<Button
-							type="submit"
-							size="sm"
-							className="h-8 text-xs"
-							disabled={isSubmitting}
-						>
-							{isSubmitting && (
-								<Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-							)}
+						<Button type="submit" disabled={isSubmitting}>
+							{isSubmitting && <Loader2 className="animate-spin" />}
 							{isSubmitting ? t("common.saving") : t("common.save")}
 						</Button>
 					</DialogFooter>

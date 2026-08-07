@@ -26,7 +26,7 @@ export function Breadcrumb({ title, subtitle, items = [] }) {
 
 				{items.length > 0 && (
 					<nav
-						aria-label="Breadcrumb"
+						aria-label={t("layout.breadcrumb")}
 						className="flex items-center space-x-1 text-xs text-muted-foreground"
 					>
 						{items.map((item, index) => {

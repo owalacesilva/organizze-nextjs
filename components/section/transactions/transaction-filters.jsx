@@ -28,12 +28,12 @@ export function TransactionFilters({
 		<FilterPanel activeCount={countActiveFilters(filters)} onClear={onClear}>
 			<FilterField label={t("transactions.fields.type")} htmlFor="filter-type">
 				<Select value={filters.type} onValueChange={set("type")}>
-					<SelectTrigger id="filter-type" className="h-8 text-xs">
+					<SelectTrigger id="filter-type">
 						<SelectValue placeholder={t("transactions.placeholders.selectType")} />
 					</SelectTrigger>
 					<SelectContent>
 						{TYPE_OPTIONS.map((option) => (
-							<SelectItem key={option} value={option} className="text-xs">
+							<SelectItem key={option} value={option}>
 								{t(`transactions.types.${option}`)}
 							</SelectItem>
 						))}
@@ -46,12 +46,12 @@ export function TransactionFilters({
 				htmlFor="filter-period"
 			>
 				<Select value={filters.period} onValueChange={set("period")}>
-					<SelectTrigger id="filter-period" className="h-8 text-xs">
+					<SelectTrigger id="filter-period">
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
 						{PERIOD_OPTIONS.map((option) => (
-							<SelectItem key={option} value={option} className="text-xs">
+							<SelectItem key={option} value={option}>
 								{t(`transactions.periods.${option}`)}
 							</SelectItem>
 						))}
@@ -64,21 +64,15 @@ export function TransactionFilters({
 				htmlFor="filter-category"
 			>
 				<Select value={filters.categoryId} onValueChange={set("categoryId")}>
-					<SelectTrigger id="filter-category" className="h-8 text-xs">
+					<SelectTrigger id="filter-category">
 						<SelectValue
 							placeholder={t("transactions.placeholders.selectCategory")}
 						/>
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="all" className="text-xs">
-							{t("common.all")}
-						</SelectItem>
+						<SelectItem value="all">{t("common.all")}</SelectItem>
 						{categories.map((category) => (
-							<SelectItem
-								key={category.id}
-								value={String(category.id)}
-								className="text-xs"
-							>
+							<SelectItem key={category.id} value={String(category.id)}>
 								{category.name}
 							</SelectItem>
 						))}
@@ -100,7 +94,6 @@ export function TransactionFilters({
 						value={filters.minAmount}
 						onChange={(event) => set("minAmount")(event.target.value)}
 						placeholder="0"
-						className="h-8 text-xs"
 					/>
 				</FilterField>
 				<FilterField
@@ -116,7 +109,6 @@ export function TransactionFilters({
 						value={filters.maxAmount}
 						onChange={(event) => set("maxAmount")(event.target.value)}
 						placeholder="—"
-						className="h-8 text-xs"
 					/>
 				</FilterField>
 			</div>

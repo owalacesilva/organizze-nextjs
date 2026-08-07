@@ -1,123 +1,96 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown } from 'lucide-react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
-import Account from './account'
-import AddBank from './add-bank'
-import Api from './api'
-import Categories from './categories'
-import Currencies from './currencies'
-import General from './general'
-import Profile from './profile'
-import Security from './security'
-import Session from './session'
-// import Support from './support'
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import Account from "./account";
+import AddBank from "./add-bank";
+import Api from "./api";
+import Categories from "./categories";
+import Currencies from "./currencies";
+import General from "./general";
+import Profile from "./profile";
+import Security from "./security";
+import Session from "./session";
+import Tags from "./tags";
 
-const menuItems = [
-	"Account",
-	"General",
-	"Profile",
-	"Add Bank",
-	"Security",
-	"Session",
-	"Categories",
-	"Currencies",
-	"Api",
-	// "Support",
-]
+/** `value` doubles as the dictionary key under `settings.tabs`. */
+const TABS = [
+	{ value: "account", Component: Account },
+	{ value: "general", Component: General },
+	{ value: "profile", Component: Profile },
+	{ value: "addBank", Component: AddBank },
+	{ value: "security", Component: Security },
+	{ value: "session", Component: Session },
+	{ value: "categories", Component: Categories },
+	{ value: "currencies", Component: Currencies },
+	{ value: "tags", Component: Tags },
+	{ value: "api", Component: Api },
+];
 
 export default function SettingsSection() {
-	const [activeTab, setActiveTab] = useState("account")
+	const { t } = useTranslation();
+	const [activeTab, setActiveTab] = useState(TABS[0].value);
 
-	const handleTabChange = (value) => {
-		setActiveTab(value)
-	}
+	const activeLabel = t(`settings.tabs.${activeTab}`);
 
 	return (
-		<div className="w-full">
-			{/* Mobile view - Dropdown menu */}
-			<div className="md:hidden w-full mb-6">
+		<Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+			{/* Mobile: the tab strip collapses into a dropdown. */}
+			<div className="mb-3 w-full md:hidden">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="outline" className="w-full justify-between">
-							{menuItems.find(item => item.toLowerCase().replace(" ", "-") === activeTab)}
-							<ChevronDown className="ml-2 h-4 w-4" />
+						<Button
+							variant="outline"
+							className="w-full justify-between"
+							aria-label={t("settings.menu")}
+						>
+							{activeLabel}
+							<ChevronDown />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="w-full">
-						{menuItems.map((item) => (
+					<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
+						{TABS.map((tab) => (
 							<DropdownMenuItem
-								key={item}
-								onClick={() => handleTabChange(item.toLowerCase().replace(" ", "-"))}
-								className={activeTab === item.toLowerCase().replace(" ", "-") ? "bg-muted" : ""}
+								key={tab.value}
+								onSelect={() => setActiveTab(tab.value)}
+								className={cn(activeTab === tab.value && "bg-muted")}
 							>
-								{item}
+								{t(`settings.tabs.${tab.value}`)}
 							</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
 
-			{/* Desktop view - Horizontal tabs */}
-			<Tabs
-				defaultValue="account"
-				value={activeTab}
-				onValueChange={handleTabChange}
-				className="w-full"
-			>
-				<div className="hidden md:block overflow-x-auto">
-					<TabsList className="h-16 w-full justify-start rounded-none bg-transparent p-0">
-						{menuItems.map((item) => (
-							<TabsTrigger
-								key={item}
-								value={item.toLowerCase().replace(" ", "-")}
-								className="h-full rounded-none border-b-2 border-transparent px-4 data-[state=active]:border-primary data-[state=active]:bg-transparent"
-							>
-								{item}
-							</TabsTrigger>
-						))}
-					</TabsList>
-				</div>
+			<div className="hidden overflow-x-auto md:block">
+				<TabsList className="h-9 w-full justify-start bg-transparent p-0">
+					{TABS.map((tab) => (
+						<TabsTrigger
+							key={tab.value}
+							value={tab.value}
+							className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+						>
+							{t(`settings.tabs.${tab.value}`)}
+						</TabsTrigger>
+					))}
+				</TabsList>
+			</div>
 
-				<div className="py-6">
-					<TabsContent value="account">
-						<Account />
-					</TabsContent>
-					<TabsContent value="general">
-						<General />
-					</TabsContent>
-					<TabsContent value="profile">
-						<Profile />
-					</TabsContent>
-					<TabsContent value="add-bank">
-						<AddBank />
-					</TabsContent>
-					<TabsContent value="security">
-						<Security />
-					</TabsContent>
-					<TabsContent value="session">
-						<Session />
-					</TabsContent>
-					<TabsContent value="categories">
-						<Categories />
-					</TabsContent>
-					<TabsContent value="currencies">
-						<Currencies />
-					</TabsContent>
-					<TabsContent value="api">
-						<Api />
-					</TabsContent>
-				</div>
-
-			</Tabs>
-		</div>
-	)
+			{TABS.map(({ value, Component }) => (
+				<TabsContent key={value} value={value} className="mt-3">
+					<Component />
+				</TabsContent>
+			))}
+		</Tabs>
+	);
 }

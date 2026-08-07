@@ -21,6 +21,7 @@ import {
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
 import {
 	DEFAULT_FILTERS,
 	countActiveFilters,
@@ -134,8 +135,8 @@ export default function TransactionsSection() {
 		<div className="space-y-3">
 			<TransactionSummary summary={summary} count={visible.length} />
 
-			<Card className="shadow-none">
-				<CardHeader className="gap-3 p-3">
+			<Card>
+				<CardHeader className="gap-2">
 					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
 						<div className="relative flex-1 sm:max-w-xs">
 							<Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -146,7 +147,7 @@ export default function TransactionsSection() {
 								}
 								placeholder={t("transactions.placeholders.search")}
 								aria-label={t("common.search")}
-								className="h-8 pl-8 text-xs"
+								className="pl-8"
 							/>
 						</div>
 
@@ -154,17 +155,16 @@ export default function TransactionsSection() {
 							<Button
 								variant="outline"
 								size="icon"
-								className="h-8 w-8"
 								onClick={() => transactionsQuery.refetch()}
 								disabled={transactionsQuery.isFetching}
 								aria-label={t("common.refresh")}
 							>
 								<RefreshCw
-									className={`h-3.5 w-3.5 ${transactionsQuery.isFetching ? "animate-spin" : ""}`}
+									className={cn(transactionsQuery.isFetching && "animate-spin")}
 								/>
 							</Button>
-							<Button size="sm" className="h-8 gap-1.5 text-xs" onClick={openCreate}>
-								<Plus className="h-3.5 w-3.5" />
+							<Button onClick={openCreate}>
+								<Plus />
 								{t("transactions.add")}
 							</Button>
 						</div>
@@ -180,7 +180,7 @@ export default function TransactionsSection() {
 					/>
 				</CardHeader>
 
-				<CardContent className="p-3 pt-0">
+				<CardContent>
 					{transactionsQuery.isError ? (
 						<div className="flex flex-col items-center gap-3 py-10 text-center">
 							<AlertCircle className="h-6 w-6 text-destructive" />
@@ -194,8 +194,6 @@ export default function TransactionsSection() {
 							</div>
 							<Button
 								variant="outline"
-								size="sm"
-								className="h-8 text-xs"
 								onClick={() => transactionsQuery.refetch()}
 							>
 								{t("common.retry")}
@@ -244,23 +242,21 @@ export default function TransactionsSection() {
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle className="text-base">
+						<AlertDialogTitle>
 							{t("transactions.deleteConfirmTitle")}
 						</AlertDialogTitle>
-						<AlertDialogDescription className="text-xs">
+						<AlertDialogDescription>
 							{t("transactions.deleteConfirmDescription", {
 								description: pendingDelete?.description ?? "",
 							})}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel className="h-8 text-xs">
-							{t("common.cancel")}
-						</AlertDialogCancel>
+						<AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDelete}
 							disabled={deleteMutation.isPending}
-							className="h-8 bg-destructive text-xs text-destructive-foreground hover:bg-destructive/90"
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 						>
 							{t("common.delete")}
 						</AlertDialogAction>

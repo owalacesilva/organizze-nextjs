@@ -1,250 +1,165 @@
-"use client"
+"use client";
 
-import { DataTablePagination } from "@/components/elements/data-table-pagination"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { usePagination } from "@/hooks/usePagination"
-import { CheckCircle, FileText, XCircle } from "lucide-react"
+import { DataTablePagination } from "@/components/elements/data-table-pagination";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import { usePagination } from "@/hooks/usePagination";
+import { useTranslation } from "@/hooks/useTranslation";
+import { CheckCircle, FileText, XCircle } from "lucide-react";
+
+// Placeholder data until a sessions endpoint exists. `hoursAgo` keeps the
+// relative timestamps translatable instead of baking English strings in.
+const WEB_SESSIONS = [
+	{ id: 1, hoursAgo: 2, browser: "Chrome (Windows)", ip: "187.54.239.254", location: "São Paulo, BR", current: true },
+	{ id: 2, hoursAgo: 26, browser: "Safari (macOS)", ip: "187.54.239.211", location: "São Paulo, BR", current: false },
+	{ id: 3, hoursAgo: 96, browser: "Firefox (Linux)", ip: "201.17.44.10", location: "Lisboa, PT", current: false },
+];
+
+const CONFIRMED_DEVICES = [
+	{ id: 1, hoursAgo: 24, browser: "Chrome (Windows)", ip: "187.54.239.254", location: "São Paulo, BR", current: true },
+	{ id: 2, hoursAgo: 192, browser: "Safari (iOS)", ip: "187.54.239.101", location: "São Paulo, BR", current: false },
+	{ id: 3, hoursAgo: 360, browser: "Firefox (Linux)", ip: "201.17.44.10", location: "Lisboa, PT", current: false },
+];
+
+const ACTIVITY = [
+	{ id: 1, action: "secondFactor", source: "api", ip: "187.54.239.254", location: "São Paulo, BR", hoursAgo: 1 },
+	{ id: 2, action: "signin", source: "web", ip: "187.54.239.254", location: "São Paulo, BR", hoursAgo: 2 },
+	{ id: 3, action: "deviceConfirmed", source: "web", ip: "187.54.239.211", location: "São Paulo, BR", hoursAgo: 26 },
+	{ id: 4, action: "signout", source: "web", ip: "187.54.239.211", location: "São Paulo, BR", hoursAgo: 30 },
+	{ id: 5, action: "secondFactor", source: "web", ip: "201.17.44.10", location: "Lisboa, PT", hoursAgo: 96 },
+	{ id: 6, action: "signin", source: "api", ip: "201.17.44.10", location: "Lisboa, PT", hoursAgo: 100 },
+	{ id: 7, action: "signout", source: "api", ip: "201.17.44.10", location: "Lisboa, PT", hoursAgo: 360 },
+];
+
+function CurrentFlag({ current }) {
+	return current ? (
+		<CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+	) : (
+		<XCircle className="h-3.5 w-3.5 text-muted-foreground" />
+	);
+}
 
 export default function Session() {
-	const webSessions = [
-		{
-			id: 1,
-			signedIn: "1 day ago",
-			browser: "Chrome (Windows)",
-			ipAddress: "250.364.239.254",
-			location: "Bangladesh, Dhaka",
-			current: true,
-		},
-		{
-			id: 2,
-			signedIn: "1 day ago",
-			browser: "Chrome (Windows)",
-			ipAddress: "250.364.239.254",
-			location: "Bangladesh, Dhaka",
-			current: true,
-		},
-		{
-			id: 3,
-			signedIn: "1 day ago",
-			browser: "Chrome (Windows)",
-			ipAddress: "250.364.239.254",
-			location: "Bangladesh, Dhaka",
-			current: true,
-		},
-	]
+	const { t } = useTranslation();
+	const activityPagination = usePagination(ACTIVITY, { initialPageSize: 5 });
 
-	const confirmedDevices = [
-		{
-			id: 1,
-			confirmed: "1 day ago",
-			browser: "Chrome (Windows)",
-			ipAddress: "250.364.239.254",
-			location: "Bangladesh, Dhaka",
-			current: true,
-		},
-		{
-			id: 2,
-			confirmed: "8 days ago",
-			browser: "Chrome (Windows)",
-			ipAddress: "250.364.239.254",
-			location: "Bangladesh, Dhaka",
-			current: true,
-		},
-		{
-			id: 3,
-			confirmed: "15 days ago",
-			browser: "Chrome (Windows)",
-			ipAddress: "250.364.239.254",
-			location: "Bangladesh, Dhaka",
-			current: true,
-		},
-	]
+	const relative = (hours) => t("notifications.hoursAgo", { count: hours });
 
-	const accountActivity = [
-		{
-			id: 1,
-			action: "verified second factor",
-			source: "api",
-			ipAddress: "157.119.239.254",
-			location: "Bangladesh",
-			when: "about 1 hour ago",
-		},
-		{
-			id: 2,
-			action: "verified second factor",
-			source: "api",
-			ipAddress: "157.119.239.254",
-			location: "Bangladesh",
-			when: "about 2 hours ago",
-		},
-		{
-			id: 3,
-			action: "device confirmation completed",
-			source: "web",
-			ipAddress: "157.119.239.214",
-			location: "Bangladesh",
-			when: "8 days ago",
-		},
-		{
-			id: 4,
-			action: "signin",
-			source: "web",
-			ipAddress: "157.119.239.214",
-			location: "Bangladesh",
-			when: "8 days ago",
-		},
-		{
-			id: 5,
-			action: "verified second factor",
-			source: "web",
-			ipAddress: "157.119.239.214",
-			location: "Bangladesh",
-			when: "8 days ago",
-		},
-		{
-			id: 6,
-			action: "signout",
-			source: "api",
-			ipAddress: "157.119.239.214",
-			location: "Bangladesh",
-			when: "15 days ago",
-		},
-		{
-			id: 7,
-			action: "verified second factor",
-			source: "web",
-			ipAddress: "157.119.239.214",
-			location: "Bangladesh",
-			when: "15 days ago",
-		},
-	]
-
-	const activityPagination = usePagination(accountActivity, { initialPageSize: 5 })
+	const deviceTable = (rows, firstColumnKey) => (
+		<Table>
+			<TableHeader>
+				<TableRow className="hover:bg-transparent">
+					<TableHead className="pl-3">
+						{t(`settings.session.columns.${firstColumnKey}`)}
+					</TableHead>
+					<TableHead>{t("settings.session.columns.browser")}</TableHead>
+					<TableHead>{t("settings.session.columns.ipAddress")}</TableHead>
+					<TableHead>{t("settings.session.columns.near")}</TableHead>
+					<TableHead className="pr-3">
+						{t("settings.session.columns.current")}
+					</TableHead>
+				</TableRow>
+			</TableHeader>
+			<TableBody>
+				{rows.map((row) => (
+					<TableRow key={row.id}>
+						<TableCell className="pl-3">{relative(row.hoursAgo)}</TableCell>
+						<TableCell>{row.browser}</TableCell>
+						<TableCell className="font-mono">{row.ip}</TableCell>
+						<TableCell>{row.location}</TableCell>
+						<TableCell className="pr-3">
+							<CurrentFlag current={row.current} />
+						</TableCell>
+					</TableRow>
+				))}
+			</TableBody>
+		</Table>
+	);
 
 	return (
-		<div className="space-y-6">
-			{/* Third-Party Applications */}
+		<div className="space-y-3">
 			<Card>
 				<CardHeader>
-					<CardTitle>Third-Party Applications</CardTitle>
+					<CardTitle>{t("settings.session.thirdParty")}</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<div className="flex items-start gap-4">
-						<div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-							<FileText className="h-5 w-5 text-amber-600" />
+					<div className="flex items-start gap-2">
+						<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950">
+							<FileText className="h-4 w-4 text-amber-600" />
 						</div>
-						<div className="space-y-2">
-							<p className="font-medium">You haven't authorized any applications yet.</p>
-							<p className="text-sm text-muted-foreground">
-								After connecting an application with your account, you can manage or revoke its access here.
+						<div className="space-y-1.5">
+							<p className="text-xs font-medium">
+								{t("settings.session.thirdPartyEmpty")}
 							</p>
-							<Button className="mt-2 bg-indigo-600 hover:bg-indigo-700">Authorize now</Button>
+							<p className="text-[11px] text-muted-foreground">
+								{t("settings.session.thirdPartyHint")}
+							</p>
+							<Button className="mt-1">
+								{t("settings.session.authorizeNow")}
+							</Button>
 						</div>
 					</div>
 				</CardContent>
 			</Card>
 
-			{/* Web Sessions */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Web Sessions</CardTitle>
+					<CardTitle>{t("settings.session.webSessions")}</CardTitle>
 				</CardHeader>
-				<CardContent>
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Signed in</TableHead>
-								<TableHead>Browser</TableHead>
-								<TableHead>IP Address</TableHead>
-								<TableHead>Near</TableHead>
-								<TableHead>Current</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{webSessions.map((session) => (
-								<TableRow key={session.id}>
-									<TableCell className="text-sm">{session.signedIn}</TableCell>
-									<TableCell className="text-sm">{session.browser}</TableCell>
-									<TableCell className="text-sm">{session.ipAddress}</TableCell>
-									<TableCell className="text-sm">{session.location}</TableCell>
-									<TableCell>
-										<div className="flex items-center gap-1">
-											<CheckCircle className="h-4 w-4 text-green-500" />
-											<XCircle className="h-4 w-4 text-red-500" />
-										</div>
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
+				<CardContent className="p-0">
+					{deviceTable(WEB_SESSIONS, "signedIn")}
 				</CardContent>
 			</Card>
 
-			{/* Confirmed Devices */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Confirmed Devices</CardTitle>
+					<CardTitle>{t("settings.session.confirmedDevices")}</CardTitle>
 				</CardHeader>
-				<CardContent>
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Confirmed</TableHead>
-								<TableHead>Browser</TableHead>
-								<TableHead>IP Address</TableHead>
-								<TableHead>Near</TableHead>
-								<TableHead>Current</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{confirmedDevices.map((device) => (
-								<TableRow key={device.id}>
-									<TableCell className="text-sm">{device.confirmed}</TableCell>
-									<TableCell className="text-sm">{device.browser}</TableCell>
-									<TableCell className="text-sm">{device.ipAddress}</TableCell>
-									<TableCell className="text-sm">{device.location}</TableCell>
-									<TableCell>
-										<div className="flex items-center gap-1">
-											<CheckCircle className="h-4 w-4 text-green-500" />
-											<XCircle className="h-4 w-4 text-red-500" />
-										</div>
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
+				<CardContent className="p-0">
+					{deviceTable(CONFIRMED_DEVICES, "confirmed")}
 				</CardContent>
 			</Card>
 
-			{/* Account Activity */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Account Activity</CardTitle>
+					<CardTitle>{t("settings.session.accountActivity")}</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="p-0">
 					<Table>
 						<TableHeader>
-							<TableRow>
-								<TableHead>Action</TableHead>
-								<TableHead>Source</TableHead>
-								<TableHead>IP Address</TableHead>
-								<TableHead>Location</TableHead>
-								<TableHead>When</TableHead>
+							<TableRow className="hover:bg-transparent">
+								<TableHead className="pl-3">
+									{t("settings.session.columns.action")}
+								</TableHead>
+								<TableHead>{t("settings.session.columns.source")}</TableHead>
+								<TableHead>{t("settings.session.columns.ipAddress")}</TableHead>
+								<TableHead>{t("settings.session.columns.location")}</TableHead>
+								<TableHead className="pr-3">
+									{t("settings.session.columns.when")}
+								</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{activityPagination.pageItems.map((activity) => (
 								<TableRow key={activity.id}>
-									<TableCell className="text-sm">{activity.action}</TableCell>
-									<TableCell className="text-sm">{activity.source}</TableCell>
-									<TableCell className="text-sm">{activity.ipAddress}</TableCell>
-									<TableCell className="text-sm">
-										<span className="text-blue-600 hover:underline cursor-pointer">{activity.location}</span>
+									<TableCell className="pl-3">
+										{t(`settings.session.actions.${activity.action}`)}
 									</TableCell>
-									<TableCell className="text-sm">
-										<span className="text-blue-600 hover:underline cursor-pointer">{activity.when}</span>
+									<TableCell>
+										{t(`settings.session.sources.${activity.source}`)}
+									</TableCell>
+									<TableCell className="font-mono">{activity.ip}</TableCell>
+									<TableCell>{activity.location}</TableCell>
+									<TableCell className="pr-3">
+										{relative(activity.hoursAgo)}
 									</TableCell>
 								</TableRow>
 							))}
@@ -253,23 +168,27 @@ export default function Session() {
 					<DataTablePagination
 						{...activityPagination}
 						pageSizeOptions={[5, 10, 25]}
+						className="px-3"
 					/>
 				</CardContent>
 			</Card>
 
-			{/* Close Account */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Close Account</CardTitle>
+					<CardTitle>{t("settings.session.closeAccount")}</CardTitle>
 				</CardHeader>
-				<CardContent>
-					<p className="text-sm mb-4">
-						Withdraw funds and close your account - <span className="text-red-500">this cannot be undone</span>
+				<CardContent className="space-y-2">
+					<p className="text-xs">
+						{t("settings.session.closeAccountHint")}{" "}
+						<span className="text-destructive">
+							{t("settings.session.cannotBeUndone")}
+						</span>
 					</p>
-					<Button variant="destructive">Close Account</Button>
+					<Button variant="destructive">
+						{t("settings.session.closeAccountAction")}
+					</Button>
 				</CardContent>
 			</Card>
 		</div>
-	)
+	);
 }
-

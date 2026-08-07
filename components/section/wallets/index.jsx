@@ -1,9 +1,5 @@
-import  AccountsDashboard  from './accounts-dashboard'
+import { Wallets } from "./wallets";
 
 export default function WalletsSection() {
-	return (
-		<>
-			<AccountsDashboard />
-		</>
-	)
+	return <Wallets />;
 }

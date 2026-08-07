@@ -1,3 +1,4 @@
+import { SIMULATION_ENABLED, simulatedWallets } from "@/lib/simulation";
 import type {
 	WalletByIdResponse,
 	WalletsResponse,
@@ -9,6 +10,8 @@ import type {
 } from "@/app/api/wallets/types";
 
 export const getWallets = async (): Promise<WalletsResponse> => {
+	if (SIMULATION_ENABLED) return simulatedWallets.list();
+
 	const response = await fetch("/api/wallets", {
 		method: "GET",
 		headers: {
@@ -26,6 +29,8 @@ export const getWallets = async (): Promise<WalletsResponse> => {
 export const getWalletById = async (
 	id: number | string,
 ): Promise<WalletByIdResponse> => {
+	if (SIMULATION_ENABLED) return simulatedWallets.get(id);
+
 	const response = await fetch(`/api/wallets/${id}`, {
 		method: "GET",
 		headers: {
@@ -43,6 +48,8 @@ export const getWalletById = async (
 export const createWallet = async (
 	data: CreateWalletRequest,
 ): Promise<CreateWalletResponse> => {
+	if (SIMULATION_ENABLED) return simulatedWallets.create(data);
+
 	const response = await fetch("/api/wallets", {
 		method: "POST",
 		headers: {
@@ -62,6 +69,8 @@ export const updateWallet = async (
 	id: number | string,
 	data: UpdateWalletRequest,
 ): Promise<UpdateWalletResponse> => {
+	if (SIMULATION_ENABLED) return simulatedWallets.update(id, data);
+
 	const response = await fetch(`/api/wallets/${id}`, {
 		method: "PUT",
 		headers: {
@@ -87,6 +96,8 @@ export const editWallet = async (
 export const deleteWallet = async (
 	id: number | string,
 ): Promise<DeleteWalletResponse> => {
+	if (SIMULATION_ENABLED) return simulatedWallets.remove(id);
+
 	const response = await fetch(`/api/wallets/${id}`, {
 		method: "DELETE",
 		headers: {

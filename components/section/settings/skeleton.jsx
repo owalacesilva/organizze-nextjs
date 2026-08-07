@@ -12,9 +12,9 @@ export function SettingsSkeleton() {
 	return (
 		<SkeletonPage>
 			<Skeleton className="h-9 w-full md:hidden" />
-			<SkeletonTabs count={7} className="hidden md:flex" />
+			<SkeletonTabs count={10} className="hidden md:flex" />
 
-			<div className="space-y-4 pt-2">
+			<div className="space-y-2 pt-2">
 				<SkeletonFormCard fields={4} />
 				<SkeletonFormCard fields={2} />
 			</div>

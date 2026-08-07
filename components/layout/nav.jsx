@@ -11,12 +11,12 @@ import { cn } from "@/lib/utils";
 import {
 	ArrowLeftRight,
 	BarChart3,
-	Headphones,
 	LayoutDashboard,
-	LinkIcon,
+	Lightbulb,
 	PiggyBank,
 	Settings,
 	Target,
+	Upload,
 	User,
 	Wallet,
 } from "lucide-react";
@@ -31,9 +31,9 @@ const items = [
 	{ key: "budgets", icon: PiggyBank, href: "/budgets" },
 	{ key: "goals", icon: Target, href: "/goals" },
 	{ key: "analytics", icon: BarChart3, href: "/analytics" },
+	{ key: "insights", icon: Lightbulb, href: "/insights" },
+	{ key: "import", icon: Upload, href: "/import" },
 	{ key: "profile", icon: User, href: "/profile" },
-	{ key: "support", icon: Headphones, href: "/support" },
-	{ key: "referrals", icon: LinkIcon, href: "/referrals" },
 	{ key: "settings", icon: Settings, href: "/settings" },
 ];
 

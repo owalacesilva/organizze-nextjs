@@ -3,9 +3,12 @@ import {
 	countActiveFilters,
 	filterTransactions,
 	getTransactionType,
+	inMonth,
+	monthlyTotals,
 	normalizeTransaction,
 	sortByDateDesc,
 	summarizeTransactions,
+	topExpenses,
 } from "@/lib/transactions";
 
 const NOW = new Date("2026-03-01T12:00:00Z");
@@ -212,5 +215,100 @@ describe("sortByDateDesc", () => {
 			...transactions,
 		]);
 		expect(result.at(-1).id).toBe(4);
+	});
+});
+
+describe("monthlyTotals", () => {
+	const now = new Date("2026-03-15T12:00:00Z");
+
+	it("returns one bucket per month, oldest first", () => {
+		const result = monthlyTotals([], 3, now);
+
+		expect(result.map((bucket) => bucket.key)).toEqual([
+			"2026-01",
+			"2026-02",
+			"2026-03",
+		]);
+	});
+
+	it("splits income and expenses into the right month", () => {
+		const entries = [
+			{ amount: 1000, date: "2026-03-02" },
+			{ amount: -250, date: "2026-03-10" },
+			{ amount: -100, date: "2026-02-20" },
+		].map(normalizeTransaction);
+
+		const [january, february, march] = monthlyTotals(entries, 3, now);
+
+		expect(january).toMatchObject({ income: 0, expenses: 0 });
+		expect(february).toMatchObject({ income: 0, expenses: 100 });
+		expect(march).toMatchObject({ income: 1000, expenses: 250 });
+	});
+
+	it("ignores entries outside the window and unparseable dates", () => {
+		const entries = [
+			{ amount: -500, date: "2025-11-01" },
+			{ amount: -25, date: "not-a-date" },
+		].map(normalizeTransaction);
+
+		const totals = monthlyTotals(entries, 3, now);
+
+		expect(totals.every((bucket) => bucket.expenses === 0)).toBe(true);
+	});
+});
+
+describe("inMonth", () => {
+	const reference = new Date("2026-03-15T12:00:00Z");
+
+	it("keeps only the reference month", () => {
+		const entries = [
+			{ id: 1, amount: -10, date: "2026-03-01" },
+			{ id: 2, amount: -20, date: "2026-02-28" },
+			{ id: 3, amount: -30, date: "2026-03-31" },
+			{ id: 4, amount: -40, date: "nope" },
+		].map(normalizeTransaction);
+
+		expect(inMonth(entries, reference).map((entry) => entry.id)).toEqual([1, 3]);
+	});
+});
+
+describe("topExpenses", () => {
+	const reference = new Date("2026-03-15T12:00:00Z");
+
+	const entries = [
+		{ id: 1, amount: -300, date: "2026-03-02", description: "Aluguel" },
+		{ id: 2, amount: -100, date: "2026-03-05", description: "Mercado" },
+		{ id: 3, amount: -600, date: "2026-03-09", description: "Notebook" },
+		{ id: 4, amount: 5000, date: "2026-03-05", description: "Salário" },
+		{ id: 5, amount: -900, date: "2026-02-20", description: "Mês passado" },
+	].map(normalizeTransaction);
+
+	it("ranks the month's expenses, largest first", () => {
+		const { items } = topExpenses(entries, 5, reference);
+
+		expect(items.map((item) => item.id)).toEqual([3, 1, 2]);
+		expect(items[0].magnitude).toBe(600);
+	});
+
+	it("reports each share against the whole month", () => {
+		const { items, total } = topExpenses(entries, 2, reference);
+
+		expect(total).toBe(1000);
+		// Only two rows are returned, but the shares still divide by the month total.
+		expect(items.map((item) => Math.round(item.share))).toEqual([60, 30]);
+	});
+
+	it("honours the limit and ignores income", () => {
+		const { items } = topExpenses(entries, 1, reference);
+
+		expect(items).toHaveLength(1);
+		expect(items[0].description).toBe("Notebook");
+	});
+
+	it("returns nothing for a month without expenses", () => {
+		expect(topExpenses(entries, 5, new Date("2026-01-15T12:00:00Z"))).toEqual({
+			items: [],
+			total: 0,
+		});
 	});
 });

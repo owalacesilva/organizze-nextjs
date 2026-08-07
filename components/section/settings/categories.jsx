@@ -1,31 +1,50 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+	useCreateCategory,
+	useDeleteCategory,
+	useGetCategories,
+	useUpdateCategory,
+} from "@/app/api/categories/hooks";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Eye, GripVertical, Loader2, Pencil, Trash2 } from "lucide-react"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import { useCreateCategory, useGetCategories } from "@/app/api/categories/hooks"
-
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
 import {
 	Banknote,
 	Briefcase,
 	Building,
 	Bus,
 	Car,
-	CircleDollarSign,
 	DollarSign,
 	Dumbbell,
 	FileQuestion,
@@ -35,491 +54,464 @@ import {
 	GraduationCap,
 	Heart,
 	Home,
+	Loader2,
+	Pencil,
 	Plane,
 	ShoppingBag,
 	ShoppingCart,
 	Sparkles,
+	Trash2,
 	Umbrella,
-	UserCheck,
 	Users,
 	Utensils,
-} from "lucide-react"
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { TAG_COLORS } from "./tag-form-dialog";
 
-const NAME_TO_ICON = {
-	beauty: "sparkles",
-	bills: "file",
-	fees: "file",
-	car: "car",
-	education: "education",
-	entertainment: "entertainment",
-	family: "family",
-	food: "food",
-	drink: "food",
-	salary: "salary",
-	groceries: "groceries",
-	healthcare: "healthcare",
-	health: "healthcare",
-	home: "home",
-	shopping: "shopping",
-	sports: "sports",
-	hobbies: "hobbies",
-	hobby: "hobbies",
-	travel: "travel",
-	transport: "transport",
-	work: "work",
-	business: "business",
-	client: "client",
-	gifts: "gifts",
-	gift: "gifts",
-	insurance: "insurance",
-	loan: "loan",
-	income: "salary",
-	earnings: "salary",
-	other: "other",
-}
+const ICONS = {
+	sparkles: Sparkles,
+	file: FileText,
+	car: Car,
+	education: GraduationCap,
+	entertainment: Film,
+	family: Users,
+	food: Utensils,
+	salary: DollarSign,
+	groceries: ShoppingBag,
+	healthcare: Heart,
+	home: Home,
+	shopping: ShoppingCart,
+	sports: Dumbbell,
+	hobbies: Briefcase,
+	travel: Plane,
+	transport: Bus,
+	work: Briefcase,
+	business: Building,
+	gifts: Gift,
+	insurance: Umbrella,
+	loan: Banknote,
+	other: FileQuestion,
+};
 
-const getIconNameFromCategoryName = (name = "") => {
-	const lower = name.toLowerCase()
-	for (const [keyword, iconName] of Object.entries(NAME_TO_ICON)) {
-		if (lower.includes(keyword)) return iconName
+const ICON_NAMES = Object.keys(ICONS);
+
+/**
+ * Categories carry no icon of their own, so one is inferred from the name.
+ * Keywords are listed in both languages the app ships with.
+ */
+const NAME_TO_ICON = [
+	[["beleza", "beauty"], "sparkles"],
+	[["conta", "bill", "fatura", "document"], "file"],
+	[["carro", "car", "veíc", "veic"], "car"],
+	[["educa", "curso", "education", "school"], "education"],
+	[["lazer", "entertain", "cinema", "streaming"], "entertainment"],
+	[["família", "familia", "family"], "family"],
+	[["aliment", "food", "restaurante", "delivery"], "food"],
+	[["salário", "salario", "salary", "renda"], "salary"],
+	[["mercado", "grocer", "supermerc"], "groceries"],
+	[["saúde", "saude", "health", "farm"], "healthcare"],
+	[["moradia", "casa", "home", "aluguel", "rent"], "home"],
+	[["compras", "shopping"], "shopping"],
+	[["esporte", "sport", "academia", "gym"], "sports"],
+	[["hobby", "hobbies"], "hobbies"],
+	[["viagem", "travel", "trip"], "travel"],
+	[["transporte", "transport", "uber", "combust"], "transport"],
+	[["trabalho", "work", "freela"], "work"],
+	[["negócio", "negocio", "business"], "business"],
+	[["presente", "gift"], "gifts"],
+	[["seguro", "insurance"], "insurance"],
+	[["empréstimo", "emprestimo", "loan"], "loan"],
+	[["investimento", "invest", "dividendo"], "salary"],
+];
+
+function iconNameFor(name = "") {
+	const lower = name.toLowerCase();
+	for (const [keywords, icon] of NAME_TO_ICON) {
+		if (keywords.some((keyword) => lower.includes(keyword))) return icon;
 	}
-	return "other"
+	return "other";
 }
 
-const getIconComponent = (iconName) => {
-	switch (iconName) {
-		case "sparkles": return <Sparkles className="h-4 w-4" />
-		case "file": return <FileText className="h-4 w-4" />
-		case "car": return <Car className="h-4 w-4" />
-		case "education": return <GraduationCap className="h-4 w-4" />
-		case "entertainment": return <Film className="h-4 w-4" />
-		case "family": return <Users className="h-4 w-4" />
-		case "food": return <Utensils className="h-4 w-4" />
-		case "salary": return <DollarSign className="h-4 w-4" />
-		case "groceries": return <ShoppingBag className="h-4 w-4" />
-		case "healthcare": return <Heart className="h-4 w-4" />
-		case "home": return <Home className="h-4 w-4" />
-		case "shopping": return <ShoppingCart className="h-4 w-4" />
-		case "sports": return <Dumbbell className="h-4 w-4" />
-		case "hobbies": return <Briefcase className="h-4 w-4" />
-		case "travel": return <Plane className="h-4 w-4" />
-		case "transport": return <Bus className="h-4 w-4" />
-		case "work": return <Briefcase className="h-4 w-4" />
-		case "business": return <Building className="h-4 w-4" />
-		case "client": return <UserCheck className="h-4 w-4" />
-		case "gifts": return <Gift className="h-4 w-4" />
-		case "insurance": return <Umbrella className="h-4 w-4" />
-		case "loan": return <Banknote className="h-4 w-4" />
-		case "circle-dollar": return <CircleDollarSign className="h-4 w-4" />
-		default: return <FileQuestion className="h-4 w-4" />
-	}
+function CategoryIcon({ name, iconName, color, className }) {
+	const Icon = ICONS[iconName ?? iconNameFor(name)] ?? FileQuestion;
+
+	return (
+		<span
+			className={cn(
+				"flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white",
+				className,
+			)}
+			style={{ backgroundColor: color || TAG_COLORS[0] }}
+		>
+			<Icon className="h-3.5 w-3.5" />
+		</span>
+	);
 }
 
-const enrichCategory = (cat) => ({
-	...cat,
-	iconName: getIconNameFromCategoryName(cat.name),
-})
+function ListSkeleton() {
+	return (
+		<div className="space-y-1">
+			{Array.from({ length: 4 }).map((_, index) => (
+				// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder
+				<div key={index} className="flex items-center gap-2 py-2">
+					<Skeleton className="h-7 w-7 shrink-0" />
+					<Skeleton className="h-3 w-32" />
+					<Skeleton className="ml-auto h-7 w-16" />
+				</div>
+			))}
+		</div>
+	);
+}
 
-const CategoriesListSkeleton = () => (
-	<div className="space-y-1">
-		{Array.from({ length: 4 }).map((_, i) => (
-			<div key={i} className="flex items-center justify-between py-3 border-b last:border-0">
-				<div className="flex items-center gap-3">
-					<Skeleton className="h-4 w-4" />
-					<Skeleton className="h-8 w-8 rounded-full" />
-					<Skeleton className="h-4 w-28" />
-				</div>
-				<div className="flex items-center gap-1">
-					<Skeleton className="h-8 w-8 rounded-full" />
-					<Skeleton className="h-8 w-8 rounded-full" />
-					<Skeleton className="h-8 w-8 rounded-full" />
-				</div>
-			</div>
-		))}
-	</div>
-)
+const EMPTY_FORM = { name: "", type: "expenses", color: TAG_COLORS[0] };
 
 export default function Categories() {
-	const { data: categoriesData, isLoading: isCategoriesLoading } = useGetCategories()
-	const createCategoryMutation = useCreateCategory()
+	const { t } = useTranslation();
 
-	const [expenseCategories, setExpenseCategories] = useState([])
-	const [incomeCategories, setIncomeCategories] = useState([])
+	const categoriesQuery = useGetCategories();
+	const createMutation = useCreateCategory();
+	const updateMutation = useUpdateCategory();
+	const deleteMutation = useDeleteCategory();
 
-	useEffect(() => {
-		if (!categoriesData?.categories) return
-		setExpenseCategories(
-			categoriesData.categories
-				.filter((c) => c.type === "expenses")
-				.map(enrichCategory),
-		)
-		setIncomeCategories(
-			categoriesData.categories
-				.filter((c) => c.type === "earnings")
-				.map(enrichCategory),
-		)
-	}, [categoriesData])
+	const [form, setForm] = useState(EMPTY_FORM);
+	const [editing, setEditing] = useState(null);
+	const [editForm, setEditForm] = useState(EMPTY_FORM);
+	const [pendingDelete, setPendingDelete] = useState(null);
 
-	const [newForm, setNewForm] = useState({ name: "", type: "", iconName: "", color: "" })
+	const categories = categoriesQuery.data?.categories ?? [];
+	const income = categories.filter((category) => category.type === "earnings");
+	const expenses = categories.filter((category) => category.type === "expenses");
 
-	const handleCreateCategory = async () => {
-		if (!newForm.name || !newForm.type) {
-			toast.error("Please fill in the required fields (name and type).")
-			return
+	const handleCreate = async () => {
+		if (!form.name.trim()) {
+			toast.error(t("categories.validation.nameRequired"));
+			return;
 		}
 
 		try {
-			await createCategoryMutation.mutateAsync({
-				name: newForm.name,
+			await createMutation.mutateAsync({
+				name: form.name.trim(),
 				description: "",
-				type: newForm.type,
-				color: newForm.color ? `bg-${newForm.color}-500` : "bg-gray-500",
-			})
-			toast.success("Category created successfully!")
-			setNewForm({ name: "", type: "", iconName: "", color: "" })
-		} catch {
-			toast.error("Failed to create category. Please try again.")
+				type: form.type,
+				color: form.color,
+			});
+			toast.success(t("categories.created"));
+			setForm(EMPTY_FORM);
+		} catch (error) {
+			toast.error(t("categories.saveError"), { description: error.message });
 		}
-	}
+	};
 
-	const [editDialogOpen, setEditDialogOpen] = useState(false)
-	const [currentCategory, setCurrentCategory] = useState(null)
-	const [draggedCategory, setDraggedCategory] = useState(null)
-	const [dragOverCategory, setDragOverCategory] = useState(null)
+	const handleUpdate = async () => {
+		if (!editing) return;
 
-	const [editForm, setEditForm] = useState({ name: "", iconName: "", color: "" })
+		if (!editForm.name.trim()) {
+			toast.error(t("categories.validation.nameRequired"));
+			return;
+		}
 
-	const handleEditClick = (category, type) => {
-		setCurrentCategory({ ...category, type })
+		try {
+			await updateMutation.mutateAsync({
+				id: editing.id,
+				data: {
+					name: editForm.name.trim(),
+					type: editForm.type,
+					color: editForm.color,
+				},
+			});
+			toast.success(t("categories.updated"));
+			setEditing(null);
+		} catch (error) {
+			toast.error(t("categories.saveError"), { description: error.message });
+		}
+	};
+
+	const handleDelete = async () => {
+		const target = pendingDelete;
+		if (!target) return;
+
+		try {
+			await deleteMutation.mutateAsync(target.id);
+			toast.success(t("categories.deleted"));
+		} catch (error) {
+			toast.error(t("categories.deleteError"), { description: error.message });
+		} finally {
+			setPendingDelete(null);
+		}
+	};
+
+	const openEdit = (category) => {
+		setEditing(category);
 		setEditForm({
 			name: category.name,
-			iconName: category.iconName,
-			color: category.color?.replace("bg-", "") ?? "",
-		})
-		setEditDialogOpen(true)
-	}
+			type: category.type,
+			color: category.color ?? TAG_COLORS[0],
+		});
+	};
 
-	const handleSaveEdit = () => {
-		if (!currentCategory) return
-		const updatedCategory = {
-			...currentCategory,
-			name: editForm.name,
-			iconName: editForm.iconName,
-			color: `bg-${editForm.color}`,
+	const list = (rows, emptyKey) => {
+		if (categoriesQuery.isPending) return <ListSkeleton />;
+		if (rows.length === 0) {
+			return (
+				<p className="py-4 text-center text-xs text-muted-foreground">
+					{t(emptyKey)}
+				</p>
+			);
 		}
-		if (currentCategory.type === "expenses") {
-			setExpenseCategories((prev) => prev.map((cat) => (cat.id === currentCategory.id ? updatedCategory : cat)))
-		} else {
-			setIncomeCategories((prev) => prev.map((cat) => (cat.id === currentCategory.id ? updatedCategory : cat)))
-		}
-		setEditDialogOpen(false)
-	}
 
-	const handleDragStart = (e, category, type) => {
-		setDraggedCategory({ ...category, type })
-	}
+		return (
+			<ul className="divide-y">
+				{rows.map((category) => (
+					<li key={category.id} className="flex items-center gap-2 py-1.5">
+						<CategoryIcon name={category.name} color={category.color} />
+						<span className="truncate text-xs">{category.name}</span>
+						<span className="ml-auto flex items-center gap-1">
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								aria-label={`${t("common.edit")} ${category.name}`}
+								onClick={() => openEdit(category)}
+							>
+								<Pencil />
+							</Button>
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								className="text-destructive hover:text-destructive"
+								aria-label={`${t("common.delete")} ${category.name}`}
+								onClick={() => setPendingDelete(category)}
+							>
+								<Trash2 />
+							</Button>
+						</span>
+					</li>
+				))}
+			</ul>
+		);
+	};
 
-	const handleDragOver = (e, category) => {
-		e.preventDefault()
-		setDragOverCategory(category)
-	}
-
-	const handleDrop = (e, category, type) => {
-		e.preventDefault()
-		if (draggedCategory && draggedCategory.type === type) {
-			const setter = type === "expenses" ? setExpenseCategories : setIncomeCategories
-			const list = type === "expenses" ? [...expenseCategories] : [...incomeCategories]
-			const draggedIndex = list.findIndex((cat) => cat.id === draggedCategory.id)
-			const dropIndex = list.findIndex((cat) => cat.id === category.id)
-			const [removed] = list.splice(draggedIndex, 1)
-			list.splice(dropIndex, 0, removed)
-			setter(list)
-		}
-		setDraggedCategory(null)
-		setDragOverCategory(null)
-	}
-
-	const handleDragEnd = () => {
-		setDraggedCategory(null)
-		setDragOverCategory(null)
-	}
-
-	const CategoryItem = ({ category, type }) => (
-		<div
-			className={`flex items-center justify-between py-3 border-b last:border-0 ${dragOverCategory?.id === category.id ? "bg-muted/50" : ""}`}
-			draggable
-			onDragStart={(e) => handleDragStart(e, category, type)}
-			onDragOver={(e) => handleDragOver(e, category)}
-			onDrop={(e) => handleDrop(e, category, type)}
-			onDragEnd={handleDragEnd}
-		>
-			<div className="flex items-center gap-3">
-				<GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-				<div className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${category.color}`}>
-					{getIconComponent(category.iconName)}
-				</div>
-				<span>{category.name}</span>
-			</div>
-			<div className="flex items-center gap-1">
-				<Button
-					variant="outline"
-					size="icon"
-					className="h-8 w-8 rounded-full"
-					onClick={() => handleEditClick(category, type)}
-				>
-					<Pencil className="h-4 w-4" />
-				</Button>
-				<Button variant="outline" size="icon" className="h-8 w-8 rounded-full">
-					<Eye className="h-4 w-4" />
-				</Button>
-				<Button variant="outline" size="icon" className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10">
-					<Trash2 className="h-4 w-4" />
-				</Button>
-			</div>
+	const colorSwatches = (value, onChange) => (
+		<div className="flex flex-wrap items-center gap-1.5 pt-1">
+			{TAG_COLORS.map((color) => (
+				<button
+					key={color}
+					type="button"
+					onClick={() => onChange(color)}
+					aria-label={color}
+					aria-pressed={value === color}
+					style={{ backgroundColor: color }}
+					className={cn(
+						"h-6 w-6 rounded-full border-2 border-transparent",
+						value === color && "border-foreground",
+					)}
+				/>
+			))}
 		</div>
-	)
+	);
 
 	return (
-		<div className="space-y-6">
-			<div className="grid gap-6 md:grid-cols-3">
-				<div className="md:col-span-1">
-					<Card>
-						<CardHeader>
-							<CardTitle>Create a new categories</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<label className="text-sm font-medium">Name</label>
-								<Input
-									placeholder="category name"
-									value={newForm.name}
-									onChange={(e) => setNewForm({ ...newForm, name: e.target.value })}
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<label className="text-sm font-medium">Type</label>
-								<Select value={newForm.type} onValueChange={(value) => setNewForm({ ...newForm, type: value })}>
-									<SelectTrigger>
-										<SelectValue placeholder="Choose..." />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="expenses">Expense</SelectItem>
-										<SelectItem value="earnings">Income</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div className="grid grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<label className="text-sm font-medium">Icon</label>
-									<Select value={newForm.iconName} onValueChange={(value) => setNewForm({ ...newForm, iconName: value })}>
-										<SelectTrigger>
-											<SelectValue placeholder="Choose..." />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="sparkles">Beauty</SelectItem>
-											<SelectItem value="file">Document</SelectItem>
-											<SelectItem value="car">Car</SelectItem>
-											<SelectItem value="education">Education</SelectItem>
-											<SelectItem value="entertainment">Entertainment</SelectItem>
-											<SelectItem value="family">Family</SelectItem>
-											<SelectItem value="food">Food</SelectItem>
-											<SelectItem value="salary">Salary</SelectItem>
-											<SelectItem value="groceries">Groceries</SelectItem>
-											<SelectItem value="healthcare">Healthcare</SelectItem>
-											<SelectItem value="home">Home</SelectItem>
-											<SelectItem value="shopping">Shopping</SelectItem>
-											<SelectItem value="sports">Sports</SelectItem>
-											<SelectItem value="hobbies">Hobbies</SelectItem>
-											<SelectItem value="travel">Travel</SelectItem>
-											<SelectItem value="transport">Transport</SelectItem>
-											<SelectItem value="work">Work</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-
-								<div className="space-y-2">
-									<label className="text-sm font-medium">Color</label>
-									<Select value={newForm.color} onValueChange={(value) => setNewForm({ ...newForm, color: value })}>
-										<SelectTrigger>
-											<SelectValue placeholder="Choose..." />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="red">Red</SelectItem>
-											<SelectItem value="orange">Orange</SelectItem>
-											<SelectItem value="amber">Amber</SelectItem>
-											<SelectItem value="yellow">Yellow</SelectItem>
-											<SelectItem value="lime">Lime</SelectItem>
-											<SelectItem value="green">Green</SelectItem>
-											<SelectItem value="emerald">Emerald</SelectItem>
-											<SelectItem value="teal">Teal</SelectItem>
-											<SelectItem value="cyan">Cyan</SelectItem>
-											<SelectItem value="sky">Sky</SelectItem>
-											<SelectItem value="blue">Blue</SelectItem>
-											<SelectItem value="indigo">Indigo</SelectItem>
-											<SelectItem value="violet">Violet</SelectItem>
-											<SelectItem value="purple">Purple</SelectItem>
-											<SelectItem value="fuchsia">Fuchsia</SelectItem>
-											<SelectItem value="pink">Pink</SelectItem>
-											<SelectItem value="rose">Rose</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-
-							<Button
-								className="w-full"
-								onClick={handleCreateCategory}
-								disabled={createCategoryMutation.isPending}
-							>
-								{createCategoryMutation.isPending ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Creating...
-									</>
-								) : (
-									"Create new category"
-								)}
-							</Button>
-						</CardContent>
-					</Card>
-				</div>
-
-				<div className="md:col-span-2 space-y-6">
-					<Card>
-						<CardHeader>
-							<CardTitle>Income Categories</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{isCategoriesLoading ? (
-								<CategoriesListSkeleton />
-							) : incomeCategories.length === 0 ? (
-								<p className="text-sm text-muted-foreground py-2">No income categories yet.</p>
-							) : (
-								incomeCategories.map((category) => (
-									<CategoryItem key={category.id} category={category} type="earnings" />
-								))
-							)}
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle>Expense Categories</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{isCategoriesLoading ? (
-								<CategoriesListSkeleton />
-							) : expenseCategories.length === 0 ? (
-								<p className="text-sm text-muted-foreground py-2">No expense categories yet.</p>
-							) : (
-								expenseCategories.map((category) => (
-									<CategoryItem key={category.id} category={category} type="expenses" />
-								))
-							)}
-						</CardContent>
-					</Card>
-				</div>
-			</div>
-
-			{/* Edit Category Dialog */}
-			<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-				<DialogContent className="sm:max-w-[425px]">
-					<DialogHeader>
-						<DialogTitle>Edit Category</DialogTitle>
-						<DialogDescription>Make changes to the category details below.</DialogDescription>
-					</DialogHeader>
-					<div className="grid gap-4 py-4">
-						<div className="grid gap-2">
-							<Label htmlFor="edit-name">Name</Label>
+		<div className="space-y-3">
+			<div className="grid gap-3 md:grid-cols-3">
+				<Card className="h-fit">
+					<CardHeader>
+						<CardTitle>{t("settings.categories.createTitle")}</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-3">
+						<div className="space-y-1">
+							<Label htmlFor="category-name">
+								{t("categories.fields.name")}
+							</Label>
 							<Input
-								id="edit-name"
-								value={editForm.name}
-								onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+								id="category-name"
+								value={form.name}
+								onChange={(event) =>
+									setForm({ ...form, name: event.target.value })
+								}
+								placeholder={t("categories.placeholders.name")}
 							/>
 						</div>
 
-						<div className="grid gap-2">
-							<Label htmlFor="edit-icon">Icon</Label>
+						<div className="space-y-1">
+							<Label htmlFor="category-type">
+								{t("categories.fields.type")}
+							</Label>
 							<Select
-								value={editForm.iconName}
-								onValueChange={(value) => setEditForm({ ...editForm, iconName: value })}
+								value={form.type}
+								onValueChange={(value) => setForm({ ...form, type: value })}
 							>
-								<SelectTrigger id="edit-icon">
-									<SelectValue placeholder="Choose icon" />
+								<SelectTrigger id="category-type">
+									<SelectValue
+										placeholder={t("categories.placeholders.selectType")}
+									/>
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="sparkles">Beauty</SelectItem>
-									<SelectItem value="file">Document</SelectItem>
-									<SelectItem value="car">Car</SelectItem>
-									<SelectItem value="education">Education</SelectItem>
-									<SelectItem value="entertainment">Entertainment</SelectItem>
-									<SelectItem value="family">Family</SelectItem>
-									<SelectItem value="food">Food</SelectItem>
-									<SelectItem value="salary">Salary</SelectItem>
-									<SelectItem value="groceries">Groceries</SelectItem>
-									<SelectItem value="healthcare">Healthcare</SelectItem>
-									<SelectItem value="home">Home</SelectItem>
-									<SelectItem value="shopping">Shopping</SelectItem>
-									<SelectItem value="sports">Sports</SelectItem>
-									<SelectItem value="hobbies">Hobbies</SelectItem>
-									<SelectItem value="travel">Travel</SelectItem>
-									<SelectItem value="transport">Transport</SelectItem>
-									<SelectItem value="work">Work</SelectItem>
-									<SelectItem value="business">Business</SelectItem>
-									<SelectItem value="client">Client</SelectItem>
-									<SelectItem value="gifts">Gifts</SelectItem>
-									<SelectItem value="insurance">Insurance</SelectItem>
-									<SelectItem value="loan">Loan</SelectItem>
-									<SelectItem value="other">Other</SelectItem>
+									<SelectItem value="expenses">
+										{t("categories.types.expenses")}
+									</SelectItem>
+									<SelectItem value="earnings">
+										{t("categories.types.earnings")}
+									</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
 
-						<div className="grid gap-2">
-							<Label htmlFor="edit-color">Color</Label>
-							<Select value={editForm.color} onValueChange={(value) => setEditForm({ ...editForm, color: value })}>
-								<SelectTrigger id="edit-color">
-									<SelectValue placeholder="Choose color" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="red-500">Red</SelectItem>
-									<SelectItem value="orange-500">Orange</SelectItem>
-									<SelectItem value="amber-500">Amber</SelectItem>
-									<SelectItem value="yellow-500">Yellow</SelectItem>
-									<SelectItem value="lime-500">Lime</SelectItem>
-									<SelectItem value="green-500">Green</SelectItem>
-									<SelectItem value="emerald-500">Emerald</SelectItem>
-									<SelectItem value="teal-500">Teal</SelectItem>
-									<SelectItem value="cyan-500">Cyan</SelectItem>
-									<SelectItem value="sky-500">Sky</SelectItem>
-									<SelectItem value="blue-500">Blue</SelectItem>
-									<SelectItem value="indigo-500">Indigo</SelectItem>
-									<SelectItem value="violet-500">Violet</SelectItem>
-									<SelectItem value="purple-500">Purple</SelectItem>
-									<SelectItem value="fuchsia-500">Fuchsia</SelectItem>
-									<SelectItem value="pink-500">Pink</SelectItem>
-									<SelectItem value="rose-500">Rose</SelectItem>
-								</SelectContent>
-							</Select>
+						<fieldset className="space-y-1">
+							<legend className="text-xs font-medium">
+								{t("categories.fields.color")}
+							</legend>
+							{colorSwatches(form.color, (color) =>
+								setForm({ ...form, color }),
+							)}
+						</fieldset>
+
+						<div className="flex items-center gap-2">
+							<CategoryIcon name={form.name} color={form.color} />
+							<span className="text-[11px] text-muted-foreground">
+								{t("settings.categories.preview")}
+							</span>
 						</div>
 
-						<div className="flex items-center gap-3 mt-2">
-							<div className={`flex h-8 w-8 items-center justify-center rounded-full text-white bg-${editForm.color}`}>
-								{getIconComponent(editForm.iconName)}
-							</div>
-							<span className="text-sm">Preview</span>
-						</div>
-					</div>
-					<DialogFooter>
-						<Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-							Cancel
+						<Button
+							className="w-full"
+							onClick={handleCreate}
+							disabled={createMutation.isPending}
+						>
+							{createMutation.isPending && <Loader2 className="animate-spin" />}
+							{createMutation.isPending
+								? t("common.saving")
+								: t("categories.add")}
 						</Button>
-						<Button onClick={handleSaveEdit}>Save Changes</Button>
+					</CardContent>
+				</Card>
+
+				<div className="space-y-3 md:col-span-2">
+					<Card>
+						<CardHeader>
+							<CardTitle>{t("settings.categories.incomeTitle")}</CardTitle>
+						</CardHeader>
+						<CardContent>
+							{list(income, "settings.categories.emptyIncome")}
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader>
+							<CardTitle>{t("settings.categories.expenseTitle")}</CardTitle>
+						</CardHeader>
+						<CardContent>
+							{list(expenses, "settings.categories.emptyExpense")}
+						</CardContent>
+					</Card>
+				</div>
+			</div>
+
+			<Dialog
+				open={Boolean(editing)}
+				onOpenChange={(open) => !open && setEditing(null)}
+			>
+				<DialogContent size="sm" closeLabel={t("common.close")}>
+					<DialogHeader>
+						<DialogTitle>{t("categories.edit")}</DialogTitle>
+						<DialogDescription>{t("categories.subtitle")}</DialogDescription>
+					</DialogHeader>
+
+					<DialogBody>
+						<div className="space-y-1">
+							<Label htmlFor="edit-category-name">
+								{t("categories.fields.name")}
+							</Label>
+							<Input
+								id="edit-category-name"
+								value={editForm.name}
+								onChange={(event) =>
+									setEditForm({ ...editForm, name: event.target.value })
+								}
+							/>
+						</div>
+
+						<div className="space-y-1">
+							<Label htmlFor="edit-category-type">
+								{t("categories.fields.type")}
+							</Label>
+							<Select
+								value={editForm.type}
+								onValueChange={(value) =>
+									setEditForm({ ...editForm, type: value })
+								}
+							>
+								<SelectTrigger id="edit-category-type">
+									<SelectValue
+										placeholder={t("categories.placeholders.selectType")}
+									/>
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="expenses">
+										{t("categories.types.expenses")}
+									</SelectItem>
+									<SelectItem value="earnings">
+										{t("categories.types.earnings")}
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						<fieldset className="space-y-1">
+							<legend className="text-xs font-medium">
+								{t("categories.fields.color")}
+							</legend>
+							{colorSwatches(editForm.color, (color) =>
+								setEditForm({ ...editForm, color }),
+							)}
+						</fieldset>
+
+						<div className="flex items-center gap-2">
+							<CategoryIcon name={editForm.name} color={editForm.color} />
+							<span className="text-[11px] text-muted-foreground">
+								{t("settings.categories.preview")}
+							</span>
+						</div>
+					</DialogBody>
+
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setEditing(null)}>
+							{t("common.cancel")}
+						</Button>
+						<Button onClick={handleUpdate} disabled={updateMutation.isPending}>
+							{updateMutation.isPending && <Loader2 className="animate-spin" />}
+							{updateMutation.isPending ? t("common.saving") : t("common.save")}
+						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			<AlertDialog
+				open={Boolean(pendingDelete)}
+				onOpenChange={(open) => !open && setPendingDelete(null)}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{t("categories.deleteConfirmTitle")}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{t("categories.deleteConfirmDescription", {
+								name: pendingDelete?.name ?? "",
+							})}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleDelete}
+							disabled={deleteMutation.isPending}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						>
+							{t("common.delete")}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
-	)
+	);
 }

@@ -21,7 +21,7 @@ export function SkeletonPage({ children, className }) {
 			role="status"
 			aria-busy="true"
 			aria-live="polite"
-			className={cn("space-y-4", className)}
+			className={cn("space-y-2", className)}
 		>
 			<span className="sr-only">{t("common.loading")}</span>
 			{children}
@@ -93,7 +93,7 @@ export function SkeletonDonutCard({ className, legendItems = 4 }) {
 			<CardHeader className="p-3 pb-0">
 				<Skeleton className="h-4 w-32" />
 			</CardHeader>
-			<CardContent className="flex flex-col items-center gap-4 p-3">
+			<CardContent className="flex flex-col items-center gap-2 p-3">
 				<Skeleton className="h-36 w-36 rounded-full" />
 				<div className="w-full space-y-2">
 					{Array.from({ length: legendItems }).map((_, index) => (
@@ -101,7 +101,7 @@ export function SkeletonDonutCard({ className, legendItems = 4 }) {
 						<div key={index} className="flex items-center gap-2">
 							<Skeleton className="h-2.5 w-2.5 rounded-full" />
 							<Skeleton className="h-2.5 flex-1" />
-							<Skeleton className="h-2.5 w-10" />
+							<Skeleton className="h-2.5 w-8" />
 						</div>
 					))}
 				</div>
@@ -125,7 +125,7 @@ export function SkeletonTable({
 	return (
 		<div className={cn("w-full", className)}>
 			{header && (
-				<div className="flex items-center gap-4 border-b py-2">
+				<div className="flex items-center gap-2 border-b py-2">
 					{Array.from({ length: columns }).map((_, index) => (
 						<Skeleton
 							// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder
@@ -143,7 +143,7 @@ export function SkeletonTable({
 				<div
 					// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder
 					key={rowIndex}
-					className="flex items-center gap-4 border-b py-3 last:border-0"
+					className="flex items-center gap-2 border-b py-3 last:border-0"
 				>
 					{Array.from({ length: columns }).map((_, columnIndex) => (
 						<Skeleton
@@ -181,7 +181,7 @@ export function SkeletonTableCard({
 							<Skeleton className="h-8 w-36" />
 						</div>
 					</div>
-					<Skeleton className="h-10 w-full rounded-lg" />
+					<Skeleton className="h-8 w-full rounded-lg" />
 				</CardHeader>
 			)}
 			<CardContent className={cn("p-3", toolbar && "pt-0")}>
@@ -237,7 +237,7 @@ export function SkeletonProgressList({ items = 4, title = true, className }) {
 					<Skeleton className="h-4 w-32" />
 				</CardHeader>
 			)}
-			<CardContent className="space-y-4 p-3">
+			<CardContent className="space-y-2 p-3">
 				{Array.from({ length: items }).map((_, index) => (
 					// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder
 					<div key={index} className="space-y-2">
@@ -276,7 +276,7 @@ export function SkeletonFormCard({ fields = 4, columns = 2, className }) {
 						</div>
 					))}
 				</div>
-				<Skeleton className="mt-4 h-8 w-28" />
+				<Skeleton className="mt-2 h-8 w-28" />
 			</CardContent>
 		</Card>
 	);

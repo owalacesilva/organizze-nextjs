@@ -31,7 +31,7 @@ export function SiteFooter({ className, ...props }) {
 			)}
 			{...props}
 		>
-			<div className="flex h-[var(--footer-height)] items-center justify-between px-4">
+			<div className="flex h-[var(--footer-height)] items-center justify-between px-3">
 				<p className="text-xs text-muted-foreground">
 					{before}
 					<span className="text-primary">{BRAND_NAME}</span>

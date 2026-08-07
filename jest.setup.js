@@ -1,6 +1,10 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
 
+// `.env` ships with the simulated API switched on (next/jest loads it). Tests
+// drive the real fetch path, so opt out before any action module is imported.
+process.env.NEXT_PUBLIC_SIMULATE_API = "false";
+
 // Mock window.fetch for all tests
 global.fetch = jest.fn();
 

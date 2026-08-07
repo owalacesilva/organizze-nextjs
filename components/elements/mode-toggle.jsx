@@ -1,38 +1,40 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/useTranslation";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export function ModeToggle() {
-	const { theme, setTheme } = useTheme()
-	const [mounted, setMounted] = useState(false)
+	const { theme, setTheme } = useTheme();
+	const { t } = useTranslation();
+	const [mounted, setMounted] = useState(false);
 
 	// Avoid hydration mismatch by only rendering after mount
 	useEffect(() => {
-		setMounted(true)
-	}, [])
-
-	const toggleTheme = () => {
-		setTheme(theme === "dark" ? "light" : "dark")
-	}
+		setMounted(true);
+	}, []);
 
 	if (!mounted) {
-		return <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-transparent" />
+		return (
+			<Button variant="ghost" size="icon" className="hover:bg-transparent" />
+		);
 	}
+
+	const isDark = theme === "dark";
 
 	return (
 		<Button
 			variant="ghost"
 			size="icon"
-			onClick={toggleTheme}
-			className="relative h-8 w-8 rounded-full hover:bg-transparent"
-			aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+			onClick={() => setTheme(isDark ? "light" : "dark")}
+			className="relative hover:bg-transparent"
+			aria-label={t("layout.toggleTheme")}
+			title={isDark ? t("layout.themeLight") : t("layout.themeDark")}
 		>
-			<Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-			<Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+			<Sun className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+			<Moon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
 		</Button>
-	)
+	);
 }
-

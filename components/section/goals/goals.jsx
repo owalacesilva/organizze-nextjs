@@ -1,328 +1,358 @@
-"use client"
+"use client";
 
-import { DataTablePagination } from "@/components/elements/data-table-pagination"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { usePagination } from "@/hooks/usePagination"
-import { cn } from "@/lib/utils"
-import { Building2, Car, CreditCard, Gamepad, Home, Plane, Plus, Wallet } from "lucide-react"
+import {
+	useCreateGoal,
+	useDeleteGoal,
+	useGetGoals,
+	useUpdateGoal,
+} from "@/app/api/goals/hooks";
+import { useGetWallets } from "@/app/api/wallets/hooks";
+import { GoalsSkeleton } from "@/components/section/goals/skeleton";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Progress } from "@/components/ui/progress";
+import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
+import {
+	AlertCircle,
+	MoreHorizontal,
+	Pencil,
+	Plus,
+	RefreshCw,
+	Target,
+	Trash2,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { GoalDetailsDialog } from "./goal-details-dialog";
+import { GoalFormDialog } from "./goal-form-dialog";
 
-const goals = [
-	{
-		id: "car",
-		name: "New Car",
-		saved: 10000,
-		target: 25000,
-		icon: Car,
-		iconBg: "bg-primary",
-		iconColor: "text-primary-foreground",
-	},
-	{
-		id: "pc",
-		name: "Gaming PC",
-		saved: 1500,
-		target: 2500,
-		icon: Gamepad,
-		iconBg: "bg-primary/10",
-		iconColor: "text-primary",
-	},
-	{
-		id: "vacation",
-		name: "Vacation",
-		saved: 1500,
-		target: 5000,
-		icon: Plane,
-		iconBg: "bg-primary/10",
-		iconColor: "text-primary",
-	},
-	{
-		id: "renovation",
-		name: "Home Renovation",
-		saved: 3000,
-		target: 15000,
-		icon: Home,
-		iconBg: "bg-primary/10",
-		iconColor: "text-primary",
-	},
-]
+function GoalCard({ goal, onSelect, onEdit, onDelete }) {
+	const { t, formatCurrency, formatDate } = useTranslation();
 
-const wallets = [
-	{
-		name: "First Bank",
-		balance: 250,
-		icon: Building2,
-		iconBg: "bg-yellow-500",
-		progress: 85,
-		progressColor: "bg-primary",
-	},
-	{
-		name: "Cash App",
-		balance: 100,
-		icon: Wallet,
-		iconBg: "bg-indigo-500",
-		progress: 45,
-		progressColor: "bg-primary",
-	},
-	{
-		name: "Capital One",
-		balance: 175,
-		icon: CreditCard,
-		iconBg: "bg-purple-500",
-		progress: 95,
-		progressColor: "bg-primary",
-	},
-]
-
-const history = [
-	{
-		date: "29 Feb 2024",
-		wallet: "Visa",
-		description: "Down Payment",
-		amount: 5000.0,
-		fees: 12.36,
-	},
-	{
-		date: "15 Feb 2024",
-		wallet: "Bank Transfer",
-		description: "Savings Contribution",
-		amount: 2000.0,
-		fees: 12.36,
-	},
-	{
-		date: "01 Feb 2024",
-		wallet: "Cash",
-		description: "Part-time Job",
-		amount: 3000.0,
-		fees: 12.36,
-	},
-]
-
-function GoalCard({ goal, isActive = false }) {
-	const percentage = (goal.saved / goal.target) * 100
-	const Icon = goal.icon
+	const percent = goal.target > 0 ? (goal.saved / goal.target) * 100 : 0;
+	const remaining = Math.max(0, goal.target - goal.saved);
+	const isComplete = percent >= 100;
 
 	return (
 		<Card
-			className={cn(
-				"transition-all hover:shadow-md cursor-pointer flex-shrink-0",
-				isActive && goal.id === "car" ? "bg-primary text-primary-foreground" : "",
-				"w-[260px] sm:w-[280px] lg:w-full",
-			)}
+			onClick={() => onSelect(goal)}
+			className="cursor-pointer transition-colors hover:border-primary/50"
 		>
-			<CardContent className="p-4 sm:p-6">
-				<div className="flex items-center gap-3 sm:gap-4">
-					<div
-						className={cn(
-							"p-2 sm:p-3 rounded-full",
-							isActive && goal.id === "car" ? "bg-primary-foreground/20" : goal.iconBg,
-						)}
-					>
-						<Icon
-							className={cn(
-								"h-4 w-4 sm:h-5 sm:w-5",
-								isActive && goal.id === "car" ? "text-primary-foreground" : goal.iconColor,
-							)}
-						/>
+			<CardContent className="space-y-2 p-3">
+				<div className="flex items-start gap-2">
+					<div className="min-w-0 flex-1">
+						<p className="truncate text-xs font-medium">{goal.name}</p>
+						<p className="text-[11px] text-muted-foreground">
+							{goal.deadline
+								? `${t("goals.deadline")}: ${formatDate(goal.deadline, { dateStyle: "medium" })}`
+								: t("goals.noDeadline")}
+						</p>
 					</div>
-					<div className="flex-1">
-						<div className="flex items-center justify-between mb-1 sm:mb-2">
-							<div className="font-medium text-sm sm:text-base">{goal.name}</div>
-							<div
-								className={cn(
-									"text-xs sm:text-sm",
-									isActive && goal.id === "car" ? "text-primary-foreground/70" : "text-muted-foreground",
-								)}
+
+					{isComplete && (
+						<Badge className="border-transparent bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+							{t("goals.completed")}
+						</Badge>
+					)}
+
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon-xs"
+								onClick={(event) => event.stopPropagation()}
+								aria-label={t("common.actions")}
 							>
-								{percentage.toFixed(0)}%
-							</div>
-						</div>
-						<div
-							className={cn(
-								"text-xs sm:text-sm",
-								isActive && goal.id === "car" ? "text-primary-foreground/70" : "text-muted-foreground",
-							)}
+								<MoreHorizontal />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							align="end"
+							onClick={(event) => event.stopPropagation()}
 						>
-							${goal.saved.toLocaleString()} / ${goal.target.toLocaleString()}
-						</div>
-					</div>
+							<DropdownMenuItem className="gap-2" onSelect={() => onEdit(goal)}>
+								<Pencil />
+								{t("common.edit")}
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								className="gap-2 text-destructive focus:text-destructive"
+								onSelect={() => onDelete(goal)}
+							>
+								<Trash2 />
+								{t("common.delete")}
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
+
+				<div className="flex items-baseline justify-between">
+					<span className="text-lg font-semibold tabular-nums">
+						{formatCurrency(goal.saved)}
+					</span>
+					<span className="text-[11px] text-muted-foreground">
+						{t("goals.target")}: {formatCurrency(goal.target)}
+					</span>
+				</div>
+
+				<Progress value={Math.min(100, percent)} className="h-1.5" />
+
+				<div className="flex justify-between text-[11px] text-muted-foreground">
+					<span>{t("goals.progress", { percent: Math.round(percent) })}</span>
+					<span>
+						{t("goals.remaining")}: {formatCurrency(remaining)}
+					</span>
 				</div>
 			</CardContent>
 		</Card>
-	)
-}
-
-function GoalDetails({ goal }) {
-	const percentage = (goal.saved / goal.target) * 100
-	const historyPagination = usePagination(history, { initialPageSize: 5 })
-
-	return (
-		<div className="space-y-4 sm:space-y-6">
-			<div className="bg-card p-4 sm:p-6 rounded-lg">
-				<h2 className="text-xl sm:text-2xl font-bold">{goal.name}</h2>
-			</div>
-
-			<Card>
-				<CardContent className="pt-4 sm:pt-6 p-4 sm:p-6">
-					<div className="space-y-3 sm:space-y-4">
-						<div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
-							<div>Saved</div>
-							<div>Goals</div>
-						</div>
-						<div className="flex items-center justify-between">
-							<div className="text-lg sm:text-2xl font-bold">${goal.saved.toLocaleString()}</div>
-							<div className="text-lg sm:text-2xl font-bold">${goal.target.toLocaleString()}</div>
-						</div>
-						<Progress value={percentage} className="h-2" />
-						<div className="flex items-center justify-between text-xs sm:text-sm">
-							<div className="text-primary">{percentage.toFixed(0)}%</div>
-							<div className="text-muted-foreground">{(100 - percentage).toFixed(0)}%</div>
-						</div>
-					</div>
-				</CardContent>
-			</Card>
-
-			<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-				<Card>
-					<CardContent className="p-3 sm:p-6">
-						<div className="space-y-1">
-							<div className="text-xs sm:text-sm text-muted-foreground">Last Month</div>
-							<div className="text-base sm:text-xl md:text-2xl font-bold">$42,678</div>
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="p-3 sm:p-6">
-						<div className="space-y-1">
-							<div className="text-xs sm:text-sm text-muted-foreground">Expenses</div>
-							<div className="text-base sm:text-xl md:text-2xl font-bold">$1,798</div>
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="p-3 sm:p-6">
-						<div className="space-y-1">
-							<div className="text-xs sm:text-sm text-muted-foreground">Taxes</div>
-							<div className="text-base sm:text-xl md:text-2xl font-bold">$255.25</div>
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="p-3 sm:p-6">
-						<div className="space-y-1">
-							<div className="text-xs sm:text-sm text-muted-foreground">Debt</div>
-							<div className="text-base sm:text-xl md:text-2xl font-bold">$365,478</div>
-						</div>
-					</CardContent>
-				</Card>
-			</div>
-
-			<Card>
-				<CardHeader className="pb-2 pt-4 px-4 sm:pb-4 sm:pt-6 sm:px-6">
-					<CardTitle className="text-base sm:text-lg">Available by Wallet</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
-					{wallets.map((wallet) => (
-						<div key={wallet.name} className="flex items-center gap-3 sm:gap-4">
-							<div className={cn("p-1.5 sm:p-2 rounded-full", wallet.iconBg)}>
-								<wallet.icon className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
-							</div>
-							<div className="flex-1">
-								<div className="flex items-center justify-between mb-1">
-									<div className="font-medium text-sm sm:text-base">{wallet.name}</div>
-									<div className="text-xs sm:text-sm">{wallet.balance}$</div>
-								</div>
-								<div className="h-1.5 sm:h-2 w-full rounded-full bg-muted">
-									<div
-										className={cn("h-full rounded-full", wallet.progressColor)}
-										style={{ width: `${wallet.progress}%` }}
-									/>
-								</div>
-							</div>
-						</div>
-					))}
-				</CardContent>
-			</Card>
-
-			<Card>
-				<CardHeader className="pb-2 pt-4 px-4 sm:pb-4 sm:pt-6 sm:px-6">
-					<CardTitle className="text-base sm:text-lg">History</CardTitle>
-				</CardHeader>
-				<CardContent className="p-0 sm:p-6">
-					<div className="overflow-x-auto">
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead className="text-xs sm:text-sm">Date</TableHead>
-									<TableHead className="text-xs sm:text-sm">Wallet</TableHead>
-									<TableHead className="text-xs sm:text-sm hidden sm:table-cell">Description</TableHead>
-									<TableHead className="text-xs sm:text-sm text-right">Amount</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{historyPagination.pageItems.map((item) => (
-									<TableRow key={item.date}>
-										<TableCell className="text-xs sm:text-sm py-2 sm:py-4">{item.date}</TableCell>
-										<TableCell className="text-xs sm:text-sm py-2 sm:py-4">{item.wallet}</TableCell>
-										<TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">
-											{item.description}
-										</TableCell>
-										<TableCell className="text-xs sm:text-sm py-2 sm:py-4 text-right">
-											<div className="font-medium text-primary">+{item.amount.toLocaleString()}$</div>
-											<div className="text-xs text-muted-foreground">{item.fees}$</div>
-										</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-					</div>
-					<DataTablePagination
-						{...historyPagination}
-						pageSizeOptions={[5, 10, 25]}
-						className="px-4 sm:px-0"
-					/>
-				</CardContent>
-			</Card>
-		</div>
-	)
+	);
 }
 
 export function Goals() {
+	const { t, formatCurrency } = useTranslation();
+
+	const [formOpen, setFormOpen] = useState(false);
+	const [editing, setEditing] = useState(null);
+	const [selected, setSelected] = useState(null);
+	const [detailsOpen, setDetailsOpen] = useState(false);
+	const [pendingDelete, setPendingDelete] = useState(null);
+
+	const goalsQuery = useGetGoals();
+	const walletsQuery = useGetWallets();
+	const createMutation = useCreateGoal();
+	const updateMutation = useUpdateGoal();
+	const deleteMutation = useDeleteGoal();
+
+	const goals = goalsQuery.data?.goals ?? [];
+	const wallets = walletsQuery.data?.wallets ?? [];
+
+	const summary = useMemo(
+		() =>
+			goals.reduce(
+				(totals, goal) => {
+					totals.saved += goal.saved;
+					totals.target += goal.target;
+					return totals;
+				},
+				{ saved: 0, target: 0 },
+			),
+		[goals],
+	);
+
+	const openCreate = () => {
+		setEditing(null);
+		setFormOpen(true);
+	};
+
+	// Leaving the details panel open behind the form would stack two panels.
+	const openEdit = (goal) => {
+		setDetailsOpen(false);
+		setEditing(goal);
+		setFormOpen(true);
+	};
+
+	const openDelete = (goal) => {
+		setDetailsOpen(false);
+		setPendingDelete(goal);
+	};
+
+	const handleContribute = async (goal, saved) => {
+		try {
+			await updateMutation.mutateAsync({ id: goal.id, data: { saved } });
+			setSelected({ ...goal, saved });
+			toast.success(t("goals.contributionAdded"));
+		} catch (error) {
+			toast.error(t("goals.saveError"), { description: error.message });
+		}
+	};
+
+	const handleSubmit = async (payload) => {
+		try {
+			if (editing) {
+				await updateMutation.mutateAsync({ id: editing.id, data: payload });
+				toast.success(t("goals.updated"));
+			} else {
+				await createMutation.mutateAsync(payload);
+				toast.success(t("goals.created"));
+			}
+			setFormOpen(false);
+			setEditing(null);
+		} catch (error) {
+			toast.error(t("goals.saveError"), { description: error.message });
+		}
+	};
+
+	const handleDelete = async () => {
+		const target = pendingDelete;
+		if (!target) return;
+
+		try {
+			await deleteMutation.mutateAsync(target.id);
+			toast.success(t("goals.deleted"));
+		} catch (error) {
+			toast.error(t("goals.deleteError"), { description: error.message });
+		} finally {
+			setPendingDelete(null);
+		}
+	};
+
+	if (goalsQuery.isPending) {
+		return (
+			<div role="status" aria-busy="true">
+				<span className="sr-only">{t("common.loading")}</span>
+				<GoalsSkeleton />
+			</div>
+		);
+	}
+
+	if (goalsQuery.isError) {
+		return (
+			<div className="flex flex-col items-center gap-3 py-10 text-center">
+				<AlertCircle className="h-6 w-6 text-destructive" />
+				<div>
+					<p className="text-sm font-medium">{t("goals.loadError")}</p>
+					<p className="text-xs text-muted-foreground">
+						{goalsQuery.error?.message}
+					</p>
+				</div>
+				<Button variant="outline" onClick={() => goalsQuery.refetch()}>
+					{t("common.retry")}
+				</Button>
+			</div>
+		);
+	}
+
 	return (
-		<div className="space-y-6">
-			{/* Goal cards - horizontal scrolling on mobile, vertical on desktop */}
-			<div className="lg:hidden overflow-x-auto pb-2">
-				<div className="flex gap-4">
-					{goals.map((goal) => (
-						<GoalCard key={goal.id} goal={goal} isActive={goal.id === "car"} />
-					))}
-					<Button className="flex-shrink-0 w-[260px] sm:w-[280px] h-[72px] sm:h-auto">
-						<Plus className="mr-2 h-4 w-4" />
-						Add new goals
+		<div className="space-y-3">
+			<div className="flex flex-wrap items-center gap-2">
+				<div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+					<span>
+						{t("goals.totalSaved")}:{" "}
+						<span className="font-medium text-foreground">
+							{formatCurrency(summary.saved)}
+						</span>
+					</span>
+					<span>
+						{t("goals.totalTarget")}:{" "}
+						<span className="font-medium text-foreground">
+							{formatCurrency(summary.target)}
+						</span>
+					</span>
+				</div>
+
+				<div className="ml-auto flex items-center gap-2">
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={() => goalsQuery.refetch()}
+						disabled={goalsQuery.isFetching}
+						aria-label={t("common.refresh")}
+					>
+						<RefreshCw className={cn(goalsQuery.isFetching && "animate-spin")} />
+					</Button>
+					<Button onClick={openCreate}>
+						<Plus />
+						{t("goals.add")}
 					</Button>
 				</div>
 			</div>
 
-			{/* Desktop layout */}
-			<div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-				{/* Sidebar - hidden on mobile, shown on desktop */}
-				<div className="hidden lg:block lg:col-span-3 space-y-4">
+			{goals.length === 0 ? (
+				<Card>
+					<CardContent className="flex flex-col items-center gap-2 py-10 text-center">
+						<Target className="h-6 w-6 text-muted-foreground" />
+						<p className="text-sm font-medium">{t("goals.empty")}</p>
+						<p className="text-xs text-muted-foreground">
+							{t("goals.emptyHint")}
+						</p>
+						<Button className="mt-1" onClick={openCreate}>
+							<Plus />
+							{t("goals.add")}
+						</Button>
+					</CardContent>
+				</Card>
+			) : (
+				<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
 					{goals.map((goal) => (
-						<GoalCard key={goal.id} goal={goal} isActive={goal.id === "car"} />
+						<GoalCard
+							key={goal.id}
+							goal={goal}
+							onSelect={(target) => {
+								setSelected(target);
+								setDetailsOpen(true);
+							}}
+							onEdit={openEdit}
+							onDelete={openDelete}
+						/>
 					))}
-					<Button className="w-full">
-						<Plus className="mr-2 h-4 w-4" />
-						Add new goals
-					</Button>
 				</div>
+			)}
 
-				{/* Goal details */}
-				<div className="lg:col-span-9">
-					<GoalDetails goal={goals[0]} />
-				</div>
-			</div>
+			<GoalDetailsDialog
+				goal={selected}
+				open={detailsOpen}
+				onOpenChange={setDetailsOpen}
+				wallets={wallets}
+				onEdit={openEdit}
+				onDelete={openDelete}
+				onContribute={handleContribute}
+				isSaving={updateMutation.isPending}
+			/>
+
+			<GoalFormDialog
+				open={formOpen}
+				onOpenChange={(open) => {
+					setFormOpen(open);
+					if (!open) setEditing(null);
+				}}
+				goal={editing}
+				wallets={wallets}
+				onSubmit={handleSubmit}
+				isSubmitting={createMutation.isPending || updateMutation.isPending}
+			/>
+
+			<AlertDialog
+				open={Boolean(pendingDelete)}
+				onOpenChange={(open) => !open && setPendingDelete(null)}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>{t("goals.deleteConfirmTitle")}</AlertDialogTitle>
+						<AlertDialogDescription>
+							{t("goals.deleteConfirmDescription", {
+								name: pendingDelete?.name ?? "",
+							})}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleDelete}
+							disabled={deleteMutation.isPending}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						>
+							{t("common.delete")}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
-	)
+	);
 }
-

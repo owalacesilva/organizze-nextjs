@@ -4,21 +4,15 @@ import {
 	SkeletonChartCard,
 	SkeletonMetricCards,
 	SkeletonPage,
-	SkeletonTabs,
 } from "@/components/elements/skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors AnalyticsSection: tab strip, metric row, then the chart grid. */
+/** Mirrors AnalyticsSection: tab strip, stat tiles, then the main chart. */
 export function AnalyticsSkeleton() {
 	return (
-		<SkeletonPage>
-			<SkeletonTabs count={6} />
+		<SkeletonPage className="space-y-3">
+			<Skeleton className="h-8 w-full max-w-lg" />
 			<SkeletonMetricCards count={4} />
-
-			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-				<SkeletonChartCard height="h-64" />
-				<SkeletonChartCard height="h-64" />
-			</div>
-
 			<SkeletonChartCard height="h-72" />
 		</SkeletonPage>
 	);

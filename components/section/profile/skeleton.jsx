@@ -1,35 +1,38 @@
 "use client";
 
-import {
-	SkeletonChartCard,
-	SkeletonList,
-	SkeletonPage,
-	SkeletonTabs,
-} from "@/components/elements/skeletons";
-import { Card, CardContent } from "@/components/ui/card";
+import { SkeletonChartCard, SkeletonPage } from "@/components/elements/skeletons";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors ProfileSection: identity header, tabs, spending chart and accounts. */
+/** Mirrors ProfileSection: overview card beside the per-wallet spending panel. */
 export function ProfileSkeleton() {
 	return (
-		<SkeletonPage>
-			<Card className="shadow-none">
-				<CardContent className="flex flex-col items-center gap-4 p-4 sm:flex-row sm:p-6">
-					<Skeleton className="h-16 w-16 shrink-0 rounded-full" />
-					<div className="w-full space-y-2">
-						<Skeleton className="h-5 w-44" />
-						<Skeleton className="h-3 w-56" />
-						<Skeleton className="h-4 w-20 rounded-full" />
+		<SkeletonPage className="grid grid-cols-1 gap-2 space-y-0 sm:gap-3 lg:grid-cols-12">
+			<Card className="lg:col-span-4">
+				<CardHeader>
+					<Skeleton className="h-3 w-20" />
+				</CardHeader>
+				<CardContent className="space-y-3">
+					<div className="flex items-start gap-2">
+						<Skeleton className="h-12 w-12 shrink-0" />
+						<div className="w-full space-y-1.5">
+							<Skeleton className="h-3 w-32" />
+							<Skeleton className="h-2.5 w-40" />
+							<Skeleton className="h-4 w-16" />
+						</div>
 					</div>
-					<Skeleton className="h-8 w-28 shrink-0" />
+					<Skeleton className="h-1.5 w-full" />
+					<Skeleton className="h-28 w-full" />
+					<div className="grid grid-cols-3 gap-1">
+						<Skeleton className="h-10" />
+						<Skeleton className="h-10" />
+						<Skeleton className="h-10" />
+					</div>
 				</CardContent>
 			</Card>
 
-			<SkeletonTabs count={4} />
-
-			<div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-				<SkeletonChartCard className="lg:col-span-2" height="h-64" />
-				<SkeletonList className="lg:col-span-1" items={4} />
+			<div className="lg:col-span-8">
+				<SkeletonChartCard height="h-56" />
 			</div>
 		</SkeletonPage>
 	);

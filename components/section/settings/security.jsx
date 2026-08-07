@@ -1,314 +1,379 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CheckCircle, CreditCard, Mail, Phone, Upload, XCircle } from "lucide-react"
-import { useState } from "react"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { useTranslation } from "@/hooks/useTranslation";
+import { CheckCircle, CreditCard, Mail, Phone, Upload, XCircle } from "lucide-react";
+import { useState } from "react";
 
-export default function Security() {
-	const [addIdDialogOpen, setAddIdDialogOpen] = useState(false)
-	const [addEmailDialogOpen, setAddEmailDialogOpen] = useState(false)
-	const [addPhoneDialogOpen, setAddPhoneDialogOpen] = useState(false)
+const ID_TYPES = ["passport", "driver", "national"];
+const PURPOSES = ["primary", "work", "personal", "recovery"];
+const COUNTRIES = ["br", "us", "pt", "ca", "uk"];
+
+// Placeholder contact points until the verification endpoints exist.
+const EMAILS = [
+	{ value: "hello@example.com", verified: true },
+	{ value: "work@example.com", verified: true },
+	{ value: "backup@example.com", verified: false },
+];
+
+const PHONES = [
+	{ value: "+55 11 98765-4321", verified: true },
+	{ value: "+55 11 91234-5678", verified: false },
+];
+
+function VerificationRow({ icon: Icon, value, verified }) {
+	const { t } = useTranslation();
 
 	return (
-		<div className="space-y-6">
-			<div className="grid gap-6 md:grid-cols-3">
-				{/* Social Security Card */}
+		<div className="flex items-center gap-2">
+			<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted">
+				<Icon className="h-3.5 w-3.5 text-primary" />
+			</div>
+			<div className="min-w-0 flex-1">
+				<p className="truncate text-xs font-medium">{value}</p>
+				<span
+					className={
+						verified
+							? "flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400"
+							: "flex items-center gap-1 text-[11px] text-destructive"
+					}
+				>
+					{verified ? (
+						<CheckCircle className="h-3 w-3" />
+					) : (
+						<XCircle className="h-3 w-3" />
+					)}
+					{verified
+						? t("settings.security.verified")
+						: t("settings.security.pending")}
+				</span>
+			</div>
+		</div>
+	);
+}
+
+function UploadBox({ id }) {
+	const { t } = useTranslation();
+
+	return (
+		<div className="flex flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed p-3">
+			<Upload className="h-6 w-6 text-muted-foreground" />
+			<p className="text-center text-[11px] text-muted-foreground">
+				{t("settings.security.dropHint")}
+			</p>
+			<Input id={id} type="file" className="hidden" />
+			<Button variant="outline" asChild>
+				<label htmlFor={id} className="cursor-pointer">
+					{t("settings.security.chooseFile")}
+				</label>
+			</Button>
+			<p className="text-[10px] text-muted-foreground">
+				{t("settings.security.formatsHint")}
+			</p>
+		</div>
+	);
+}
+
+export default function Security() {
+	const { t } = useTranslation();
+	const [idOpen, setIdOpen] = useState(false);
+	const [emailOpen, setEmailOpen] = useState(false);
+	const [phoneOpen, setPhoneOpen] = useState(false);
+
+	return (
+		<div className="space-y-3">
+			<div className="grid gap-3 md:grid-cols-3">
 				<Card>
 					<CardHeader>
-						<CardTitle>Social Security Card</CardTitle>
+						<CardTitle>{t("settings.security.idCardTitle")}</CardTitle>
 					</CardHeader>
-					<CardContent className="space-y-4">
-						<div className="rounded-lg bg-primary p-4 flex items-center justify-center h-48">
-							<div className="w-full space-y-4 px-4">
-								<div className="h-4 bg-white rounded w-3/4"></div>
-								<div className="h-4 bg-white rounded w-3/4"></div>
-								<div className="h-4 bg-white rounded w-3/4"></div>
-								<div className="h-4 bg-white rounded w-3/4"></div>
-								<div className="absolute right-16 top-32 bg-white h-20 w-20 rounded-full"></div>
-								<div className="absolute right-16 top-52 bg-white h-4 w-12 rounded"></div>
-							</div>
-						</div>
+					<CardContent className="space-y-3">
+						<VerificationRow
+							icon={CreditCard}
+							value="0024 5687 2254 3698"
+							verified
+						/>
 
-						<p className="font-medium text-lg">Carla Pascle</p>
-
-						<div className="flex items-center gap-3">
-							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-								<CreditCard className="h-5 w-5 text-primary" />
-							</div>
-							<div className="flex-1">
-								<p className="font-medium">0024 5687 2254 3698</p>
-								<div className="flex items-center text-green-600">
-									<CheckCircle className="h-4 w-4 mr-1" />
-									<span className="text-sm">Verified</span>
-								</div>
-							</div>
-						</div>
-
-						{/* Add New ID Dialog */}
-						<Dialog open={addIdDialogOpen} onOpenChange={setAddIdDialogOpen}>
+						<Dialog open={idOpen} onOpenChange={setIdOpen}>
 							<DialogTrigger asChild>
-								<Button className="w-full">Add New ID</Button>
+								<Button className="w-full">
+									{t("settings.security.addId")}
+								</Button>
 							</DialogTrigger>
-							<DialogContent className="sm:max-w-[425px]">
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Add New ID</DialogTitle>
-									<DialogDescription>Upload your identification document to verify your identity.</DialogDescription>
+									<DialogTitle>{t("settings.security.addId")}</DialogTitle>
+									<DialogDescription>
+										{t("settings.security.addIdDescription")}
+									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="grid gap-2">
-										<Label htmlFor="id-type">ID Type</Label>
+
+								<DialogBody>
+									<div className="space-y-1">
+										<Label htmlFor="id-type">
+											{t("settings.security.idType")}
+										</Label>
 										<Select>
 											<SelectTrigger id="id-type">
-												<SelectValue placeholder="Select ID type" />
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="passport">Passport</SelectItem>
-												<SelectItem value="driver">Driver's License</SelectItem>
-												<SelectItem value="national">National ID Card</SelectItem>
-												<SelectItem value="social">Social Security Card</SelectItem>
+												{ID_TYPES.map((type) => (
+													<SelectItem key={type} value={type}>
+														{t(`settings.security.idTypes.${type}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
 
-									<div className="grid gap-2">
-										<Label htmlFor="id-number">ID Number</Label>
-										<Input id="id-number" placeholder="Enter ID number" />
+									<div className="space-y-1">
+										<Label htmlFor="id-number">
+											{t("settings.security.idNumber")}
+										</Label>
+										<Input
+											id="id-number"
+											placeholder={t("settings.security.idNumberPlaceholder")}
+										/>
 									</div>
 
-									<div className="grid gap-2">
-										<Label htmlFor="id-expiry">Expiry Date</Label>
+									<div className="space-y-1">
+										<Label htmlFor="id-expiry">
+											{t("settings.security.expiryDate")}
+										</Label>
 										<Input id="id-expiry" type="date" />
 									</div>
 
-									<div className="grid gap-2">
-										<Label>Upload ID Document</Label>
-										<div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center gap-2">
-											<Upload className="h-8 w-8 text-muted-foreground" />
-											<p className="text-sm text-muted-foreground">Drag and drop your ID, or click to browse</p>
-											<Input id="id-upload" type="file" className="hidden" />
-											<Button variant="outline" size="sm" onClick={() => document.getElementById("id-upload")?.click()}>
-												Choose File
-											</Button>
-											<p className="text-xs text-muted-foreground">Supported formats: JPG, PNG, PDF. Max size: 5MB</p>
-										</div>
+									<div className="space-y-1">
+										<Label>{t("settings.security.uploadId")}</Label>
+										<UploadBox id="id-upload" />
 									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setAddIdDialogOpen(false)}>
-										Cancel
+									<Button variant="outline" onClick={() => setIdOpen(false)}>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setAddIdDialogOpen(false)}>Submit for Verification</Button>
+									<Button onClick={() => setIdOpen(false)}>
+										{t("settings.security.submitVerification")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
 					</CardContent>
 				</Card>
 
-				{/* Email Verification */}
 				<Card>
 					<CardHeader>
-						<CardTitle>Email Verification</CardTitle>
+						<CardTitle>{t("settings.security.emailTitle")}</CardTitle>
 					</CardHeader>
-					<CardContent className="space-y-4">
-						{[1, 2, 3].map((i) => (
-							<div key={`email-${i}`} className="flex items-center gap-3">
-								<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-									<Mail className="h-5 w-5 text-primary" />
-								</div>
-								<div className="flex-1">
-									<p className="font-medium">hello@example.com</p>
-									<div className="flex items-center text-green-600">
-										<CheckCircle className="h-4 w-4 mr-1" />
-										<span className="text-sm">Verified</span>
-									</div>
-								</div>
-							</div>
+					<CardContent className="space-y-3">
+						{EMAILS.map((email) => (
+							<VerificationRow
+								key={email.value}
+								icon={Mail}
+								value={email.value}
+								verified={email.verified}
+							/>
 						))}
 
-						<div className="flex items-center gap-3">
-							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-								<Mail className="h-5 w-5 text-primary" />
-							</div>
-							<div className="flex-1">
-								<p className="font-medium">hello@example.com</p>
-								<div className="flex items-center text-destructive">
-									<XCircle className="h-4 w-4 mr-1" />
-									<span className="text-sm">Verification pending</span>
-								</div>
-							</div>
-						</div>
-
-						<Input placeholder="hello@example.com" />
-
-						{/* Add New Email Dialog */}
-						<Dialog open={addEmailDialogOpen} onOpenChange={setAddEmailDialogOpen}>
+						<Dialog open={emailOpen} onOpenChange={setEmailOpen}>
 							<DialogTrigger asChild>
-								<Button className="w-full">Add New Email</Button>
+								<Button className="w-full">
+									{t("settings.security.addEmail")}
+								</Button>
 							</DialogTrigger>
-							<DialogContent className="sm:max-w-[425px]">
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Add New Email</DialogTitle>
+									<DialogTitle>{t("settings.security.addEmail")}</DialogTitle>
 									<DialogDescription>
-										Enter a new email address to add to your account. We'll send a verification code to confirm.
+										{t("settings.security.addEmailDescription")}
 									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="grid gap-2">
-										<Label htmlFor="new-email">Email Address</Label>
-										<Input id="new-email" type="email" placeholder="Enter your email address" />
+
+								<DialogBody>
+									<div className="space-y-1">
+										<Label htmlFor="new-email-address">
+											{t("settings.security.emailAddress")}
+										</Label>
+										<Input
+											id="new-email-address"
+											type="email"
+											placeholder={t("settings.security.emailPlaceholder")}
+										/>
 									</div>
 
-									<div className="grid gap-2">
-										<Label htmlFor="email-purpose">Purpose</Label>
+									<div className="space-y-1">
+										<Label htmlFor="email-purpose">
+											{t("settings.security.purpose")}
+										</Label>
 										<Select>
 											<SelectTrigger id="email-purpose">
-												<SelectValue placeholder="Select purpose" />
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="primary">Primary Email</SelectItem>
-												<SelectItem value="work">Work Email</SelectItem>
-												<SelectItem value="personal">Personal Email</SelectItem>
-												<SelectItem value="recovery">Recovery Email</SelectItem>
+												{PURPOSES.map((purpose) => (
+													<SelectItem key={purpose} value={purpose}>
+														{t(`settings.security.purposes.${purpose}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
 
-									<div className="grid gap-2">
+									<div className="space-y-1">
 										<div className="flex items-center justify-between">
-											<Label htmlFor="verification-code">Verification Code</Label>
-											<Button variant="link" size="sm" className="h-auto p-0">
-												Send Code
+											<Label htmlFor="email-code">
+												{t("settings.security.verificationCode")}
+											</Label>
+											<Button variant="link" size="xs">
+												{t("settings.security.sendCode")}
 											</Button>
 										</div>
-										<Input id="verification-code" placeholder="Enter verification code" />
-										<p className="text-xs text-muted-foreground">Enter the 6-digit code sent to your email</p>
+										<Input id="email-code" />
+										<p className="text-[10px] text-muted-foreground">
+											{t("settings.security.emailCodeHint")}
+										</p>
 									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setAddEmailDialogOpen(false)}>
-										Cancel
+									<Button
+										variant="outline"
+										onClick={() => setEmailOpen(false)}
+									>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setAddEmailDialogOpen(false)}>Verify & Add Email</Button>
+									<Button onClick={() => setEmailOpen(false)}>
+										{t("settings.security.verifyAddEmail")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
 					</CardContent>
 				</Card>
 
-				{/* Phone Verification */}
 				<Card>
 					<CardHeader>
-						<CardTitle>Phone Verification</CardTitle>
+						<CardTitle>{t("settings.security.phoneTitle")}</CardTitle>
 					</CardHeader>
-					<CardContent className="space-y-4">
-						{[1, 2, 3].map((i) => (
-							<div key={`phone-${i}`} className="flex items-center gap-3">
-								<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-									<Phone className="h-5 w-5 text-primary" />
-								</div>
-								<div className="flex-1">
-									<p className="font-medium">+1 135 468 45</p>
-									<div className="flex items-center text-green-600">
-										<CheckCircle className="h-4 w-4 mr-1" />
-										<span className="text-sm">Verified</span>
-									</div>
-								</div>
-							</div>
+					<CardContent className="space-y-3">
+						{PHONES.map((phone) => (
+							<VerificationRow
+								key={phone.value}
+								icon={Phone}
+								value={phone.value}
+								verified={phone.verified}
+							/>
 						))}
 
-						<div className="flex items-center gap-3">
-							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-								<Phone className="h-5 w-5 text-primary" />
-							</div>
-							<div className="flex-1">
-								<p className="font-medium">+1 135 468 45</p>
-								<div className="flex items-center text-destructive">
-									<XCircle className="h-4 w-4 mr-1" />
-									<span className="text-sm">Verification pending</span>
-								</div>
-							</div>
-						</div>
-
-						<Input placeholder="+1 135 468 45" />
-
-						{/* Add New Phone Dialog */}
-						<Dialog open={addPhoneDialogOpen} onOpenChange={setAddPhoneDialogOpen}>
+						<Dialog open={phoneOpen} onOpenChange={setPhoneOpen}>
 							<DialogTrigger asChild>
-								<Button className="w-full">Add New Phone</Button>
+								<Button className="w-full">
+									{t("settings.security.addPhone")}
+								</Button>
 							</DialogTrigger>
-							<DialogContent className="sm:max-w-[425px]">
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Add New Phone Number</DialogTitle>
+									<DialogTitle>{t("settings.security.addPhone")}</DialogTitle>
 									<DialogDescription>
-										Enter a new phone number to add to your account. We'll send a verification code via SMS.
+										{t("settings.security.addPhoneDescription")}
 									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="grid gap-2">
-										<Label htmlFor="country-code">Country</Label>
-										<Select defaultValue="us">
-											<SelectTrigger id="country-code">
-												<SelectValue placeholder="Select country" />
+
+								<DialogBody>
+									<div className="space-y-1">
+										<Label htmlFor="phone-country">
+											{t("settings.security.country")}
+										</Label>
+										<Select defaultValue="br">
+											<SelectTrigger id="phone-country">
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="us">United States (+1)</SelectItem>
-												<SelectItem value="uk">United Kingdom (+44)</SelectItem>
-												<SelectItem value="ca">Canada (+1)</SelectItem>
-												<SelectItem value="au">Australia (+61)</SelectItem>
-												<SelectItem value="in">India (+91)</SelectItem>
+												{COUNTRIES.map((code) => (
+													<SelectItem key={code} value={code}>
+														{t(`countries.${code}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
 
-									<div className="grid gap-2">
-										<Label htmlFor="new-phone">Phone Number</Label>
-										<Input id="new-phone" placeholder="Enter your phone number" />
+									<div className="space-y-1">
+										<Label htmlFor="new-phone">
+											{t("settings.security.phoneNumber")}
+										</Label>
+										<Input
+											id="new-phone"
+											placeholder={t("settings.security.phonePlaceholder")}
+										/>
 									</div>
 
-									<div className="grid gap-2">
-										<Label htmlFor="phone-purpose">Purpose</Label>
+									<div className="space-y-1">
+										<Label htmlFor="phone-purpose">
+											{t("settings.security.purpose")}
+										</Label>
 										<Select>
 											<SelectTrigger id="phone-purpose">
-												<SelectValue placeholder="Select purpose" />
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="primary">Primary Phone</SelectItem>
-												<SelectItem value="work">Work Phone</SelectItem>
-												<SelectItem value="home">Home Phone</SelectItem>
-												<SelectItem value="mobile">Mobile Phone</SelectItem>
+												{PURPOSES.map((purpose) => (
+													<SelectItem key={purpose} value={purpose}>
+														{t(`settings.security.purposes.${purpose}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
 
-									<div className="grid gap-2">
+									<div className="space-y-1">
 										<div className="flex items-center justify-between">
-											<Label htmlFor="sms-code">SMS Verification Code</Label>
-											<Button variant="link" size="sm" className="h-auto p-0">
-												Send Code
+											<Label htmlFor="sms-code">
+												{t("settings.security.smsCode")}
+											</Label>
+											<Button variant="link" size="xs">
+												{t("settings.security.sendCode")}
 											</Button>
 										</div>
-										<Input id="sms-code" placeholder="Enter SMS code" />
-										<p className="text-xs text-muted-foreground">Enter the 6-digit code sent to your phone</p>
+										<Input id="sms-code" />
+										<p className="text-[10px] text-muted-foreground">
+											{t("settings.security.smsCodeHint")}
+										</p>
 									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setAddPhoneDialogOpen(false)}>
-										Cancel
+									<Button
+										variant="outline"
+										onClick={() => setPhoneOpen(false)}
+									>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setAddPhoneDialogOpen(false)}>Verify & Add Phone</Button>
+									<Button onClick={() => setPhoneOpen(false)}>
+										{t("settings.security.verifyAddPhone")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
@@ -316,34 +381,35 @@ export default function Security() {
 				</Card>
 			</div>
 
-			{/* Password section from previous implementation */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Password Settings</CardTitle>
+					<CardTitle>{t("settings.security.passwordTitle")}</CardTitle>
 				</CardHeader>
-				<CardContent className="space-y-4">
-					<div className="space-y-2">
-						<label htmlFor="current-password" className="text-sm font-medium">
-							Current Password
-						</label>
-						<Input id="current-password" type="password" />
+				<CardContent className="space-y-3">
+					<div className="grid gap-3 md:grid-cols-3">
+						<div className="space-y-1">
+							<Label htmlFor="current-password">
+								{t("settings.security.currentPassword")}
+							</Label>
+							<Input id="current-password" type="password" />
+						</div>
+						<div className="space-y-1">
+							<Label htmlFor="new-password">
+								{t("settings.security.newPassword")}
+							</Label>
+							<Input id="new-password" type="password" />
+						</div>
+						<div className="space-y-1">
+							<Label htmlFor="confirm-password">
+								{t("settings.security.confirmPassword")}
+							</Label>
+							<Input id="confirm-password" type="password" />
+						</div>
 					</div>
-					<div className="space-y-2">
-						<label htmlFor="new-password" className="text-sm font-medium">
-							New Password
-						</label>
-						<Input id="new-password" type="password" />
-					</div>
-					<div className="space-y-2">
-						<label htmlFor="confirm-password" className="text-sm font-medium">
-							Confirm New Password
-						</label>
-						<Input id="confirm-password" type="password" />
-					</div>
-					<Button>Update Password</Button>
+
+					<Button>{t("settings.security.updatePassword")}</Button>
 				</CardContent>
 			</Card>
 		</div>
-	)
+	);
 }
-

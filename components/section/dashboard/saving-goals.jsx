@@ -1,94 +1,55 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+"use client";
 
-const goals = [
-	{
-		name: "Vacation",
-		progress: 80,
-		color: "rgb(255, 99, 132)",
-		lightColor: "rgba(255, 99, 132, 0.2)",
-	},
-	{
-		name: "Gift",
-		progress: 90,
-		color: "rgb(75, 192, 112)",
-		lightColor: "rgba(75, 192, 112, 0.2)",
-	},
-	{
-		name: "New Car",
-		progress: 95,
-		color: "rgb(66, 153, 225)",
-		lightColor: "rgba(66, 153, 225, 0.2)",
-	},
-	{
-		name: "Laptop",
-		progress: 99,
-		color: "rgb(251, 191, 36)",
-		lightColor: "rgba(251, 191, 36, 0.2)",
-	},
-]
-
-function CircularProgress({ value, color, lightColor, size = 120 }) {
-	const strokeWidth = 8
-	const radius = (size - strokeWidth) / 2
-	const circumference = radius * 2 * Math.PI
-	const offset = circumference - (value / 100) * circumference
-
-	return (
-		<div className="relative" style={{ width: size, height: size }}>
-			{/* Background circle */}
-			<svg className="absolute" width={size} height={size}>
-				<circle
-					className="transition-all duration-300"
-					stroke={lightColor}
-					strokeWidth={strokeWidth}
-					fill="none"
-					r={radius}
-					cx={size / 2}
-					cy={size / 2}
-				/>
-			</svg>
-
-			{/* Progress circle */}
-			<svg className="absolute -rotate-90" width={size} height={size}>
-				<circle
-					className="transition-all duration-300"
-					stroke={color}
-					strokeWidth={strokeWidth}
-					strokeDasharray={circumference}
-					strokeDashoffset={offset}
-					strokeLinecap="round"
-					fill="none"
-					r={radius}
-					cx={size / 2}
-					cy={size / 2}
-				/>
-			</svg>
-
-			{/* Percentage text */}
-			<div className="absolute inset-0 flex items-center justify-center text-2xl font-medium" style={{ color }}>
-				{value}%
-			</div>
-		</div>
-	)
-}
+import { useGetGoals } from "@/app/api/goals/hooks";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function SavingGoals() {
+	const { t, formatCurrency } = useTranslation();
+	const goalsQuery = useGetGoals();
+
+	const goals = goalsQuery.data?.goals ?? [];
+
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Saving Goals</CardTitle>
+				<CardTitle>{t("dashboard.savingGoals")}</CardTitle>
 			</CardHeader>
-			<CardContent>
-				<div className="grid grid-cols-2 gap-8">
-					{goals.map((goal) => (
-						<div key={goal.name} className="flex flex-col items-center gap-3">
-							<CircularProgress value={goal.progress} color={goal.color} lightColor={goal.lightColor} />
-							<span className="font-medium text-sm">{goal.name}</span>
+			<CardContent className="space-y-3">
+				{goalsQuery.isPending ? (
+					Array.from({ length: 3 }).map((_, index) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder
+						<div key={index} className="space-y-1.5">
+							<Skeleton className="h-2.5 w-28" />
+							<Skeleton className="h-1.5 w-full" />
 						</div>
-					))}
-				</div>
+					))
+				) : goals.length === 0 ? (
+					<p className="py-6 text-center text-xs text-muted-foreground">
+						{t("dashboard.noGoals")}
+					</p>
+				) : (
+					goals.map((goal) => {
+						const percent = goal.target > 0 ? (goal.saved / goal.target) * 100 : 0;
+
+						return (
+							<div key={goal.id} className="space-y-1.5">
+								<div className="flex items-center gap-2">
+									<span className="truncate text-xs font-medium">
+										{goal.name}
+									</span>
+									<span className="ml-auto shrink-0 text-[11px] tabular-nums text-muted-foreground">
+										{formatCurrency(goal.saved)} / {formatCurrency(goal.target)}
+									</span>
+								</div>
+								<Progress value={Math.min(100, percent)} className="h-1.5" />
+							</div>
+						);
+					})
+				)}
 			</CardContent>
 		</Card>
-	)
+	);
 }
-
