@@ -2,12 +2,12 @@ import { withAuth } from "next-auth/middleware";
 
 export default withAuth({
 	pages: {
-		signIn: "/login",
+		signIn: "/signIn",
 	},
 });
 
 export const config = {
 	matcher: [
-		"/((?!api|login|_next/static|_next/image|favicon.ico|images|manifest.json).*)",
+		"/((?!api|signIn|_next/static|_next/image|favicon.ico|images|manifest.json).*)",
 	],
 };

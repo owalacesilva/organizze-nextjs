@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "@/hooks/useTranslation";
 import { MOCK_USER_CREDENTIALS, SIMULATION_ENABLED } from "@/lib/simulation";
+import { Eye, EyeOff } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -22,6 +23,7 @@ export default function SignIn({ onStateChange }) {
 	const searchParams = useSearchParams();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 
 	const handleSubmit = async (event) => {
@@ -45,12 +47,12 @@ export default function SignIn({ onStateChange }) {
 	};
 
 	return (
-		<div className="flex h-full flex-col justify-center">
-			<CardHeader>
-				<CardTitle className="text-base">{t("auth.signIn.title")}</CardTitle>
+		<div className="flex flex-col">
+			<CardHeader className="items-center text-center">
+				<CardTitle className="text-lg">{t("auth.signIn.title")}</CardTitle>
 			</CardHeader>
 
-			<CardContent className="flex-grow">
+			<CardContent>
 				<form onSubmit={handleSubmit} className="space-y-3">
 					<div className="space-y-1">
 						<Label htmlFor="signin-email">{t("auth.fields.email")}</Label>
@@ -66,37 +68,66 @@ export default function SignIn({ onStateChange }) {
 
 					<div className="space-y-1">
 						<Label htmlFor="signin-password">{t("auth.fields.password")}</Label>
-						<Input
-							id="signin-password"
-							type="password"
-							placeholder={t("auth.fields.passwordPlaceholder")}
-							value={password}
-							onChange={(event) => setPassword(event.target.value)}
-							required
-						/>
+						<div className="relative">
+							<Input
+								id="signin-password"
+								type={showPassword ? "text" : "password"}
+								placeholder={t("auth.fields.passwordPlaceholder")}
+								value={password}
+								onChange={(event) => setPassword(event.target.value)}
+								className="pr-9"
+								required
+							/>
+							<button
+								type="button"
+								onClick={() => setShowPassword((value) => !value)}
+								className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+								aria-label={
+									showPassword
+										? t("auth.fields.hidePassword")
+										: t("auth.fields.showPassword")
+								}
+							>
+								{showPassword ? (
+									<EyeOff className="h-4 w-4" />
+								) : (
+									<Eye className="h-4 w-4" />
+								)}
+							</button>
+						</div>
+
+						<div className="flex justify-end">
+							<Button
+								type="button"
+								variant="link"
+								className="h-auto p-0 text-xs"
+								onClick={() => onStateChange("reset")}
+							>
+								{t("auth.signIn.forgot")}
+							</Button>
+						</div>
 					</div>
 
 					<Button className="w-full" type="submit" disabled={submitting}>
 						{submitting ? t("auth.signIn.submitting") : t("auth.signIn.submit")}
 					</Button>
 				</form>
-			</CardContent>
-
-			<CardFooter className="mt-auto flex-col gap-2 border-t pt-3">
-				<div className="flex w-full flex-col justify-between gap-2 sm:flex-row">
-					<Button variant="link" onClick={() => onStateChange("signup")}>
-						{t("auth.signIn.noAccount")}
-					</Button>
-					<Button variant="link" onClick={() => onStateChange("reset")}>
-						{t("auth.signIn.forgot")}
-					</Button>
-				</div>
 
 				{SIMULATION_ENABLED && (
-					<p className="text-center text-xs text-muted-foreground">
+					<p className="mt-3 text-center text-xs text-muted-foreground">
 						{t("auth.signIn.mockHint", MOCK_USER_CREDENTIALS)}
 					</p>
 				)}
+			</CardContent>
+
+			<CardFooter className="justify-center border-t py-3">
+				<Button
+					variant="link"
+					className="h-auto p-0 text-xs"
+					onClick={() => onStateChange("signup")}
+				>
+					{t("auth.signIn.noAccount")}
+				</Button>
 			</CardFooter>
 		</div>
 	);

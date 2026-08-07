@@ -85,7 +85,7 @@ export function UserNav() {
 
 				<DropdownMenuItem
 					className="gap-2 text-destructive focus:text-destructive"
-					onClick={() => signOut({ callbackUrl: "/login" })}
+					onClick={() => signOut({ callbackUrl: "/signIn" })}
 				>
 					<LogOut />
 					{t("layout.logout")}
