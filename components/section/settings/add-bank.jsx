@@ -1,397 +1,518 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Building, CreditCard, Pencil, Trash2 } from "lucide-react"
-import { useState } from "react"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useTranslation } from "@/hooks/useTranslation";
+import { Building, CreditCard, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+
+const ACCOUNT_TYPES = ["checking", "savings", "business"];
+const CARD_TYPES = ["visa", "mastercard", "amex", "elo"];
+const BILLING_ADDRESSES = ["home", "work", "other"];
+
+// Placeholder payment methods until a banking endpoint exists.
+const BANK = { name: "Banco do Brasil", digits: "5421" };
+const CARD = { name: "Mastercard", digits: "5478" };
 
 export default function AddBank() {
-	const [bankDialogOpen, setBankDialogOpen] = useState(false)
-	const [cardDialogOpen, setCardDialogOpen] = useState(false)
-	const [manageBankDialogOpen, setManageBankDialogOpen] = useState(false)
-	const [manageCardDialogOpen, setManageCardDialogOpen] = useState(false)
-	const [editBankDialogOpen, setEditBankDialogOpen] = useState(false)
-	const [editCardDialogOpen, setEditCardDialogOpen] = useState(false)
+	const { t } = useTranslation();
 
-	// Function to handle opening the edit bank dialog
-	const handleEditBankClick = () => {
-		setManageBankDialogOpen(false) // Close the manage dialog
-		setEditBankDialogOpen(true) // Open the edit dialog
-	}
+	const [manageBankOpen, setManageBankOpen] = useState(false);
+	const [editBankOpen, setEditBankOpen] = useState(false);
+	const [manageCardOpen, setManageCardOpen] = useState(false);
+	const [editCardOpen, setEditCardOpen] = useState(false);
+	const [addBankOpen, setAddBankOpen] = useState(false);
+	const [addCardOpen, setAddCardOpen] = useState(false);
 
-	// Function to handle opening the edit card dialog
-	const handleEditCardClick = () => {
-		setManageCardDialogOpen(false) // Close the manage dialog
-		setEditCardDialogOpen(true) // Open the edit dialog
-	}
+	// Swap the manage panel for the edit panel so only one is on screen.
+	const openEditBank = () => {
+		setManageBankOpen(false);
+		setEditBankOpen(true);
+	};
+
+	const openEditCard = () => {
+		setManageCardOpen(false);
+		setEditCardOpen(true);
+	};
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-3">
 			<Card>
 				<CardHeader>
-					<CardTitle>Add Bank Account or Card</CardTitle>
+					<CardTitle>{t("settings.bank.title")}</CardTitle>
 				</CardHeader>
-				<CardContent className="space-y-6">
-					{/* Bank of America */}
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-4">
-							<div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-								<Building className="h-6 w-6" />
+				<CardContent className="space-y-3">
+					<div className="flex items-center justify-between gap-2">
+						<div className="flex items-center gap-2">
+							<div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
+								<Building className="h-4 w-4" />
 							</div>
 							<div>
-								<p className="font-medium">Bank of America</p>
-								<p className="text-sm text-muted-foreground">Bank **************5421</p>
-								<p className="text-xs text-green-600 font-medium">Verified</p>
+								<p className="text-xs font-medium">{BANK.name}</p>
+								<p className="text-[11px] text-muted-foreground">
+									•••• {BANK.digits}
+								</p>
+								<p className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+									{t("settings.bank.verified")}
+								</p>
 							</div>
 						</div>
 
-						{/* Manage Bank Dialog */}
-						<Dialog open={manageBankDialogOpen} onOpenChange={setManageBankDialogOpen}>
+						<Dialog open={manageBankOpen} onOpenChange={setManageBankOpen}>
 							<DialogTrigger asChild>
-								<Button variant="outline" size="sm">
-									Manage
-								</Button>
+								<Button variant="outline">{t("settings.bank.manage")}</Button>
 							</DialogTrigger>
-							<DialogContent className="sm:max-w-[425px]">
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Manage Bank Account</DialogTitle>
-									<DialogDescription>Bank of America - Account ending in 5421</DialogDescription>
+									<DialogTitle>
+										{t("settings.bank.manageBankTitle")}
+									</DialogTitle>
+									<DialogDescription>
+										{t("settings.bank.manageBankDescription", {
+											name: BANK.name,
+											digits: BANK.digits,
+										})}
+									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="flex items-center justify-between">
-										<Label htmlFor="default-bank">Set as default payment method</Label>
+
+								<DialogBody>
+									<div className="flex items-center justify-between gap-2">
+										<Label htmlFor="default-bank">
+											{t("settings.bank.defaultMethod")}
+										</Label>
 										<Switch id="default-bank" />
 									</div>
 
-									<div className="grid gap-2">
-										<Label htmlFor="bank-nickname">Account Nickname</Label>
-										<Input id="bank-nickname" defaultValue="Bank of America" />
+									<div className="space-y-1">
+										<Label htmlFor="bank-nickname">
+											{t("settings.bank.nickname")}
+										</Label>
+										<Input id="bank-nickname" defaultValue={BANK.name} />
 									</div>
 
-									<div className="flex items-center gap-2 mt-2">
+									<div className="flex items-center gap-2">
 										<Button
 											variant="outline"
-											size="sm"
-											className="flex items-center gap-1"
-											onClick={handleEditBankClick}
+											className="gap-1"
+											onClick={openEditBank}
 										>
-											<Pencil className="h-4 w-4" />
-											Edit Details
+											<Pencil />
+											{t("settings.bank.editDetails")}
 										</Button>
-										<Button variant="destructive" size="sm" className="flex items-center gap-1">
-											<Trash2 className="h-4 w-4" />
-											Remove Account
+										<Button variant="destructive" className="gap-1">
+											<Trash2 />
+											{t("settings.bank.removeAccount")}
 										</Button>
 									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setManageBankDialogOpen(false)}>
-										Cancel
+									<Button
+										variant="outline"
+										onClick={() => setManageBankOpen(false)}
+									>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setManageBankDialogOpen(false)}>Save Changes</Button>
+									<Button onClick={() => setManageBankOpen(false)}>
+										{t("settings.bank.saveChanges")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
 
-						{/* Edit Bank Details Dialog */}
-						<Dialog open={editBankDialogOpen} onOpenChange={setEditBankDialogOpen}>
-							<DialogContent className="sm:max-w-[425px]">
+						<Dialog open={editBankOpen} onOpenChange={setEditBankOpen}>
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Edit Bank Account Details</DialogTitle>
-									<DialogDescription>Update your bank account information below.</DialogDescription>
+									<DialogTitle>{t("settings.bank.editBankTitle")}</DialogTitle>
+									<DialogDescription>
+										{t("settings.bank.editBankDescription")}
+									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="grid gap-2">
-										<Label htmlFor="edit-bank-name">Bank Name</Label>
-										<Input id="edit-bank-name" defaultValue="Bank of America" />
+
+								<DialogBody>
+									<div className="space-y-1">
+										<Label htmlFor="edit-bank-name">
+											{t("settings.bank.bankName")}
+										</Label>
+										<Input id="edit-bank-name" defaultValue={BANK.name} />
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="edit-account-number">Account Number</Label>
-										<Input id="edit-account-number" defaultValue="••••••••••••5421" />
+									<div className="space-y-1">
+										<Label htmlFor="edit-account-number">
+											{t("settings.bank.accountNumber")}
+										</Label>
+										<Input
+											id="edit-account-number"
+											defaultValue={`••••••••${BANK.digits}`}
+										/>
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="edit-routing-number">Routing Number</Label>
-										<Input id="edit-routing-number" defaultValue="••••••••" />
+									<div className="space-y-1">
+										<Label htmlFor="edit-routing-number">
+											{t("settings.bank.routingNumber")}
+										</Label>
+										<Input id="edit-routing-number" defaultValue="••••" />
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="edit-account-type">Account Type</Label>
+									<div className="space-y-1">
+										<Label htmlFor="edit-account-type">
+											{t("settings.bank.accountType")}
+										</Label>
 										<Select defaultValue="checking">
 											<SelectTrigger id="edit-account-type">
-												<SelectValue placeholder="Select account type" />
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="checking">Checking</SelectItem>
-												<SelectItem value="savings">Savings</SelectItem>
-												<SelectItem value="business">Business</SelectItem>
+												{ACCOUNT_TYPES.map((type) => (
+													<SelectItem key={type} value={type}>
+														{t(`settings.bank.accountTypes.${type}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="edit-account-holder">Account Holder Name</Label>
-										<Input id="edit-account-holder" defaultValue="John Doe" />
+									<div className="space-y-1">
+										<Label htmlFor="edit-account-holder">
+											{t("settings.bank.accountHolder")}
+										</Label>
+										<Input id="edit-account-holder" defaultValue="Hafsa Humaira" />
 									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setEditBankDialogOpen(false)}>
-										Cancel
+									<Button
+										variant="outline"
+										onClick={() => setEditBankOpen(false)}
+									>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setEditBankDialogOpen(false)}>Save Changes</Button>
+									<Button onClick={() => setEditBankOpen(false)}>
+										{t("settings.bank.saveChanges")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
 					</div>
 
-					{/* Master Card */}
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-4">
-							<div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-								<CreditCard className="h-6 w-6" />
+					<div className="flex items-center justify-between gap-2">
+						<div className="flex items-center gap-2">
+							<div className="flex h-9 w-9 items-center justify-center bg-primary text-primary-foreground">
+								<CreditCard className="h-4 w-4" />
 							</div>
 							<div>
-								<p className="font-medium">Master Card</p>
-								<p className="text-sm text-muted-foreground">Credit Card **********5478</p>
-								<p className="text-xs text-green-600 font-medium">Verified</p>
+								<p className="text-xs font-medium">{CARD.name}</p>
+								<p className="text-[11px] text-muted-foreground">
+									•••• {CARD.digits}
+								</p>
+								<p className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+									{t("settings.bank.verified")}
+								</p>
 							</div>
 						</div>
 
-						{/* Manage Card Dialog */}
-						<Dialog open={manageCardDialogOpen} onOpenChange={setManageCardDialogOpen}>
+						<Dialog open={manageCardOpen} onOpenChange={setManageCardOpen}>
 							<DialogTrigger asChild>
-								<Button variant="outline" size="sm">
-									Manage
-								</Button>
+								<Button variant="outline">{t("settings.bank.manage")}</Button>
 							</DialogTrigger>
-							<DialogContent className="sm:max-w-[425px]">
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Manage Credit Card</DialogTitle>
-									<DialogDescription>Master Card - Card ending in 5478</DialogDescription>
+									<DialogTitle>
+										{t("settings.bank.manageCardTitle")}
+									</DialogTitle>
+									<DialogDescription>
+										{t("settings.bank.manageCardDescription", {
+											name: CARD.name,
+											digits: CARD.digits,
+										})}
+									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="flex items-center justify-between">
-										<Label htmlFor="default-card">Set as default payment method</Label>
+
+								<DialogBody>
+									<div className="flex items-center justify-between gap-2">
+										<Label htmlFor="default-card">
+											{t("settings.bank.defaultMethod")}
+										</Label>
 										<Switch id="default-card" defaultChecked />
 									</div>
 
-									<div className="grid gap-2">
-										<Label htmlFor="card-nickname">Card Nickname</Label>
-										<Input id="card-nickname" defaultValue="Master Card" />
+									<div className="space-y-1">
+										<Label htmlFor="card-nickname">
+											{t("settings.bank.cardNickname")}
+										</Label>
+										<Input id="card-nickname" defaultValue={CARD.name} />
 									</div>
 
-									<div className="grid gap-2">
-										<Label htmlFor="billing-address">Billing Address</Label>
+									<div className="space-y-1">
+										<Label htmlFor="billing-address">
+											{t("settings.bank.billingAddress")}
+										</Label>
 										<Select defaultValue="home">
 											<SelectTrigger id="billing-address">
-												<SelectValue placeholder="Select billing address" />
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="home">Home Address</SelectItem>
-												<SelectItem value="work">Work Address</SelectItem>
-												<SelectItem value="other">Other Address</SelectItem>
+												{BILLING_ADDRESSES.map((value) => (
+													<SelectItem key={value} value={value}>
+														{t(`settings.bank.billingAddresses.${value}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
 
-									<div className="flex items-center gap-2 mt-2">
+									<div className="flex items-center gap-2">
 										<Button
 											variant="outline"
-											size="sm"
-											className="flex items-center gap-1"
-											onClick={handleEditCardClick}
+											className="gap-1"
+											onClick={openEditCard}
 										>
-											<Pencil className="h-4 w-4" />
-											Edit Card Details
+											<Pencil />
+											{t("settings.bank.editCardDetails")}
 										</Button>
-										<Button variant="destructive" size="sm" className="flex items-center gap-1">
-											<Trash2 className="h-4 w-4" />
-											Remove Card
+										<Button variant="destructive" className="gap-1">
+											<Trash2 />
+											{t("settings.bank.removeCard")}
 										</Button>
 									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setManageCardDialogOpen(false)}>
-										Cancel
+									<Button
+										variant="outline"
+										onClick={() => setManageCardOpen(false)}
+									>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setManageCardDialogOpen(false)}>Save Changes</Button>
+									<Button onClick={() => setManageCardOpen(false)}>
+										{t("settings.bank.saveChanges")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
 
-						{/* Edit Card Details Dialog */}
-						<Dialog open={editCardDialogOpen} onOpenChange={setEditCardDialogOpen}>
-							<DialogContent className="sm:max-w-[425px]">
+						<Dialog open={editCardOpen} onOpenChange={setEditCardOpen}>
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Edit Card Details</DialogTitle>
-									<DialogDescription>Update your credit card information below.</DialogDescription>
+									<DialogTitle>{t("settings.bank.editCardTitle")}</DialogTitle>
+									<DialogDescription>
+										{t("settings.bank.editCardDescription")}
+									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="grid gap-2">
-										<Label htmlFor="edit-card-name">Name on Card</Label>
-										<Input id="edit-card-name" defaultValue="John Doe" />
+
+								<DialogBody>
+									<div className="space-y-1">
+										<Label htmlFor="edit-card-name">
+											{t("settings.bank.nameOnCard")}
+										</Label>
+										<Input id="edit-card-name" defaultValue="Hafsa Humaira" />
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="edit-card-number">Card Number</Label>
-										<Input id="edit-card-number" defaultValue="•••• •••• •••• 5478" readOnly />
-										<p className="text-xs text-muted-foreground">
-											For security reasons, you cannot edit the card number. Please add a new card instead.
+									<div className="space-y-1">
+										<Label htmlFor="edit-card-number">
+											{t("settings.bank.cardNumber")}
+										</Label>
+										<Input
+											id="edit-card-number"
+											defaultValue={`•••• •••• •••• ${CARD.digits}`}
+											readOnly
+										/>
+										<p className="text-[10px] text-muted-foreground">
+											{t("settings.bank.cardNumberHint")}
 										</p>
 									</div>
-									<div className="grid grid-cols-2 gap-4">
-										<div className="grid gap-2">
-											<Label htmlFor="edit-expiry-date">Expiry Date</Label>
-											<Input id="edit-expiry-date" defaultValue="09/25" />
+									<div className="grid grid-cols-2 gap-2">
+										<div className="space-y-1">
+											<Label htmlFor="edit-expiry">
+												{t("settings.bank.expiryDate")}
+											</Label>
+											<Input id="edit-expiry" defaultValue="09/28" />
 										</div>
-										<div className="grid gap-2">
-											<Label htmlFor="edit-cvv">CVV</Label>
+										<div className="space-y-1">
+											<Label htmlFor="edit-cvv">{t("settings.bank.cvv")}</Label>
 											<Input id="edit-cvv" defaultValue="•••" />
 										</div>
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="edit-card-type">Card Type</Label>
+									<div className="space-y-1">
+										<Label htmlFor="edit-card-type">
+											{t("settings.bank.cardType")}
+										</Label>
 										<Select defaultValue="mastercard">
 											<SelectTrigger id="edit-card-type">
-												<SelectValue placeholder="Select card type" />
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="visa">Visa</SelectItem>
-												<SelectItem value="mastercard">Mastercard</SelectItem>
-												<SelectItem value="amex">American Express</SelectItem>
-												<SelectItem value="discover">Discover</SelectItem>
+												{CARD_TYPES.map((type) => (
+													<SelectItem key={type} value={type}>
+														{t(`settings.bank.cardTypes.${type}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="edit-billing-address">Billing Address</Label>
-										<Select defaultValue="home">
-											<SelectTrigger id="edit-billing-address">
-												<SelectValue placeholder="Select billing address" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="home">Home Address</SelectItem>
-												<SelectItem value="work">Work Address</SelectItem>
-												<SelectItem value="other">Other Address</SelectItem>
-											</SelectContent>
-										</Select>
-									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setEditCardDialogOpen(false)}>
-										Cancel
+									<Button
+										variant="outline"
+										onClick={() => setEditCardOpen(false)}
+									>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setEditCardDialogOpen(false)}>Save Changes</Button>
+									<Button onClick={() => setEditCardOpen(false)}>
+										{t("settings.bank.saveChanges")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
 					</div>
 
-					<div className="flex gap-4 pt-4">
-						{/* Add New Bank Dialog */}
-						<Dialog open={bankDialogOpen} onOpenChange={setBankDialogOpen}>
+					<div className="flex gap-2 pt-1">
+						<Dialog open={addBankOpen} onOpenChange={setAddBankOpen}>
 							<DialogTrigger asChild>
-								<Button>Add New Bank</Button>
+								<Button>{t("settings.bank.addBank")}</Button>
 							</DialogTrigger>
-							<DialogContent className="sm:max-w-[425px]">
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Add New Bank Account</DialogTitle>
-									<DialogDescription>Enter your bank account details below to connect your account.</DialogDescription>
+									<DialogTitle>{t("settings.bank.addBankTitle")}</DialogTitle>
+									<DialogDescription>
+										{t("settings.bank.addBankDescription")}
+									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="grid gap-2">
-										<Label htmlFor="bank-name">Bank Name</Label>
-										<Input id="bank-name" placeholder="Enter bank name" />
+
+								<DialogBody>
+									<div className="space-y-1">
+										<Label htmlFor="bank-name">
+											{t("settings.bank.bankName")}
+										</Label>
+										<Input id="bank-name" />
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="account-number">Account Number</Label>
-										<Input id="account-number" placeholder="Enter account number" />
+									<div className="space-y-1">
+										<Label htmlFor="account-number">
+											{t("settings.bank.accountNumber")}
+										</Label>
+										<Input id="account-number" />
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="routing-number">Routing Number</Label>
-										<Input id="routing-number" placeholder="Enter routing number" />
+									<div className="space-y-1">
+										<Label htmlFor="routing-number">
+											{t("settings.bank.routingNumber")}
+										</Label>
+										<Input id="routing-number" />
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="account-type">Account Type</Label>
+									<div className="space-y-1">
+										<Label htmlFor="account-type">
+											{t("settings.bank.accountType")}
+										</Label>
 										<Select>
 											<SelectTrigger id="account-type">
-												<SelectValue placeholder="Select account type" />
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="checking">Checking</SelectItem>
-												<SelectItem value="savings">Savings</SelectItem>
-												<SelectItem value="business">Business</SelectItem>
+												{ACCOUNT_TYPES.map((type) => (
+													<SelectItem key={type} value={type}>
+														{t(`settings.bank.accountTypes.${type}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setBankDialogOpen(false)}>
-										Cancel
+									<Button
+										variant="outline"
+										onClick={() => setAddBankOpen(false)}
+									>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setBankDialogOpen(false)}>Add Bank Account</Button>
+									<Button onClick={() => setAddBankOpen(false)}>
+										{t("settings.bank.addBank")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
 
-						{/* Add New Card Dialog */}
-						<Dialog open={cardDialogOpen} onOpenChange={setCardDialogOpen}>
+						<Dialog open={addCardOpen} onOpenChange={setAddCardOpen}>
 							<DialogTrigger asChild>
-								<Button>Add New Card</Button>
+								<Button>{t("settings.bank.addCard")}</Button>
 							</DialogTrigger>
-							<DialogContent className="sm:max-w-[425px]">
+							<DialogContent closeLabel={t("common.close")}>
 								<DialogHeader>
-									<DialogTitle>Add New Card</DialogTitle>
-									<DialogDescription>Enter your card details below to add a new payment method.</DialogDescription>
+									<DialogTitle>{t("settings.bank.addCardTitle")}</DialogTitle>
+									<DialogDescription>
+										{t("settings.bank.addCardDescription")}
+									</DialogDescription>
 								</DialogHeader>
-								<div className="grid gap-4 py-4">
-									<div className="grid gap-2">
-										<Label htmlFor="card-name">Name on Card</Label>
-										<Input id="card-name" placeholder="Enter name on card" />
+
+								<DialogBody>
+									<div className="space-y-1">
+										<Label htmlFor="card-name">
+											{t("settings.bank.nameOnCard")}
+										</Label>
+										<Input id="card-name" />
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="card-number">Card Number</Label>
-										<Input id="card-number" placeholder="Enter card number" />
+									<div className="space-y-1">
+										<Label htmlFor="card-number">
+											{t("settings.bank.cardNumber")}
+										</Label>
+										<Input id="card-number" />
 									</div>
-									<div className="grid grid-cols-2 gap-4">
-										<div className="grid gap-2">
-											<Label htmlFor="expiry-date">Expiry Date</Label>
-											<Input id="expiry-date" placeholder="MM/YY" />
+									<div className="grid grid-cols-2 gap-2">
+										<div className="space-y-1">
+											<Label htmlFor="expiry-date">
+												{t("settings.bank.expiryDate")}
+											</Label>
+											<Input id="expiry-date" placeholder="MM/AA" />
 										</div>
-										<div className="grid gap-2">
-											<Label htmlFor="cvv">CVV</Label>
-											<Input id="cvv" placeholder="CVV" />
+										<div className="space-y-1">
+											<Label htmlFor="cvv">{t("settings.bank.cvv")}</Label>
+											<Input id="cvv" />
 										</div>
 									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="card-type">Card Type</Label>
+									<div className="space-y-1">
+										<Label htmlFor="card-type">
+											{t("settings.bank.cardType")}
+										</Label>
 										<Select>
 											<SelectTrigger id="card-type">
-												<SelectValue placeholder="Select card type" />
+												<SelectValue placeholder={t("common.select")} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="visa">Visa</SelectItem>
-												<SelectItem value="mastercard">Mastercard</SelectItem>
-												<SelectItem value="amex">American Express</SelectItem>
-												<SelectItem value="discover">Discover</SelectItem>
+												{CARD_TYPES.map((type) => (
+													<SelectItem key={type} value={type}>
+														{t(`settings.bank.cardTypes.${type}`)}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 									</div>
-								</div>
+								</DialogBody>
+
 								<DialogFooter>
-									<Button variant="outline" onClick={() => setCardDialogOpen(false)}>
-										Cancel
+									<Button
+										variant="outline"
+										onClick={() => setAddCardOpen(false)}
+									>
+										{t("common.cancel")}
 									</Button>
-									<Button onClick={() => setCardDialogOpen(false)}>Add Card</Button>
+									<Button onClick={() => setAddCardOpen(false)}>
+										{t("settings.bank.addCard")}
+									</Button>
 								</DialogFooter>
 							</DialogContent>
 						</Dialog>
@@ -399,6 +520,5 @@ export default function AddBank() {
 				</CardContent>
 			</Card>
 		</div>
-	)
+	);
 }
-

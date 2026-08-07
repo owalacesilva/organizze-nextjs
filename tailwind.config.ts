@@ -11,7 +11,10 @@ const config: Config = {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				lg: '1.5rem'
+			},
 			screens: {
 				'2xl': '1400px'
 			}
@@ -64,6 +67,7 @@ const config: Config = {
 				},
 				navy: "hsl(var(--navy))",
 			},
+			/** Derived from --radius, so the whole scale moves from one token. */
 			borderRadius: {
 				lg: "var(--radius)",
 				md: "calc(var(--radius) - 2px)",
@@ -85,11 +89,29 @@ const config: Config = {
 					to: {
 						height: '0'
 					}
+				},
+				'collapsible-down': {
+					from: {
+						height: '0'
+					},
+					to: {
+						height: 'var(--radix-collapsible-content-height)'
+					}
+				},
+				'collapsible-up': {
+					from: {
+						height: 'var(--radix-collapsible-content-height)'
+					},
+					to: {
+						height: '0'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'collapsible-down': 'collapsible-down 0.2s ease-out',
+				'collapsible-up': 'collapsible-up 0.2s ease-out'
 			}
 		}
 	},

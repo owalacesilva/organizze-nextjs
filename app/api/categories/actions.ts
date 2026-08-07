@@ -1,3 +1,4 @@
+import { SIMULATION_ENABLED, simulatedCategories } from "@/lib/simulation";
 import type {
 	CategoryByIdResponse,
 	CategoriesResponse,
@@ -9,6 +10,8 @@ import type {
 } from "@/app/api/categories/types";
 
 export const getCategories = async (): Promise<CategoriesResponse> => {
+	if (SIMULATION_ENABLED) return simulatedCategories.list();
+
 	const response = await fetch("/api/categories", {
 		method: "GET",
 		headers: {
@@ -26,6 +29,8 @@ export const getCategories = async (): Promise<CategoriesResponse> => {
 export const getCategoryById = async (
 	id: number | string,
 ): Promise<CategoryByIdResponse> => {
+	if (SIMULATION_ENABLED) return simulatedCategories.get(id);
+
 	const response = await fetch(`/api/categories/${id}`, {
 		method: "GET",
 		headers: {
@@ -43,6 +48,8 @@ export const getCategoryById = async (
 export const createCategory = async (
 	data: CreateCategoryRequest,
 ): Promise<CreateCategoryResponse> => {
+	if (SIMULATION_ENABLED) return simulatedCategories.create(data);
+
 	const response = await fetch("/api/categories", {
 		method: "POST",
 		headers: {
@@ -62,6 +69,8 @@ export const updateCategory = async (
 	id: number | string,
 	data: UpdateCategoryRequest,
 ): Promise<UpdateCategoryResponse> => {
+	if (SIMULATION_ENABLED) return simulatedCategories.update(id, data);
+
 	const response = await fetch(`/api/categories/${id}`, {
 		method: "PUT",
 		headers: {
@@ -87,6 +96,8 @@ export const editCategory = async (
 export const deleteCategory = async (
 	id: number | string,
 ): Promise<DeleteCategoryResponse> => {
+	if (SIMULATION_ENABLED) return simulatedCategories.remove(id);
+
 	const response = await fetch(`/api/categories/${id}`, {
 		method: "DELETE",
 		headers: {

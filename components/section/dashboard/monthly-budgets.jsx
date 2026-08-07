@@ -1,82 +1,64 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bus, GraduationCap, PawPrintIcon as Paw, Shirt, ShoppingBag } from "lucide-react"
+"use client";
 
-const budgets = [
-	{
-		category: "Grocery Stores",
-		current: 75,
-		total: 100,
-		icon: ShoppingBag,
-		color: "bg-emerald-500",
-		lightColor: "bg-emerald-50",
-	},
-	{
-		category: "Transportation",
-		current: 25,
-		total: 100,
-		icon: Bus,
-		color: "bg-cyan-500",
-		lightColor: "bg-cyan-50",
-	},
-	{
-		category: "Pets",
-		current: 50,
-		total: 100,
-		icon: Paw,
-		color: "bg-blue-500",
-		lightColor: "bg-blue-50",
-	},
-	{
-		category: "Education",
-		current: 45,
-		total: 100,
-		icon: GraduationCap,
-		color: "bg-violet-500",
-		lightColor: "bg-violet-50",
-	},
-	{
-		category: "Clothes",
-		current: 35,
-		total: 100,
-		icon: Shirt,
-		color: "bg-indigo-500",
-		lightColor: "bg-indigo-50",
-	},
-]
+import { useGetBudgets } from "@/app/api/budgets/hooks";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
 
 export function MonthlyBudgets() {
+	const { t, formatCurrency } = useTranslation();
+	const budgetsQuery = useGetBudgets();
+
+	const budgets = budgetsQuery.data?.budgets ?? [];
+
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>
-					Monthly Budgets
-				</CardTitle>
+				<CardTitle>{t("dashboard.monthlyBudgets")}</CardTitle>
 			</CardHeader>
-			<CardContent className="space-y-6">
-				{budgets.map((budget) => {
-					const Icon = budget.icon
-					return (
-						<div key={budget.category} className="space-y-3">
-							<div className="flex items-center gap-3">
-								<div className={`${budget.lightColor} p-2 rounded-full`}>
-									<Icon className={`h-4 w-4 ${budget.color} text-white rounded-full`} />
+			<CardContent className="space-y-3">
+				{budgetsQuery.isPending ? (
+					Array.from({ length: 4 }).map((_, index) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder
+						<div key={index} className="space-y-1.5">
+							<Skeleton className="h-2.5 w-24" />
+							<Skeleton className="h-1.5 w-full" />
+						</div>
+					))
+				) : budgets.length === 0 ? (
+					<p className="py-6 text-center text-xs text-muted-foreground">
+						{t("dashboard.noBudgets")}
+					</p>
+				) : (
+					budgets.map((budget) => {
+						const spent = budget.spent ?? 0;
+						const percent =
+							budget.amount > 0 ? (spent / budget.amount) * 100 : 0;
+
+						return (
+							<div key={budget.id} className="space-y-1.5">
+								<div className="flex items-center gap-2">
+									<span className="truncate text-xs font-medium">
+										{budget.name}
+									</span>
+									<span className="ml-auto shrink-0 text-[11px] tabular-nums text-muted-foreground">
+										{formatCurrency(spent)} / {formatCurrency(budget.amount)}
+									</span>
 								</div>
-								<span className="text-sm font-medium">{budget.category}</span>
-								<span className="text-sm text-muted-foreground ml-auto">
-									{budget.current} / {budget.total}
-								</span>
-							</div>
-							<div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-100">
-								<div
-									className={`h-full ${budget.color} transition-all`}
-									style={{ width: `${(budget.current / budget.total) * 100}%` }}
+								<Progress
+									value={Math.min(100, percent)}
+									className={cn(
+										"h-1.5",
+										percent > 100 && "[&>div]:bg-destructive",
+									)}
 								/>
 							</div>
-						</div>
-					)
-				})}
+						);
+					})
+				)}
 			</CardContent>
 		</Card>
-	)
+	);
 }
-

@@ -3,7 +3,7 @@ import DashboardSection from "@/components/section/dashboard";
 
 export default function Home() {
 	return (
-		<Layout breadcrumbTitle="Dashboard">
+		<Layout breadcrumbTitleKey="nav.dashboard">
 			<DashboardSection />
 		</Layout>
 	);

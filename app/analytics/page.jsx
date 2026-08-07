@@ -3,7 +3,10 @@ import AnalyticsSection from "@/components/section/analytics";
 
 export default function AnalyticsPage() {
 	return (
-		<Layout breadcrumbTitle="Analytics">
+		<Layout
+			breadcrumbTitleKey="analytics.title"
+			breadcrumbSubtitleKey="analytics.subtitle"
+		>
 			<AnalyticsSection />
 		</Layout>
 	);

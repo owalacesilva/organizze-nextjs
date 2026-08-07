@@ -1,44 +1,48 @@
-"use client"
+"use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Analytics } from "./analytics"
-import { Expenses } from "./expenses"
-import { Income } from "./income"
-// import { IncomeVsExpenses } from "./income-vs-expenses"
-import { Balance } from "./balance"
-import { TransactionHistory } from "./transaction-history"
-import { IncomeVsExpenses } from "./income-vs-expenes"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "@/hooks/useTranslation";
+import { Analytics } from "./analytics";
+import { Balance } from "./balance";
+import { Expenses } from "./expenses";
+import { Income } from "./income";
+import { IncomeVsExpenses } from "./income-vs-expenes";
+import { TransactionHistory } from "./transaction-history";
 
-const navigationItems = [
-  { name: "Analytics", href: "#", component: Analytics },
-  { name: "Expenses", href: "#", component: Expenses },
-  { name: "Income", href: "#", component: Income },
-  { name: "Income vs Expenses", href: "#", component: IncomeVsExpenses },
-  { name: "Balance", href: "#", component: Balance },
-  { name: "Transaction History", href: "#", component: TransactionHistory },
-]
+/** `value` doubles as the dictionary key under `analytics.tabs`. */
+const TABS = [
+	{ value: "overview", Component: Analytics },
+	{ value: "expenses", Component: Expenses },
+	{ value: "income", Component: Income },
+	{ value: "incomeVsExpenses", Component: IncomeVsExpenses },
+	{ value: "balance", Component: Balance },
+	{ value: "history", Component: TransactionHistory },
+];
 
 export default function AnalyticsSection() {
-  return (
-    <Tabs defaultValue="analytics" className="w-full">
-      <TabsList className="w-full justify-start h-auto p-0 bg-transparent">
-        {navigationItems.map((item) => (
-          <TabsTrigger
-            key={item.name}
-            value={item.name.toLowerCase().replace(/\s+/g, "-")}
-            className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-          >
-            {item.name}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+	const { t } = useTranslation();
 
-      {navigationItems.map((item) => (
-        <TabsContent key={item.name} value={item.name.toLowerCase().replace(/\s+/g, "-")} className="mt-6">
-          <item.component />
-        </TabsContent>
-      ))}
-    </Tabs>
-  )
+	return (
+		<Tabs defaultValue={TABS[0].value} className="w-full">
+			<div className="overflow-x-auto">
+				<TabsList className="h-9 w-full justify-start bg-transparent p-0">
+					{TABS.map((tab) => (
+						<TabsTrigger
+							key={tab.value}
+							value={tab.value}
+							className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+						>
+							{t(`analytics.tabs.${tab.value}`)}
+						</TabsTrigger>
+					))}
+				</TabsList>
+			</div>
+
+			{TABS.map(({ value, Component }) => (
+				<TabsContent key={value} value={value} className="mt-3">
+					<Component />
+				</TabsContent>
+			))}
+		</Tabs>
+	);
 }
-

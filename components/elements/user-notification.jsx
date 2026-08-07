@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -9,99 +9,130 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Bell } from "lucide-react"
-import Image from "next/image"
-import { useState } from "react"
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
+import { AlertTriangle, ArrowLeftRight, Bell, PiggyBank, Target } from "lucide-react";
+import { useState } from "react";
+
+/**
+ * Placeholder feed until a notifications endpoint exists. `key` resolves to
+ * `notifications.samples.<key>.title` / `.description` so the copy is translated
+ * like the rest of the UI.
+ */
+const SAMPLE_NOTIFICATIONS = [
+	{ id: "1", key: "transactionCreated", icon: ArrowLeftRight, minutesAgo: 2 },
+	{ id: "2", key: "budgetExceeded", icon: PiggyBank, minutesAgo: 55 },
+	{ id: "3", key: "goalReached", icon: Target, minutesAgo: 180 },
+	{ id: "4", key: "securityAlert", icon: AlertTriangle, minutesAgo: 320 },
+];
+
+function useRelativeTime() {
+	const { t } = useTranslation();
+
+	return (minutes) =>
+		minutes < 60
+			? t("notifications.minutesAgo", { count: minutes })
+			: t("notifications.hoursAgo", { count: Math.round(minutes / 60) });
+}
 
 export function UserNotification() {
-	const [notifications, setNotifications] = useState([
-		{
-			id: "1",
-			title: "New message from Alice",
-			description: "Hey, I just sent you some ETH. Did you receive it?",
-			timestamp: "2 min ago",
-			image: "/images/avatar/1.jpg?height=40&width=40",
-			read: false,
-		},
-		{
-			id: "2",
-			title: "Transaction completed",
-			description: "Your transfer of 0.5 ETH to Bob has been confirmed.",
-			timestamp: "1 hour ago",
-			image: "/images/avatar/2.jpg?height=40&width=40",
-			read: false,
-		},
-		{
-			id: "3",
-			title: "Security alert",
-			description: "Unusual activity detected on your account. Please verify.",
-			timestamp: "3 hours ago",
-			image: "/images/avatar/3.jpg?height=40&width=40",
-			read: false,
-		},
-		{
-			id: "4",
-			title: "Price alert: ETH",
-			description: "Ethereum has increased by 5% in the last 24 hours.",
-			timestamp: "5 hours ago",
-			image: "/images/avatar/4.jpg?height=40&width=40",
-			read: true,
-		},
-	])
+	const { t } = useTranslation();
+	const relativeTime = useRelativeTime();
+	const [readIds, setReadIds] = useState(() => new Set(["4"]));
 
-	const unreadCount = notifications.filter((n) => !n.read).length
+	const unreadCount = SAMPLE_NOTIFICATIONS.filter(
+		(notification) => !readIds.has(notification.id),
+	).length;
 
-	const markAsRead = (id) => {
-		setNotifications(notifications.map((n) => (n.id === id ? { ...n, read: true } : n)))
-	}
+	const markAsRead = (id) =>
+		setReadIds((previous) => new Set(previous).add(id));
+
+	const markAllRead = () =>
+		setReadIds(new Set(SAMPLE_NOTIFICATIONS.map(({ id }) => id)));
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="icon" className="h-9 w-9 rounded-full relative hover:bg-transparent">
-					<Bell className="h-4 w-4" />
+				<Button
+					variant="ghost"
+					size="icon"
+					className="relative hover:bg-transparent"
+					aria-label={t("layout.notifications")}
+				>
+					<Bell />
 					{unreadCount > 0 && (
 						<Badge
 							variant="destructive"
-							className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+							className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center px-1 text-[9px]"
 						>
 							{unreadCount}
 						</Badge>
 					)}
 				</Button>
 			</DropdownMenuTrigger>
+
 			<DropdownMenuContent align="end" className="w-80">
-				<DropdownMenuLabel>Notifications</DropdownMenuLabel>
+				<DropdownMenuLabel className="flex items-center justify-between gap-2">
+					{t("layout.notifications")}
+					{unreadCount > 0 && (
+						<Button variant="link" size="xs" onClick={markAllRead}>
+							{t("layout.markAllRead")}
+						</Button>
+					)}
+				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<ScrollArea className="h-[300px]">
-					{notifications.map((notification) => (
-						<DropdownMenuItem key={notification.id} onSelect={() => markAsRead(notification.id)}>
-							<div className="flex items-start space-x-4 p-2">
-								<Image
-									src={notification.image || "/images/avatar/5.jpg"}
-									alt=""
-									width={40}
-									height={40}
-									className="rounded-full"
-								/>
-								<div className="flex-1 space-y-1">
-									<p className="text-sm font-medium leading-none">{notification.title}</p>
-									<p className="text-sm text-muted-foreground">{notification.description}</p>
-									<p className="text-xs text-muted-foreground">{notification.timestamp}</p>
-								</div>
-								{!notification.read && <div className="h-2 w-2 rounded-full bg-primary" />}
-							</div>
-						</DropdownMenuItem>
-					))}
-				</ScrollArea>
+
+				{SAMPLE_NOTIFICATIONS.length === 0 ? (
+					<p className="p-3 text-center text-xs text-muted-foreground">
+						{t("layout.notificationsEmpty")}
+					</p>
+				) : (
+					<ScrollArea className="h-64">
+						{SAMPLE_NOTIFICATIONS.map((notification) => {
+							const isRead = readIds.has(notification.id);
+							const Icon = notification.icon;
+
+							return (
+								<DropdownMenuItem
+									key={notification.id}
+									onSelect={() => markAsRead(notification.id)}
+									className="items-start gap-2 py-2"
+								>
+									<Icon className="mt-0.5 shrink-0 text-muted-foreground" />
+									<div className="flex-1 space-y-0.5">
+										<p
+											className={cn(
+												"text-xs leading-tight",
+												!isRead && "font-medium",
+											)}
+										>
+											{t(`notifications.samples.${notification.key}.title`)}
+										</p>
+										<p className="text-[11px] text-muted-foreground">
+											{t(
+												`notifications.samples.${notification.key}.description`,
+											)}
+										</p>
+										<p className="text-[10px] text-muted-foreground">
+											{relativeTime(notification.minutesAgo)}
+										</p>
+									</div>
+									{!isRead && (
+										<span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+									)}
+								</DropdownMenuItem>
+							);
+						})}
+					</ScrollArea>
+				)}
+
 				<DropdownMenuSeparator />
-				<DropdownMenuItem className="text-center text-sm text-muted-foreground cursor-pointer">
-					View all notifications
+				<DropdownMenuItem className="justify-center text-muted-foreground">
+					{t("notifications.viewAll")}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
-	)
+	);
 }
-

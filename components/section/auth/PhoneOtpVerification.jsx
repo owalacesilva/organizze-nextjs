@@ -1,59 +1,51 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useState } from "react";
 
 export default function PhoneOtpVerification({ onStateChange, phoneNumber }) {
-	const [otp, setOtp] = useState("")
-	const [otpSent, setOtpSent] = useState(false)
-
-	const handleSendOtp = async () => {
-		// Here you would typically send a request to your backend to send an OTP to the phone number
-		console.log("Sending OTP to:", phoneNumber)
-		setOtpSent(true)
-	}
-
-	const handleVerifyOtp = async () => {
-		// Here you would typically send a request to your backend to verify the OTP
-		console.log("Verifying OTP:", otp)
-		// If successful, move to the success state
-		onStateChange("success")
-	}
+	const { t } = useTranslation();
+	const [otp, setOtp] = useState("");
+	const [otpSent, setOtpSent] = useState(false);
 
 	return (
-		<div className="flex flex-col justify-center h-full">
-			<CardHeader className="space-y-1 pb-6">
-				<CardTitle className="text-2xl font-bold">Phone Verification</CardTitle>
+		<div className="flex h-full flex-col justify-center">
+			<CardHeader>
+				<CardTitle className="text-base">{t("auth.phone.title")}</CardTitle>
 			</CardHeader>
-			<CardContent className="px-6 pb-8 flex-grow flex flex-col justify-center">
-				{!otpSent ? (
-					<div className="grid w-full items-center gap-4">
-						<p>We will send a verification code to: {phoneNumber}</p>
-						<Button onClick={handleSendOtp}>Send OTP</Button>
-					</div>
-				) : (
-					<div className="grid w-full items-center gap-4">
-						<div className="flex flex-col space-y-1.5">
-							<Label htmlFor="otp">OTP</Label>
+
+			<CardContent className="flex flex-grow flex-col justify-center">
+				{otpSent ? (
+					<div className="space-y-3">
+						<div className="space-y-1">
+							<Label htmlFor="otp">{t("auth.phone.otp")}</Label>
 							<Input
 								id="otp"
-								type="text"
-								placeholder="Enter the OTP"
+								placeholder={t("auth.phone.otpPlaceholder")}
 								value={otp}
-								onChange={(e) => setOtp(e.target.value)}
+								onChange={(event) => setOtp(event.target.value)}
 								required
 							/>
 						</div>
-						<Button onClick={handleVerifyOtp} className="mt-2">
-							Verify OTP
+						<Button className="w-full" onClick={() => onStateChange("success")}>
+							{t("auth.phone.verify")}
+						</Button>
+					</div>
+				) : (
+					<div className="space-y-3">
+						<p className="text-xs text-muted-foreground">
+							{t("auth.phone.willSend", { phone: phoneNumber })}
+						</p>
+						<Button className="w-full" onClick={() => setOtpSent(true)}>
+							{t("auth.phone.sendOtp")}
 						</Button>
 					</div>
 				)}
 			</CardContent>
 		</div>
-	)
+	);
 }
-

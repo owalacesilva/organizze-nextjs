@@ -1,85 +1,136 @@
+"use client";
+
+import { TopExpenses } from "@/components/elements/top-expenses";
+import { DashboardSkeleton } from "@/components/section/dashboard/skeleton";
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/useTranslation";
+import { AlertCircle } from "lucide-react";
+import { useMemo } from "react";
 import { BalanceTrends } from "./balance-trends";
 import { ExpensesBreakdown } from "./expenses-breakdown";
 import { IncomeExpensesChart } from "./income-expenses-chart";
 import { MetricCard } from "./metric-card";
 import { MonthlyBudgets } from "./monthly-budgets";
-import { PaymentsHistory } from "./payments-history";
 import { SavingGoals } from "./saving-goals";
 import { TransactionHistory } from "./transaction-history";
+import {
+	comparePeriods,
+	percentChange,
+	useDashboardData,
+} from "./use-dashboard-data";
 import { WeeklyExpenses } from "./weekly-expenses";
 
 export default function DashboardSection() {
+	const { t, formatCurrency } = useTranslation();
+	const { transactions, totalBalance, isPending, isError } = useDashboardData();
+
+	const metrics = useMemo(() => {
+		const { current, previous } = comparePeriods(transactions);
+
+		return {
+			income: {
+				value: current.income,
+				change: percentChange(current.income, previous.income),
+			},
+			expenses: {
+				value: current.expenses,
+				change: percentChange(current.expenses, previous.expenses),
+			},
+			net: {
+				value: current.net,
+				change: percentChange(current.net, previous.net),
+			},
+		};
+	}, [transactions]);
+
+	if (isPending) {
+		return (
+			<div role="status" aria-busy="true">
+				<span className="sr-only">{t("common.loading")}</span>
+				<DashboardSkeleton />
+			</div>
+		);
+	}
+
+	if (isError) {
+		return (
+			<div className="flex flex-col items-center gap-3 py-10 text-center">
+				<AlertCircle className="h-6 w-6 text-destructive" />
+				<p className="text-sm font-medium">{t("transactions.loadError")}</p>
+				<Button variant="outline" onClick={() => window.location.reload()}>
+					{t("common.retry")}
+				</Button>
+			</div>
+		);
+	}
+
 	return (
-		<>
-			<div className="space-y-4 sm:space-y-5">
-				{/* Metric cards - stack on mobile, 2 columns on md, 4 columns on lg */}
-				<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-					<MetricCard
-						title="Saldo Total"
-						value="R$ 432,568.00"
-						change={3.12}
-						lastMonth="$28,940"
-					/>
-					<MetricCard
-						title="Total Period Change"
-						value="$245,860"
-						change={1.98}
-						lastMonth="$21,230"
-					/>
-					<MetricCard
-						title="Total Period Expenses"
-						value="$2,530"
-						change={-4.78}
-						lastMonth="$26,340"
-					/>
-					<MetricCard
-						title="Total Period Income"
-						value="$24,560"
-						change={2.84}
-						lastMonth="$23,890"
-					/>
-				</div>
+		<div className="space-y-2 sm:space-y-3">
+			<p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+				{t("dashboard.periodLabel")}
+			</p>
 
-				{/* Balance Trends and Expenses Breakdown - stack on mobile and tablet, side by side on desktop */}
-				<div className="grid gap-4 grid-cols-1 lg:grid-cols-4">
-					<div className="lg:col-span-3">
-						<BalanceTrends />
-					</div>
-					<div className="lg:col-span-1">
-						<ExpensesBreakdown />
-					</div>
-				</div>
+			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+				<MetricCard
+					title={t("dashboard.totalBalance")}
+					value={formatCurrency(totalBalance)}
+					change={metrics.net.change}
+				/>
+				<MetricCard
+					title={t("dashboard.periodIncome")}
+					value={formatCurrency(metrics.income.value)}
+					change={metrics.income.change}
+				/>
+				<MetricCard
+					title={t("dashboard.periodExpenses")}
+					value={formatCurrency(metrics.expenses.value)}
+					change={metrics.expenses.change}
+					inverted
+				/>
+				<MetricCard
+					title={t("dashboard.periodChange")}
+					value={formatCurrency(metrics.net.value)}
+					change={metrics.net.change}
+				/>
+			</div>
 
-				{/* Monthly Budgets and Income Expenses Chart - stack on mobile and tablet, side by side on desktop */}
-				<div className="grid gap-4 grid-cols-1 lg:grid-cols-4">
-					<div className="lg:col-span-1">
-						<MonthlyBudgets />
-					</div>
-					<div className="lg:col-span-3">
-						<IncomeExpensesChart />
-					</div>
+			<div className="grid grid-cols-1 gap-2 lg:grid-cols-4">
+				<div className="lg:col-span-3">
+					<BalanceTrends />
 				</div>
-
-				{/* Weekly Expenses and Payments History - stack on mobile and tablet, side by side on desktop */}
-				<div className="grid gap-4 grid-cols-1 lg:grid-cols-4">
-					<div className="lg:col-span-3">
-						<WeeklyExpenses />
-					</div>
-					<div className="lg:col-span-1">
-						<PaymentsHistory />
-					</div>
-				</div>
-
-				{/* Saving Goals and Transaction History - stack on mobile and tablet, side by side on desktop */}
-				<div className="grid gap-4 grid-cols-1 lg:grid-cols-4">
-					<div className="lg:col-span-1">
-						<SavingGoals />
-					</div>
-					<div className="lg:col-span-3">
-						<TransactionHistory />
-					</div>
+				<div className="lg:col-span-1">
+					<ExpensesBreakdown />
 				</div>
 			</div>
-		</>
+
+			<div className="grid grid-cols-1 gap-2 lg:grid-cols-4">
+				<div className="lg:col-span-1">
+					<MonthlyBudgets />
+				</div>
+				<div className="lg:col-span-3">
+					<IncomeExpensesChart />
+				</div>
+			</div>
+
+			<div className="grid grid-cols-1 gap-2 lg:grid-cols-4">
+				<div className="lg:col-span-3">
+					<WeeklyExpenses />
+				</div>
+				<div className="lg:col-span-1">
+					<SavingGoals />
+				</div>
+			</div>
+
+			<div className="grid grid-cols-1 gap-2 lg:grid-cols-4">
+				<TopExpenses
+					transactions={transactions}
+					className="lg:col-span-1"
+					limit={5}
+				/>
+				<div className="lg:col-span-3">
+					<TransactionHistory />
+				</div>
+			</div>
+		</div>
 	);
 }

@@ -1,10 +1,13 @@
 import Layout from "@/components/layout";
-import { TransactionHistory } from "@/components/section/analytics/transaction-history";
+import TransactionsSection from "@/components/section/transactions";
 
 export default function TransactionsPage() {
 	return (
-		<Layout breadcrumbTitle="Movimentações">
-			<TransactionHistory></TransactionHistory>
+		<Layout
+			breadcrumbTitleKey="transactions.title"
+			breadcrumbSubtitleKey="transactions.subtitle"
+		>
+			<TransactionsSection />
 		</Layout>
 	);
 }

@@ -1,121 +1,126 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useState } from "react";
+import { toast } from "sonner";
+
+const CURRENCIES = ["BRL", "USD", "EUR", "GBP"];
+
+const TIME_ZONES = [
+	"America/Sao_Paulo",
+	"America/New_York",
+	"Europe/London",
+	"Europe/Lisbon",
+	"UTC",
+];
+
+const NOTIFICATION_KEYS = ["notifyMoney", "notifyMerchant", "notifyRecommendations"];
 
 export default function General() {
-	const [currency, setCurrency] = useState("USD")
-	const [timeZone, setTimeZone] = useState("(GMT-12:00) International Date Line West")
-	const [notifications, setNotifications] = useState({
-		digitalCurrency: true,
-		merchantOrder: false,
-		recommendations: false,
-	})
+	const { t, localeConfig } = useTranslation();
 
-	const handleNotificationChange = (key) => {
-		setNotifications({
-			...notifications,
-			[key]: !notifications[key],
-		})
-	}
+	const [currency, setCurrency] = useState(localeConfig.currency);
+	const [timeZone, setTimeZone] = useState(TIME_ZONES[0]);
+	const [notifications, setNotifications] = useState({
+		notifyMoney: true,
+		notifyMerchant: false,
+		notifyRecommendations: false,
+	});
+
+	const toggle = (key) =>
+		setNotifications((previous) => ({ ...previous, [key]: !previous[key] }));
+
+	const save = () => toast.success(t("settings.general.saved"));
 
 	return (
-		<div className="space-y-6">
-			{/* Preferences Section */}
+		<div className="space-y-3">
 			<Card>
 				<CardHeader>
-					<CardTitle>Preferences</CardTitle>
+					<CardTitle>{t("settings.general.preferences")}</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<div className="grid md:grid-cols-2 gap-6">
-						<div className="space-y-2">
-							<Label>Primary Currency</Label>
+					<div className="grid gap-3 md:grid-cols-2">
+						<div className="space-y-1">
+							<Label htmlFor="primary-currency">
+								{t("settings.general.primaryCurrency")}
+							</Label>
 							<Select value={currency} onValueChange={setCurrency}>
-								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Select currency" />
+								<SelectTrigger id="primary-currency">
+									<SelectValue placeholder={t("common.select")} />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="USD">USD</SelectItem>
-									<SelectItem value="EUR">EUR</SelectItem>
-									<SelectItem value="GBP">GBP</SelectItem>
-									<SelectItem value="JPY">JPY</SelectItem>
+									{CURRENCIES.map((code) => (
+										<SelectItem key={code} value={code}>
+											{code}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						</div>
 
-						<div className="space-y-2">
-							<Label>Time Zone</Label>
+						<div className="space-y-1">
+							<Label htmlFor="time-zone">
+								{t("settings.general.timeZone")}
+							</Label>
 							<Select value={timeZone} onValueChange={setTimeZone}>
-								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Select time zone" />
+								<SelectTrigger id="time-zone">
+									<SelectValue placeholder={t("common.select")} />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="(GMT-12:00) International Date Line West">
-										(GMT-12:00) International Date Line West
-									</SelectItem>
-									<SelectItem value="(GMT-11:00) Midway Island, Samoa">(GMT-11:00) Midway Island, Samoa</SelectItem>
-									<SelectItem value="(GMT-10:00) Hawaii">(GMT-10:00) Hawaii</SelectItem>
-									<SelectItem value="(GMT-09:00) Alaska">(GMT-09:00) Alaska</SelectItem>
+									{TIME_ZONES.map((zone) => (
+										<SelectItem key={zone} value={zone}>
+											{zone.replace("_", " ")}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						</div>
 					</div>
 				</CardContent>
 				<CardFooter>
-					<Button>Save</Button>
+					<Button onClick={save}>{t("common.save")}</Button>
 				</CardFooter>
 			</Card>
 
-			{/* Notifications Section */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Notifications</CardTitle>
+					<CardTitle>{t("settings.general.notifications")}</CardTitle>
 				</CardHeader>
-				<CardContent>
-					<div className="space-y-6">
-						<div className="flex items-center justify-between">
-							<Label htmlFor="digital-currency" className="text-muted-foreground">
-								I send or receive digital currency
+				<CardContent className="space-y-2">
+					{NOTIFICATION_KEYS.map((key) => (
+						<div key={key} className="flex items-center justify-between gap-3">
+							<Label htmlFor={key} className="text-muted-foreground">
+								{t(`settings.general.${key}`)}
 							</Label>
 							<Switch
-								id="digital-currency"
-								checked={notifications.digitalCurrency}
-								onCheckedChange={() => handleNotificationChange("digitalCurrency")}
+								id={key}
+								checked={notifications[key]}
+								onCheckedChange={() => toggle(key)}
 							/>
 						</div>
-
-						<div className="flex items-center justify-between">
-							<Label htmlFor="merchant-order" className="text-muted-foreground">
-								I receive merchant order
-							</Label>
-							<Switch
-								id="merchant-order"
-								checked={notifications.merchantOrder}
-								onCheckedChange={() => handleNotificationChange("merchantOrder")}
-							/>
-						</div>
-
-						<div className="flex items-center justify-between">
-							<Label htmlFor="recommendations" className="text-muted-foreground">
-								There are recommendation for my account
-							</Label>
-							<Switch
-								id="recommendations"
-								checked={notifications.recommendations}
-								onCheckedChange={() => handleNotificationChange("recommendations")}
-							/>
-						</div>
-					</div>
+					))}
 				</CardContent>
 				<CardFooter>
-					<Button>Save</Button>
+					<Button onClick={save}>{t("common.save")}</Button>
 				</CardFooter>
 			</Card>
 		</div>
-	)
+	);
 }
-

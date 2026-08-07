@@ -1,24 +1,36 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import {
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
+import { CheckCircle } from "lucide-react";
 
 export default function Success({ onStateChange, message, nextState }) {
-	// Wrap the content in a flex container to center vertically
+	const { t } = useTranslation();
+
 	return (
-		<div className="flex flex-col justify-center h-full">
-			<CardHeader className="space-y-1 pb-6">
-				<CardTitle className="text-2xl font-bold">Success</CardTitle>
+		<div className="flex h-full flex-col justify-center">
+			<CardHeader>
+				<CardTitle className="text-base">{t("auth.success.title")}</CardTitle>
 			</CardHeader>
-			<CardContent className="px-6 pb-4 flex-grow flex flex-col items-center justify-center space-y-4 text-center">
-				<CheckCircle className="h-16 w-16 text-green-500" />
-				<p>{message}</p>
+
+			<CardContent className="flex flex-grow flex-col items-center justify-center gap-2 text-center">
+				<CheckCircle className="h-12 w-12 text-emerald-500" />
+				<p className="text-xs text-muted-foreground">
+					{message ?? t("auth.success.message")}
+				</p>
 			</CardContent>
-			<CardFooter className="px-6 py-4 border-t mt-auto flex justify-center">
-				<Button onClick={() => onStateChange(nextState)}>Continue</Button>
+
+			<CardFooter className="mt-auto justify-center border-t pt-3">
+				<Button onClick={() => onStateChange(nextState)}>
+					{t("auth.success.continue")}
+				</Button>
 			</CardFooter>
 		</div>
-	)
+	);
 }
-

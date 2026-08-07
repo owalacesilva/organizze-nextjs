@@ -1,76 +1,95 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-
-const data = [
-	{ month: "Jan", income: 5, expenses: 4 },
-	{ month: "Feb", income: 6, expenses: 5 },
-	{ month: "Mar", income: 4.5, expenses: 3.5 },
-	{ month: "Apr", income: 5.5, expenses: 4.5 },
-	{ month: "May", income: 3, expenses: 2 },
-	{ month: "Jun", income: 6, expenses: 5 },
-	{ month: "Jul", income: 4.5, expenses: 3.5 },
-	{ month: "Aug", income: 6, expenses: 5 },
-	{ month: "Sep", income: 8, expenses: 7 },
-	{ month: "Oct", income: 3, expenses: 2 },
-]
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
+import { monthlyTotals } from "@/lib/transactions";
+import { useMemo } from "react";
+import {
+	Bar,
+	BarChart,
+	CartesianGrid,
+	Legend,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
+} from "recharts";
+import { useDashboardData } from "./use-dashboard-data";
 
 export function IncomeExpensesChart() {
+	const { t, formatCurrency, formatDate } = useTranslation();
+	const { transactions } = useDashboardData();
+
+	const data = useMemo(
+		() =>
+			monthlyTotals(transactions, 6).map((month) => ({
+				label: formatDate(month.date, { month: "short" }),
+				income: Math.round(month.income * 100) / 100,
+				expenses: Math.round(month.expenses * 100) / 100,
+			})),
+		[transactions, formatDate],
+	);
+
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Monthly Income vs Expenses</CardTitle>
+				<CardTitle>{t("dashboard.incomeVsExpenses")}</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<div className="h-[350px] w-full">
+				<div className="h-64 w-full">
 					<ResponsiveContainer width="100%" height="100%">
 						<BarChart
 							data={data}
-							margin={{
-								top: 5,
-								right: 10,
-								left: 10,
-								bottom: 20,
-							}}
+							margin={{ top: 4, right: 4, left: 4, bottom: 0 }}
 						>
-							<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+							<CartesianGrid
+								strokeDasharray="3 3"
+								vertical={false}
+								className="stroke-border"
+							/>
 							<XAxis
-								dataKey="month"
+								dataKey="label"
 								tickLine={false}
 								axisLine={false}
-								tick={{ fontSize: 12, fill: "#6B7280" }}
-								dy={10}
+								tick={{ fontSize: 10 }}
+								stroke="currentColor"
+								className="text-muted-foreground"
 							/>
-							<YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} dx={-10} />
+							<YAxis
+								tickLine={false}
+								axisLine={false}
+								width={56}
+								tick={{ fontSize: 10 }}
+								stroke="currentColor"
+								className="text-muted-foreground"
+							/>
 							<Tooltip
-								content={({ active, payload }) => {
-									if (active && payload && payload.length) {
-										return (
-											<div className="rounded-lg border bg-background p-2 shadow-sm">
-												<div className="grid grid-cols-2 gap-2">
-													<div className="flex flex-col">
-														<span className="text-[0.70rem] uppercase text-muted-foreground">Income</span>
-														<span className="font-bold">${payload[0].value}k</span>
-													</div>
-													<div className="flex flex-col">
-														<span className="text-[0.70rem] uppercase text-muted-foreground">Expenses</span>
-														<span className="font-bold">${payload[1].value}k</span>
-													</div>
-												</div>
-											</div>
-										)
-									}
-									return null
+								formatter={(value) => formatCurrency(value)}
+								contentStyle={{
+									backgroundColor: "hsl(var(--card))",
+									borderColor: "hsl(var(--border))",
+									borderRadius: 0,
+									fontSize: 12,
+									color: "hsl(var(--foreground))",
 								}}
 							/>
-							<Bar dataKey="income" fill="#4F46E5" radius={[4, 4, 0, 0]} barSize={8} />
-							<Bar dataKey="expenses" fill="#E5E7EB" radius={[4, 4, 0, 0]} barSize={8} />
+							<Legend wrapperStyle={{ fontSize: 11 }} />
+							<Bar
+								dataKey="income"
+								name={t("transactions.summary.income")}
+								fill="hsl(var(--primary))"
+								barSize={10}
+							/>
+							<Bar
+								dataKey="expenses"
+								name={t("transactions.summary.expenses")}
+								fill="hsl(var(--muted-foreground))"
+								barSize={10}
+							/>
 						</BarChart>
 					</ResponsiveContainer>
 				</div>
 			</CardContent>
 		</Card>
-	)
+	);
 }
-

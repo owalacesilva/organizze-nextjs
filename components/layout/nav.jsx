@@ -6,86 +6,107 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import {
+	ArrowLeftRight,
 	BarChart3,
-	Headphones,
 	LayoutDashboard,
-	LinkIcon,
+	Lightbulb,
 	PiggyBank,
 	Settings,
 	Target,
+	Upload,
 	User,
 	Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSidebar } from "./sidebar-context";
 
 const items = [
-	{ title: "Dashboard", icon: LayoutDashboard, href: "/" },
-	{ title: "Wallets", icon: Wallet, href: "/wallets" },
-	{ title: "Budgets", icon: PiggyBank, href: "/budgets" },
-	{ title: "Goals", icon: Target, href: "/goals" },
-	{ title: "Profile", icon: User, href: "/profile" },
-	{ title: "Analytics", icon: BarChart3, href: "/analytics" },
-	{ title: "Support", icon: Headphones, href: "/support" },
-	{ title: "Referrals", icon: LinkIcon, href: "/referrals" },
-	{ title: "Settings", icon: Settings, href: "/settings" },
+	{ key: "dashboard", icon: LayoutDashboard, href: "/" },
+	{ key: "transactions", icon: ArrowLeftRight, href: "/transactions" },
+	{ key: "wallets", icon: Wallet, href: "/wallets" },
+	{ key: "budgets", icon: PiggyBank, href: "/budgets" },
+	{ key: "goals", icon: Target, href: "/goals" },
+	{ key: "analytics", icon: BarChart3, href: "/analytics" },
+	{ key: "insights", icon: Lightbulb, href: "/insights" },
+	{ key: "import", icon: Upload, href: "/import" },
+	{ key: "profile", icon: User, href: "/profile" },
+	{ key: "settings", icon: Settings, href: "/settings" },
 ];
+
+/** Mobile bottom bar shows only the primary destinations. */
+const mobileItems = items.slice(0, 5);
 
 export function MainNav({ variant = "desktop" }) {
 	const pathname = usePathname();
+	const { collapsed } = useSidebar();
+	const { t } = useTranslation();
 	const isDesktop = variant === "desktop";
+
+	if (!isDesktop) {
+		return (
+			<nav className="flex w-full flex-row items-center justify-around">
+				{mobileItems.map((item) => (
+					<Link
+						key={item.href}
+						href={item.href}
+						aria-current={pathname === item.href ? "page" : undefined}
+						className={cn(
+							"flex flex-col items-center justify-center rounded-lg px-2.5 py-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white",
+							pathname === item.href && "bg-white/10 text-white",
+						)}
+					>
+						<item.icon className="h-4 w-4" />
+						<span className="sr-only">{t(`nav.${item.key}`)}</span>
+					</Link>
+				))}
+			</nav>
+		);
+	}
 
 	return (
 		<TooltipProvider delayDuration={300}>
-			<nav
-				className={cn(
-					"flex relative",
-					isDesktop
-						? "flex-col gap-2"
-						: "flex-row items-center justify-around w-full",
-				)}
-			>
-				{items.map((item) =>
-					isDesktop ? (
+			<nav className="flex flex-col gap-0.5 px-2">
+				{items.map((item) => {
+					const label = t(`nav.${item.key}`);
+					const isActive = pathname === item.href;
+
+					const link = (
+						<Link
+							href={item.href}
+							aria-current={isActive ? "page" : undefined}
+							className={cn(
+								"flex items-center rounded-lg text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white",
+								collapsed
+									? "h-9 w-9 justify-center mx-auto"
+									: "h-9 w-full gap-2.5 px-2.5",
+								isActive && "bg-white/10 text-white",
+							)}
+						>
+							<item.icon className="h-4 w-4 shrink-0" />
+							{collapsed ? (
+								<span className="sr-only">{label}</span>
+							) : (
+								<span className="truncate">{label}</span>
+							)}
+						</Link>
+					);
+
+					// Tooltips only earn their place when the label is hidden.
+					return collapsed ? (
 						<Tooltip key={item.href}>
-							<TooltipTrigger asChild>
-								<Link
-									href={item.href}
-									className={cn(
-										"flex items-center justify-center rounded-xl p-3 w-12 mx-auto text-white/70 hover:bg-white/10 hover:text-white transition-colors",
-										pathname === item.href && "bg-white/10 text-white",
-									)}
-								>
-									<item.icon className="h-5 w-5" />
-									<span className="sr-only">{item.title}</span>
-								</Link>
-							</TooltipTrigger>
-							<TooltipContent
-								side="right"
-								align="center"
-								sideOffset={12}
-								className="z-50"
-							>
-								{item.title}
+							<TooltipTrigger asChild>{link}</TooltipTrigger>
+							<TooltipContent side="right" align="center" sideOffset={10}>
+								{label}
 							</TooltipContent>
 						</Tooltip>
 					) : (
-						<Link
-							key={item.href}
-							href={item.href}
-							className={cn(
-								"flex items-center justify-center rounded-xl p-2 text-white/70 hover:bg-white/10 hover:text-white transition-colors",
-								pathname === item.href && "bg-white/10 text-white",
-								"flex-col text-[10px]",
-							)}
-						>
-							<item.icon className="h-5 w-5 mb-1" />
-							{/* <span>{item.title}</span> */}
-						</Link>
-					),
-				)}
+						<div key={item.href}>{link}</div>
+					);
+				})}
 			</nav>
 		</TooltipProvider>
 	);

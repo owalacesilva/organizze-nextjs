@@ -37,11 +37,10 @@ export const useGetCategories = (): UseQueryResult<
 
 export const useGetCategoryById = (
 	id: number | string,
-): UseQueryResult<any, Error> => {
-	return useQuery<CategoryByIdResponse, Error, any>({
+): UseQueryResult<CategoryByIdResponse, Error> => {
+	return useQuery<CategoryByIdResponse, Error>({
 		queryKey: ["categories", id],
 		queryFn: () => getCategoryById(id),
-		select: (res) => res.data,
 		enabled: !!id && id !== 0,
 		refetchOnMount: "always",
 	});

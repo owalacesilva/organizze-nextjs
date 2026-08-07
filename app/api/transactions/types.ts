@@ -7,6 +7,10 @@ export interface TransactionByIdResponse {
 		id: number;
 		name: string;
 	};
+	wallet?: {
+		id: number;
+		name: string;
+	};
 }
 
 export interface TransactionsResponse {
@@ -18,6 +22,7 @@ export interface CreateTransactionRequest {
 	description: string;
 	date: string;
 	categoryId: number;
+	walletId?: number;
 }
 
 export interface CreateTransactionResponse {
@@ -29,6 +34,7 @@ export interface UpdateTransactionRequest {
 	description?: string;
 	date?: string;
 	categoryId?: number;
+	walletId?: number;
 }
 
 export interface UpdateTransactionResponse {

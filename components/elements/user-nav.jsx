@@ -9,60 +9,78 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, User, Wallet } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
+import { LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
 
+// Placeholder identity until authentication lands.
+const CURRENT_USER = {
+	name: "Hafsa Humaira",
+	email: "hello@email.com",
+	initials: "HH",
+	avatar: "/images/avatar/1.jpg",
+};
+
 export function UserNav() {
+	const { t } = useTranslation();
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant="ghost"
-					className="h-9 w-9 rounded-full hover:bg-transparent"
+					size="icon"
+					className="hover:bg-transparent"
+					aria-label={t("layout.myAccount")}
 				>
-					<Avatar className="h-8 w-8">
-						<AvatarImage
-							src="/images/avatar/1.jpg?height=32&width=32"
-							alt="@hafsa"
-						/>
-						<AvatarFallback>HH</AvatarFallback>
+					<Avatar className="h-7 w-7">
+						<AvatarImage src={CURRENT_USER.avatar} alt={CURRENT_USER.name} />
+						<AvatarFallback>{CURRENT_USER.initials}</AvatarFallback>
 					</Avatar>
 				</Button>
 			</DropdownMenuTrigger>
+
 			<DropdownMenuContent className="w-56" align="end">
-				<div className="flex items-center gap-3 p-3">
-					<Avatar className="h-9 w-9">
-						<AvatarImage
-							src="/images/avatar/1.jpg?height=36&width=36"
-							alt="@hafsa"
-						/>
-						<AvatarFallback>HH</AvatarFallback>
+				<div className="flex items-center gap-2 p-2">
+					<Avatar className="h-8 w-8">
+						<AvatarImage src={CURRENT_USER.avatar} alt={CURRENT_USER.name} />
+						<AvatarFallback>{CURRENT_USER.initials}</AvatarFallback>
 					</Avatar>
-					<div className="flex flex-col">
-						<p className="text-sm font-medium">Hafsa Humaira</p>
-						<p className="text-xs text-muted-foreground">hello@email.com</p>
+					<div className="flex min-w-0 flex-col">
+						<p className="truncate text-xs font-medium">{CURRENT_USER.name}</p>
+						<p className="truncate text-[11px] text-muted-foreground">
+							{CURRENT_USER.email}
+						</p>
 					</div>
 				</div>
+
 				<DropdownMenuSeparator />
-				<Link href="/profile" className="w-full">
-					<DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
-						<User className="h-4 w-4" />
-						<span>Profile</span>
-					</DropdownMenuItem>
-				</Link>
-				<Link href="/settings" className="w-full">
-					<DropdownMenuItem className="flex items-center gap-3 p-3 cursor-pointer">
-						<Settings className="h-4 w-4" />
-						<span>Settings</span>
-					</DropdownMenuItem>
-				</Link>
+
+				<DropdownMenuItem asChild className="gap-2">
+					<Link href="/profile">
+						<User />
+						{t("nav.profile")}
+					</Link>
+				</DropdownMenuItem>
+
+				<DropdownMenuItem asChild className="gap-2">
+					<Link href="/settings">
+						<Settings />
+						{t("nav.settings")}
+					</Link>
+				</DropdownMenuItem>
+
 				<DropdownMenuSeparator />
-				<Link href="/signin" className="w-full">
-					<DropdownMenuItem className="flex items-center gap-3 p-3 text-destructive focus:text-destructive cursor-pointer">
-						<LogOut className="h-4 w-4" />
-						<span>Logout</span>
-					</DropdownMenuItem>
-				</Link>
+
+				<DropdownMenuItem
+					asChild
+					className="gap-2 text-destructive focus:text-destructive"
+				>
+					<Link href="/signin">
+						<LogOut />
+						{t("layout.logout")}
+					</Link>
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

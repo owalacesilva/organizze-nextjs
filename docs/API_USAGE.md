@@ -264,3 +264,28 @@ When you add, update, or delete transactions:
 - Load more functionality
 - Configurable page sizes
 - Total count tracking
+
+## Simulated API
+
+The app can answer every request from an in-memory store instead of the backend,
+which is what makes the UI usable before the endpoints exist.
+
+```bash
+# .env
+NEXT_PUBLIC_SIMULATE_API=true   # in-memory data (default in this repo)
+NEXT_PUBLIC_SIMULATE_API=false  # call NEXT_PUBLIC_API_URL for real
+```
+
+- The switch lives in `lib/simulation/index.js` (`SIMULATION_ENABLED`) and is read
+  by every action under `app/api/*/actions.ts`, so the hooks and components never
+  need to know which mode is active.
+- The dataset is seeded deterministically in `lib/simulation/seed.js` — roughly 90
+  transactions over four months, plus categories, wallets, budgets, goals and tags.
+  Every reload rebuilds the same data; writes live in module state and are lost on
+  refresh.
+- Responses match the shapes declared in each resource's `types.ts`, and each call
+  waits ~180 ms so loading states are exercised.
+- `resetSimulation()` restores the seed — used by the tests.
+
+Jest forces the flag off (see `jest.setup.js`) so the action tests keep exercising
+the real `fetch` path.

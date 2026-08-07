@@ -3,7 +3,10 @@ import BudgetsSection from "@/components/section/budgets";
 
 export default function BudgetsPage() {
 	return (
-		<Layout breadcrumbTitle="Budgets">
+		<Layout
+			breadcrumbTitleKey="budgets.title"
+			breadcrumbSubtitleKey="budgets.subtitle"
+		>
 			<BudgetsSection />
 		</Layout>
 	);

@@ -1,60 +1,52 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
 
-export function PasswordStrengthMeter({ password }) {
-	const [strength, setStrength] = useState("Too weak")
+const LEVELS = {
+	tooWeak: { width: "10%", tone: "bg-destructive" },
+	weak: { width: "35%", tone: "bg-amber-500" },
+	medium: { width: "70%", tone: "bg-yellow-500" },
+	strong: { width: "100%", tone: "bg-emerald-500" },
+};
 
-	const calculateStrength = (password) => {
-		if (password.length === 0) {
-			setStrength("")
-			return
-		}
-		if (password.length < 6) {
-			setStrength("Too weak")
-		} else if (password.length < 10) {
-			setStrength("Weak")
-		} else if (/[A-Z]/.test(password) && /[0-9]/.test(password) && /[^a-zA-Z0-9\s]/.test(password)) {
-			setStrength("Strong")
-		} else {
-			setStrength("Medium")
-		}
-	}
+/** Cheap heuristic: length first, then character variety. */
+function scorePassword(password) {
+	if (password.length < 6) return "tooWeak";
+	if (password.length < 10) return "weak";
 
-	useState(() => {
-		calculateStrength(password)
-	}, [password])
+	const varied =
+		/[A-Z]/.test(password) &&
+		/[0-9]/.test(password) &&
+		/[^a-zA-Z0-9\s]/.test(password);
 
-	let color = "red"
-	if (strength === "Medium") {
-		color = "yellow"
-	} else if (strength === "Strong") {
-		color = "green"
-	}
-
-	return (
-		<div className="relative pt-1">
-			<div className="flex mb-2 items-center justify-between">
-				<div>
-					<span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-red-600 bg-red-200">
-						{strength}
-					</span>
-				</div>
-				<div className="text-right">
-					<span className="text-xs font-semibold inline-block text-red-600">{password.length}/20</span>
-				</div>
-			</div>
-			<div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-red-200">
-				<div
-					style={{
-						width:
-							strength === "Too weak" ? "10%" : strength === "Weak" ? "25%" : strength === "Medium" ? "66%" : "100%",
-						backgroundColor: color,
-					}}
-					className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center"
-				></div>
-			</div>
-		</div>
-	)
+	return varied ? "strong" : "medium";
 }
 
+export function PasswordStrengthMeter({ password = "" }) {
+	const { t } = useTranslation();
+
+	if (!password) return null;
+
+	const level = scorePassword(password);
+	const { width, tone } = LEVELS[level];
+
+	return (
+		<div className="space-y-1 pt-1">
+			<div className="flex items-center justify-between text-[10px]">
+				<span className="text-muted-foreground">
+					{t("auth.strength.label")}:{" "}
+					<span className="font-medium text-foreground">
+						{t(`auth.strength.${level}`)}
+					</span>
+				</span>
+				<span className="text-muted-foreground">{password.length}/20</span>
+			</div>
+			<div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+				<div className={cn("h-full transition-all", tone)} style={{ width }} />
+			</div>
+		</div>
+	);
+}
+
+export default PasswordStrengthMeter;

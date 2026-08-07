@@ -37,11 +37,10 @@ export const useGetTransactions = (): UseQueryResult<
 
 export const useGetTransactionById = (
 	id: number | string,
-): UseQueryResult<any, Error> => {
-	return useQuery<TransactionByIdResponse, Error, any>({
+): UseQueryResult<TransactionByIdResponse, Error> => {
+	return useQuery<TransactionByIdResponse, Error>({
 		queryKey: ["transactions", id],
 		queryFn: () => getTransactionById(id),
-		select: (res) => res.data,
 		enabled: !!id && id !== 0,
 		refetchOnMount: "always",
 	});
