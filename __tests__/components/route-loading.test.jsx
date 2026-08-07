@@ -5,6 +5,7 @@ import DashboardLoading from "@/app/dashboard/loading";
 import GoalsLoading from "@/app/goals/loading";
 import RootLoading from "@/app/loading";
 import ProfileLoading from "@/app/profile/loading";
+import QuotesLoading from "@/app/quotes/loading";
 import SettingsLoading from "@/app/settings/loading";
 import TransactionsLoading from "@/app/transactions/loading";
 import WalletsLoading from "@/app/wallets/loading";
@@ -25,6 +26,7 @@ const routes = [
 	["/wallets", WalletsLoading, "Carteiras"],
 	["/budgets", BudgetsLoading, "Orçamentos"],
 	["/goals", GoalsLoading, "Metas"],
+	["/quotes", QuotesLoading, "Cotações"],
 	["/profile", ProfileLoading, "Perfil"],
 	["/settings", SettingsLoading, "Configurações"],
 	["/categories", CategoriesLoading, "Categorias"],
