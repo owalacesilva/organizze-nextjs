@@ -64,16 +64,60 @@ const COLUMNS = [
 	},
 ];
 
-export default function Stocks() {
+const changeAmount = (quote, { formatBRL }) =>
+	formatBRL(quote.change, { signDisplay: "exceptZero" });
+
+const RANGE = {
+	labelKey: "quotes.columns.dayRange",
+	low: (quote) => quote.dayLow,
+	high: (quote) => quote.dayHigh,
+	value: (quote) => quote.price,
+	render: (value, { formatBRL }) => formatBRL(value),
+};
+
+const CARD = {
+	title: (quote) => quote.symbol,
+	subtitle: (quote) => quote.name,
+	badge: (quote, { t }) => t(`quotes.sectors.${quote.sector}`),
+	value: (quote, { formatBRL }) => formatBRL(quote.price),
+	change: (quote) => quote.changePercent,
+	changeAmount,
+	stats: ["volume", "marketCap"],
+};
+
+const DETAILS = {
+	// Identity, sector, price and change are already in the header and hero;
+	// the range gets its own bar below them.
+	omit: ["symbol", "sector", "price", "change", "range"],
+	stats: [
+		{
+			key: "changeValue",
+			labelKey: "quotes.columns.changeValue",
+			render: changeAmount,
+		},
+		{
+			key: "previousClose",
+			labelKey: "quotes.columns.previousClose",
+			render: (quote, { formatBRL }) => formatBRL(quote.previousClose),
+		},
+	],
+};
+
+export default function Stocks({ view, onViewChange }) {
 	const query = useGetStockQuotes();
 
 	return (
 		<QuotesPanel
 			titleKey="quotes.tabs.stocks"
 			columns={COLUMNS}
+			card={CARD}
+			range={RANGE}
+			details={DETAILS}
 			rowKey={(quote) => quote.symbol}
 			searchable={(quote) => `${quote.symbol} ${quote.name}`}
 			query={query}
+			view={view}
+			onViewChange={onViewChange}
 		/>
 	);
 }

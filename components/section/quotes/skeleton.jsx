@@ -1,10 +1,6 @@
 "use client";
 
-import {
-	SkeletonPage,
-	SkeletonTable,
-	SkeletonTabs,
-} from "@/components/elements/skeletons";
+import { SkeletonPage, SkeletonTabs } from "@/components/elements/skeletons";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -28,8 +24,12 @@ export function QuotesSkeleton() {
 				</CardHeader>
 
 				<CardContent>
-					<div className="rounded-md border px-3">
-						<SkeletonTable rows={6} columns={6} />
+					{/* Cards are the default view, so the route skeleton shows a grid. */}
+					<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+						{Array.from({ length: 6 }).map((_, index) => (
+							// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder
+							<Skeleton key={index} className="h-44" />
+						))}
 					</div>
 					<div className="flex items-center justify-between pt-3">
 						<Skeleton className="h-3 w-40" />

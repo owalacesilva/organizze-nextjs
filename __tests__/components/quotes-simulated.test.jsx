@@ -39,13 +39,35 @@ describe("QuotesSection against the simulated backend", () => {
 	it("renders seeded stock quotes without touching fetch", async () => {
 		renderSection();
 
-		const row = (
-			await screen.findByText("PETR4", {}, { timeout: 3000 })
-		).closest("tr");
+		const card = await screen.findByRole(
+			"button",
+			{ name: "Ver detalhes de PETR4" },
+			{ timeout: 3000 },
+		);
 
-		expect(within(row).getByText(/R\$\s?38,42/)).toBeInTheDocument();
-		expect(within(row).getByText(/\+1,40%/)).toBeInTheDocument();
+		expect(within(card).getByText(/R\$\s?38,42/)).toBeInTheDocument();
+		expect(within(card).getByText(/\+1,40%/)).toBeInTheDocument();
 		expect(global.fetch).not.toHaveBeenCalled();
+	});
+
+	it("opens a details dialog over a seeded card", async () => {
+		const user = userEvent.setup();
+		renderSection();
+
+		await user.click(
+			await screen.findByRole(
+				"button",
+				{ name: "Ver detalhes de WEGE3" },
+				{ timeout: 3000 },
+			),
+		);
+
+		const dialog = await screen.findByRole("dialog");
+		expect(within(dialog).getByText("WEG ON")).toBeInTheDocument();
+		expect(within(dialog).getByText("Bens industriais")).toBeInTheDocument();
+		expect(within(dialog).getByText(/R\$\s?52,73/)).toBeInTheDocument();
+		expect(within(dialog).getByText(/\+2,05%/)).toBeInTheDocument();
+		expect(within(dialog).getByText(/R\$\s?51,67/)).toBeInTheDocument();
 	});
 
 	it("serves every tab from the seed", async () => {

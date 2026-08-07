@@ -152,12 +152,44 @@ describe("QuotesSection", () => {
 		mockApi();
 		renderSection();
 
-		const row = (await screen.findByText("PETR4")).closest("tr");
-		expect(within(row).getByText(/R\$\s?38,42/)).toBeInTheDocument();
-		expect(within(row).getByText(/\+1,40%/)).toBeInTheDocument();
+		const card = await screen.findByRole("button", {
+			name: "Ver detalhes de PETR4",
+		});
+		expect(within(card).getByText(/R\$\s?38,42/)).toBeInTheDocument();
+		expect(within(card).getByText(/\+1,40%/)).toBeInTheDocument();
+		// The card carries the move in reais too, which a row only implies.
+		expect(within(card).getByText(/\+R\$\s?0,53/)).toBeInTheDocument();
 
-		const falling = screen.getByText("VALE3").closest("tr");
+		const falling = screen.getByRole("button", {
+			name: "Ver detalhes de VALE3",
+		});
 		expect(within(falling).getByText(/-1,20%/)).toBeInTheDocument();
+	});
+
+	it("opens on the card view", async () => {
+		mockApi();
+		renderSection();
+
+		await screen.findByText("PETR4");
+		expect(screen.queryByRole("table")).not.toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: "Ver como tabela" }),
+		).toBeInTheDocument();
+	});
+
+	it("reaches the details dialog from the keyboard", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		const card = await screen.findByRole("button", {
+			name: "Ver detalhes de PETR4",
+		});
+
+		card.focus();
+		await user.keyboard("{Enter}");
+
+		expect(await screen.findByRole("dialog")).toBeInTheDocument();
 	});
 
 	it("filters the visible quotes by ticker", async () => {
@@ -246,6 +278,99 @@ describe("QuotesSection", () => {
 		expect(screen.getByText("Dólar americano")).toBeInTheDocument();
 		expect(screen.getByText(/R\$\s?5,4231/)).toBeInTheDocument();
 		expect(screen.getByText(/R\$\s?5,4258/)).toBeInTheDocument();
+	});
+
+	it("switches between the card grid and the table", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await screen.findByText("PETR4");
+		await user.click(screen.getByRole("button", { name: "Ver como tabela" }));
+
+		expect(screen.getByRole("table")).toBeInTheDocument();
+		expect(screen.getByText("PETR4")).toBeInTheDocument();
+
+		// The button now offers the way back.
+		await user.click(screen.getByRole("button", { name: "Ver como cartões" }));
+		expect(screen.queryByRole("table")).not.toBeInTheDocument();
+	});
+
+	it("keeps the chosen view when moving to another asset class", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await screen.findByText("PETR4");
+		await user.click(screen.getByRole("button", { name: "Ver como tabela" }));
+		await openTab(user, "Criptomoedas");
+
+		expect(await screen.findByText("BTC")).toBeInTheDocument();
+		expect(screen.getByRole("table")).toBeInTheDocument();
+	});
+
+	it("opens the details dialog from a card", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await user.click(await screen.findByText("PETR4"));
+
+		const dialog = await screen.findByRole("dialog");
+		expect(within(dialog).getByText("Petrobras PN")).toBeInTheDocument();
+
+		// Figures the card does not have room for.
+		expect(within(dialog).getByText("Fech. anterior")).toBeInTheDocument();
+		expect(within(dialog).getByText(/R\$\s?37,89/)).toBeInTheDocument();
+		expect(within(dialog).getByText("Variação (valor)")).toBeInTheDocument();
+		expect(within(dialog).getByText(/\+R\$\s?0,53/)).toBeInTheDocument();
+		expect(within(dialog).getByText("Volume")).toBeInTheDocument();
+		expect(within(dialog).getByText("Valor de mercado")).toBeInTheDocument();
+	});
+
+	it("opens the same dialog from a table row", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await screen.findByText("VALE3");
+		await user.click(screen.getByRole("button", { name: "Ver como tabela" }));
+		await user.click(screen.getByText("VALE3"));
+
+		const dialog = await screen.findByRole("dialog");
+		expect(within(dialog).getByText("Vale ON")).toBeInTheDocument();
+		expect(within(dialog).getByText("Mineração")).toBeInTheDocument();
+	});
+
+	it("describes a bond in the dialog without a change figure", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await screen.findByText("PETR4");
+		await openTab(user, "Tesouro Direto");
+		await user.click(await screen.findByText("Tesouro IPCA+ 2029"));
+
+		const dialog = await screen.findByRole("dialog");
+		expect(within(dialog).getByText("IPCA + 6,42%")).toBeInTheDocument();
+		expect(within(dialog).getByText("Prazo até o vencimento")).toBeInTheDocument();
+		expect(within(dialog).getByText("Investimento mínimo")).toBeInTheDocument();
+		expect(within(dialog).queryByText("Variação (valor)")).not.toBeInTheDocument();
+	});
+
+	it("shows the dealing spread for a currency", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await screen.findByText("PETR4");
+		await openTab(user, "Moedas");
+		await user.click(await screen.findByText("USD/BRL"));
+
+		const dialog = await screen.findByRole("dialog");
+		expect(within(dialog).getByText("Spread")).toBeInTheDocument();
+		// ask 5.4258 - bid 5.4231
+		expect(within(dialog).getByText(/R\$\s?0,0027/)).toBeInTheDocument();
 	});
 
 	it("lists crypto priced in reais", async () => {

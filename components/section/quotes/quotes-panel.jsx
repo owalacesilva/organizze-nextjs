@@ -14,50 +14,64 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { usePagination } from "@/hooks/usePagination";
-import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
-import { AlertCircle, RefreshCw, Search, TrendingUp } from "lucide-react";
+import {
+	AlertCircle,
+	LayoutGrid,
+	RefreshCw,
+	Rows3,
+	Search,
+	TrendingUp,
+} from "lucide-react";
 import { useMemo, useState } from "react";
+import { QuoteCard } from "./quote-card";
+import { QuoteDetailsDialog } from "./quote-details-dialog";
+import { useQuoteFormat } from "./use-quote-format";
 
 const SKELETON_ROWS = 6;
 
 /**
  * Shared shell for every quotes tab.
  *
- * The five asset classes list different columns but behave identically —
- * search, pagination, loading/error/empty states, a manual refresh — so each
- * tab only describes its columns and hands over the query.
+ * The five asset classes list different figures but behave identically —
+ * search, pagination, loading/error/empty states, a manual refresh, and a
+ * table/cards switch — so each tab only describes its data and hands over the
+ * query.
  *
  * @param titleKey    Dictionary key for the card heading.
  * @param columns     `{ key, labelKey, align?, className?, render(row, format) }`.
- *                    `render` receives the `useTranslation()` result — plus
- *                    `formatBRL` — so cells format in the active locale.
+ *                    `render` receives `useQuoteFormat()`, so cells format in
+ *                    the active locale with `formatBRL` already bound.
+ * @param card        Card/dialog descriptor: `{ title, subtitle, badge?, value,
+ *                    change?, stats }`, where `stats` names column keys.
+ * @param range       Optional low/high window shown as a position bar on the
+ *                    card and in the dialog.
+ * @param details     Extra dialog config: `{ omit?, stats? }`.
  * @param rowKey      Picks a stable React key out of a row.
  * @param searchable  `(row, format)` → the string the search box matches
  *                    against, so translated labels stay searchable too.
  * @param query       A `useGet*Quotes()` result.
+ * @param view        `"table"` or `"cards"`, owned by the section so the choice
+ *                    survives switching tabs.
  */
 export function QuotesPanel({
 	titleKey,
 	columns,
+	card,
+	range,
+	details,
 	rowKey,
 	searchable,
 	query,
+	view,
+	onViewChange,
 }) {
-	const translation = useTranslation();
-	const { t, formatCurrency, formatDate } = translation;
-	const [search, setSearch] = useState("");
+	const format = useQuoteFormat();
+	const { t, formatDate } = format;
 
-	// B3, Tesouro Direto and the BRL side of every pair listed here are priced
-	// in reais — the UI locale changes the notation, never the currency.
-	const format = useMemo(
-		() => ({
-			...translation,
-			formatBRL: (value, options) =>
-				formatCurrency(value, { currency: "BRL", ...options }),
-		}),
-		[translation, formatCurrency],
-	);
+	const [search, setSearch] = useState("");
+	const [selected, setSelected] = useState(null);
+	const [detailsOpen, setDetailsOpen] = useState(false);
 
 	const quotes = useMemo(() => query.data?.quotes ?? [], [query.data]);
 
@@ -73,15 +87,29 @@ export function QuotesPanel({
 
 	// Every row in a response shares the same feed timestamp.
 	const updatedAt = quotes[0]?.updatedAt;
+	const isCards = view === "cards";
+
+	const openDetails = (quote) => {
+		setSelected(quote);
+		setDetailsOpen(true);
+	};
 
 	const body = () => {
 		if (query.isPending) {
 			return (
-				<div className="space-y-1.5" role="status" aria-busy="true">
+				<div
+					className={cn(
+						isCards
+							? "grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
+							: "space-y-1.5",
+					)}
+					role="status"
+					aria-busy="true"
+				>
 					<span className="sr-only">{t("common.loading")}</span>
 					{Array.from({ length: SKELETON_ROWS }).map((_, index) => (
 						// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder
-						<Skeleton key={index} className="h-9 w-full" />
+						<Skeleton key={index} className={isCards ? "h-44" : "h-9 w-full"} />
 					))}
 				</div>
 			);
@@ -117,44 +145,70 @@ export function QuotesPanel({
 
 		return (
 			<>
-				<div className="overflow-x-auto rounded-md border">
-					<Table>
-						<TableHeader>
-							<TableRow className="hover:bg-transparent">
-								{columns.map((column) => (
-									<TableHead
-										key={column.key}
-										className={cn(
-											"whitespace-nowrap",
-											column.align === "right" && "text-right",
-											column.className,
-										)}
-									>
-										{t(column.labelKey)}
-									</TableHead>
-								))}
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{pagination.pageItems.map((quote) => (
-								<TableRow key={rowKey(quote)}>
+				{isCards ? (
+					<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+						{pagination.pageItems.map((quote) => (
+							<QuoteCard
+								key={rowKey(quote)}
+								quote={quote}
+								card={card}
+								columns={columns}
+								range={range}
+								format={format}
+								onSelect={openDetails}
+							/>
+						))}
+					</div>
+				) : (
+					<div className="overflow-x-auto rounded-md border">
+						<Table>
+							<TableHeader>
+								<TableRow className="hover:bg-transparent">
 									{columns.map((column) => (
-										<TableCell
+										<TableHead
 											key={column.key}
 											className={cn(
 												"whitespace-nowrap",
-												column.align === "right" && "text-right tabular-nums",
+												column.align === "right" && "text-right",
 												column.className,
 											)}
 										>
-											{column.render(quote, format)}
-										</TableCell>
+											{t(column.labelKey)}
+										</TableHead>
 									))}
 								</TableRow>
-							))}
-						</TableBody>
-					</Table>
-				</div>
+							</TableHeader>
+							<TableBody>
+								{pagination.pageItems.map((quote) => (
+									<TableRow
+										key={rowKey(quote)}
+										tabIndex={0}
+										onClick={() => openDetails(quote)}
+										onKeyDown={(event) => {
+											if (event.key !== "Enter" && event.key !== " ") return;
+											event.preventDefault();
+											openDetails(quote);
+										}}
+										className="cursor-pointer"
+									>
+										{columns.map((column) => (
+											<TableCell
+												key={column.key}
+												className={cn(
+													"whitespace-nowrap",
+													column.align === "right" && "text-right tabular-nums",
+													column.className,
+												)}
+											>
+												{column.render(quote, format)}
+											</TableCell>
+										))}
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</div>
+				)}
 
 				<DataTablePagination {...pagination} />
 			</>
@@ -162,47 +216,74 @@ export function QuotesPanel({
 	};
 
 	return (
-		<Card>
-			<CardHeader className="flex-col gap-2 space-y-0 sm:flex-row sm:items-center sm:justify-between">
-				<div>
-					<CardTitle>{t(titleKey)}</CardTitle>
-					<p className="text-xs text-muted-foreground">
-						{updatedAt
-							? t("quotes.updatedAt", {
-									time: formatDate(updatedAt, { timeStyle: "medium" }),
-								})
-							: t("quotes.subtitle")}
-					</p>
-				</div>
-
-				<div className="flex items-center gap-2">
-					<div className="relative w-full sm:w-56">
-						<Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-						<Input
-							type="search"
-							value={search}
-							onChange={(event) => setSearch(event.target.value)}
-							placeholder={t("quotes.searchPlaceholder")}
-							aria-label={t("quotes.searchPlaceholder")}
-							className="h-8 pl-8"
-						/>
+		<>
+			<Card>
+				<CardHeader className="flex-col gap-2 space-y-0 sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<CardTitle>{t(titleKey)}</CardTitle>
+						<p className="text-xs text-muted-foreground">
+							{updatedAt
+								? t("quotes.updatedAt", {
+										time: formatDate(updatedAt, { timeStyle: "medium" }),
+									})
+								: t("quotes.subtitle")}
+						</p>
 					</div>
 
-					<Button
-						variant="outline"
-						size="icon"
-						onClick={() => query.refetch()}
-						disabled={query.isFetching}
-						aria-label={
-							query.isFetching ? t("common.refreshing") : t("common.refresh")
-						}
-					>
-						<RefreshCw className={cn(query.isFetching && "animate-spin")} />
-					</Button>
-				</div>
-			</CardHeader>
+					<div className="flex items-center gap-2">
+						<div className="relative w-full sm:w-56">
+							<Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+							<Input
+								type="search"
+								value={search}
+								onChange={(event) => setSearch(event.target.value)}
+								placeholder={t("quotes.searchPlaceholder")}
+								aria-label={t("quotes.searchPlaceholder")}
+								className="h-8 pl-8"
+							/>
+						</div>
 
-			<CardContent>{body()}</CardContent>
-		</Card>
+						{/* The icon shows the view you get, not the one you are in. */}
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={() => onViewChange(isCards ? "table" : "cards")}
+							aria-label={
+								isCards ? t("quotes.view.showTable") : t("quotes.view.showCards")
+							}
+							title={
+								isCards ? t("quotes.view.showTable") : t("quotes.view.showCards")
+							}
+						>
+							{isCards ? <Rows3 /> : <LayoutGrid />}
+						</Button>
+
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={() => query.refetch()}
+							disabled={query.isFetching}
+							aria-label={
+								query.isFetching ? t("common.refreshing") : t("common.refresh")
+							}
+						>
+							<RefreshCw className={cn(query.isFetching && "animate-spin")} />
+						</Button>
+					</div>
+				</CardHeader>
+
+				<CardContent>{body()}</CardContent>
+			</Card>
+
+			<QuoteDetailsDialog
+				quote={selected}
+				open={detailsOpen}
+				onOpenChange={setDetailsOpen}
+				card={card}
+				columns={columns}
+				range={range}
+				details={details}
+			/>
+		</>
 	);
 }

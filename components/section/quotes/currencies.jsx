@@ -54,18 +54,61 @@ const COLUMNS = [
 	},
 ];
 
-export default function Currencies() {
+const changeAmount = (quote, { formatBRL }) =>
+	formatBRL(quote.change, { ...RATE_DIGITS, signDisplay: "exceptZero" });
+
+const RANGE = {
+	labelKey: "quotes.columns.dayRange",
+	low: (quote) => quote.dayLow,
+	high: (quote) => quote.dayHigh,
+	value: (quote) => quote.bid,
+	render: (value, { formatBRL }) => formatBRL(value, RATE_DIGITS),
+};
+
+const CARD = {
+	title: (quote) => `${quote.code}/BRL`,
+	subtitle: (quote, { t }) => t(`quotes.currencyNames.${quote.code}`),
+	value: (quote, { formatBRL }) => formatBRL(quote.bid, RATE_DIGITS),
+	change: (quote) => quote.changePercent,
+	changeAmount,
+	stats: ["ask", "previousClose"],
+};
+
+const DETAILS = {
+	omit: ["pair", "bid", "change", "range"],
+	stats: [
+		{
+			key: "changeValue",
+			labelKey: "quotes.columns.changeValue",
+			render: changeAmount,
+		},
+		{
+			// What the round trip costs you, before any bank spread on top.
+			key: "spread",
+			labelKey: "quotes.columns.spread",
+			render: (quote, { formatBRL }) =>
+				formatBRL(quote.ask - quote.bid, RATE_DIGITS),
+		},
+	],
+};
+
+export default function Currencies({ view, onViewChange }) {
 	const query = useGetCurrencyQuotes();
 
 	return (
 		<QuotesPanel
 			titleKey="quotes.tabs.currencies"
 			columns={COLUMNS}
+			card={CARD}
+			range={RANGE}
+			details={DETAILS}
 			rowKey={(quote) => quote.code}
 			searchable={(quote, { t }) =>
 				`${quote.code} ${t(`quotes.currencyNames.${quote.code}`)}`
 			}
 			query={query}
+			view={view}
+			onViewChange={onViewChange}
 		/>
 	);
 }

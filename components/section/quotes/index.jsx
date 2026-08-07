@@ -30,6 +30,11 @@ const TABS = [
 export default function QuotesSection() {
 	const { t } = useTranslation();
 	const [activeTab, setActiveTab] = useState(TABS[0].value);
+	// Cards lead: they carry the shape of a move — the change in currency and
+	// where the price sits in the day's range — which a row can only list.
+	// Owned here rather than per tab, since preferring one view is a preference
+	// about quotes and not about stocks in particular.
+	const [view, setView] = useState("cards");
 
 	const activeLabel = t(`quotes.tabs.${activeTab}`);
 
@@ -78,7 +83,7 @@ export default function QuotesSection() {
 
 			{TABS.map(({ value, Component }) => (
 				<TabsContent key={value} value={value} className="mt-3">
-					<Component />
+					<Component view={view} onViewChange={setView} />
 				</TabsContent>
 			))}
 		</Tabs>

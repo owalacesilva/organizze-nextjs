@@ -63,16 +63,55 @@ const COLUMNS = [
 	},
 ];
 
-export default function Fiis() {
+const changeAmount = (quote, { formatBRL }) =>
+	formatBRL(quote.change, { signDisplay: "exceptZero" });
+
+const CARD = {
+	title: (quote) => quote.symbol,
+	subtitle: (quote) => quote.name,
+	badge: (quote, { t }) => t(`quotes.segments.${quote.segment}`),
+	value: (quote, { formatBRL }) => formatBRL(quote.price),
+	change: (quote) => quote.changePercent,
+	changeAmount,
+	stats: ["dividendYield", "lastDividend", "priceToBook"],
+};
+
+const DETAILS = {
+	omit: ["symbol", "segment", "price", "change"],
+	stats: [
+		{
+			key: "changeValue",
+			labelKey: "quotes.columns.changeValue",
+			render: changeAmount,
+		},
+		{
+			key: "previousClose",
+			labelKey: "quotes.columns.previousClose",
+			render: (quote, { formatBRL }) => formatBRL(quote.previousClose),
+		},
+		{
+			// What twelve months at the latest payout would return on today's price.
+			key: "annualisedDividend",
+			labelKey: "quotes.columns.annualisedDividend",
+			render: (quote, { formatBRL }) => formatBRL(quote.lastDividend * 12),
+		},
+	],
+};
+
+export default function Fiis({ view, onViewChange }) {
 	const query = useGetFiiQuotes();
 
 	return (
 		<QuotesPanel
 			titleKey="quotes.tabs.fiis"
 			columns={COLUMNS}
+			card={CARD}
+			details={DETAILS}
 			rowKey={(quote) => quote.symbol}
 			searchable={(quote) => `${quote.symbol} ${quote.name}`}
 			query={query}
+			view={view}
+			onViewChange={onViewChange}
 		/>
 	);
 }
