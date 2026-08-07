@@ -6,10 +6,16 @@ import { useGetTransactions } from "@/app/api/transactions/hooks";
 import { useGetWallets } from "@/app/api/wallets/hooks";
 import { TopExpenses } from "@/components/elements/top-expenses";
 import { InsightsSkeleton } from "@/components/section/insights/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "@/hooks/useTranslation";
-import { buildInsights, insightSummary, recurringExpenses } from "@/lib/insights";
+import {
+	buildInsights,
+	groupInsights,
+	insightSummary,
+	recurringExpenses,
+} from "@/lib/insights";
 import { normalizeTransaction } from "@/lib/transactions";
 import { cn } from "@/lib/utils";
 import { AlertCircle, Lightbulb, Repeat } from "lucide-react";
@@ -59,6 +65,9 @@ export default function InsightsSection() {
 		() => buildInsights({ transactions, budgets, goals, wallets }),
 		[transactions, budgets, goals, wallets],
 	);
+
+	// Grouped by urgency so a long list still reads top-down.
+	const groups = useMemo(() => groupInsights(insights), [insights]);
 
 	const summary = useMemo(() => insightSummary(transactions), [transactions]);
 	const recurring = useMemo(
@@ -134,16 +143,21 @@ export default function InsightsSection() {
 					</CardContent>
 				</Card>
 			) : (
-				<section className="space-y-2">
-					<h2 className="text-xs font-semibold">
-						{t("insights.sections.whatMatters")}
-					</h2>
-					<div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
-						{insights.map((insight) => (
-							<InsightCard key={insight.id} insight={insight} />
-						))}
-					</div>
-				</section>
+				["attention", "context", "wins"].map((group) =>
+					groups[group].length === 0 ? null : (
+						<section key={group} className="space-y-2">
+							<h2 className="flex items-center gap-1.5 text-xs font-semibold">
+								{t(`insights.sections.${group}`)}
+								<Badge variant="secondary">{groups[group].length}</Badge>
+							</h2>
+							<div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
+								{groups[group].map((insight) => (
+									<InsightCard key={insight.id} insight={insight} />
+								))}
+							</div>
+						</section>
+					),
+				)
 			)}
 
 			<section className="space-y-2">

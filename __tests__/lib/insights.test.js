@@ -3,6 +3,7 @@ import { goalProgress, goalsOffTrack } from "@/lib/goals";
 import {
 	buildInsights,
 	expensesByCategory,
+	groupInsights,
 	insightSummary,
 	monthToDate,
 	recurringExpenses,
@@ -318,5 +319,420 @@ describe("insightSummary", () => {
 		expect(summary).toMatchObject({ income: 1000, expenses: 250, net: 750 });
 		expect(Math.round(summary.savingsRate)).toBe(75);
 		expect(Math.round(summary.expensesChange)).toBe(150);
+	});
+});
+
+// Late enough in the month that budget slack becomes reportable.
+const LATE = new Date(2026, 2, 25, 12, 0, 0);
+
+/** Only the insight ids, for terse assertions. */
+const idsOf = (insights) => insights.map((insight) => insight.id);
+
+/** Pull one insight out by id. */
+const pick = (data, id, reference = NOW) =>
+	buildInsights(data, reference).find((insight) => insight.id === id);
+
+const withCategory = (name) => ({ id: name.length, name });
+
+describe("income trend", () => {
+	it("celebrates income that grew against the same slice last month", () => {
+		const insight = pick(
+			{
+				transactions: [
+					tx(1200, "2026-03-01", "Salary"),
+					tx(1000, "2026-02-01", "Salary"),
+				],
+			},
+			"incomeUp",
+		);
+
+		expect(insight).toMatchObject({ tone: "positive" });
+		expect(insight.values.percent).toBe(20);
+	});
+
+	it("warns when income dropped", () => {
+		expect(
+			pick(
+				{
+					transactions: [
+						tx(700, "2026-03-01", "Salary"),
+						tx(1000, "2026-02-01", "Salary"),
+					],
+				},
+				"incomeDown",
+			),
+		).toMatchObject({ tone: "warning" });
+	});
+
+	it("says nothing without both months to compare", () => {
+		expect(
+			pick({ transactions: [tx(1000, "2026-03-01", "Salary")] }, "incomeUp"),
+		).toBeUndefined();
+	});
+});
+
+describe("projected spending", () => {
+	it("warns when the projection passes the month's income", () => {
+		// 600 over 15 of 31 days projects to ~1240, past the 1000 that came in.
+		const insight = pick(
+			{
+				transactions: [
+					tx(1000, "2026-03-01", "Salary"),
+					tx(-600, "2026-03-10", "Reforma"),
+				],
+			},
+			"projectedOverIncome",
+		);
+
+		expect(insight).toMatchObject({ tone: "warning" });
+		expect(Math.round(insight.values.projected)).toBe(1240);
+	});
+
+	it("just reports the projection when it fits inside the income", () => {
+		expect(
+			pick(
+				{
+					transactions: [
+						tx(5000, "2026-03-01", "Salary"),
+						tx(-600, "2026-03-10", "Reforma"),
+					],
+				},
+				"projectedSpending",
+			),
+		).toMatchObject({ tone: "neutral" });
+	});
+
+	it("holds off in the first days of the month", () => {
+		const early = new Date(2026, 2, 3, 12, 0, 0);
+		const insights = buildInsights(
+			{ transactions: [tx(-100, "2026-03-02", "Mercado")] },
+			early,
+		);
+
+		expect(idsOf(insights)).not.toContain("projectedSpending");
+		expect(idsOf(insights)).not.toContain("projectedOverIncome");
+	});
+});
+
+describe("category shift", () => {
+	const history = (amount) => [
+		tx(-amount, "2026-02-10", "Mercado", withCategory("Food")),
+		tx(-amount, "2026-01-10", "Mercado", withCategory("Food")),
+		tx(-amount, "2025-12-10", "Mercado", withCategory("Food")),
+	];
+
+	it("flags a category well above its own average", () => {
+		const insight = pick(
+			{
+				transactions: [
+					tx(-300, "2026-03-10", "Mercado", withCategory("Food")),
+					...history(100),
+				],
+			},
+			"categorySpike",
+		);
+
+		expect(insight).toMatchObject({ tone: "warning" });
+		expect(insight.values).toMatchObject({ category: "Food", percent: 200 });
+	});
+
+	it("praises a category well below its own average", () => {
+		const insight = pick(
+			{
+				transactions: [
+					tx(-40, "2026-03-10", "Mercado", withCategory("Food")),
+					...history(200),
+				],
+			},
+			"categoryDrop",
+		);
+
+		expect(insight).toMatchObject({ tone: "positive" });
+		expect(insight.values.percent).toBe(80);
+	});
+
+	it("ignores a category too small to matter", () => {
+		const insights = buildInsights(
+			{
+				transactions: [
+					// Food tripled, but it is 3% of a month dominated by rent.
+					tx(-30, "2026-03-10", "Mercado", withCategory("Food")),
+					tx(-1000, "2026-03-05", "Aluguel", withCategory("Home")),
+					...history(10),
+				],
+			},
+			NOW,
+		);
+
+		expect(idsOf(insights)).not.toContain("categorySpike");
+	});
+
+	it("compares only the elapsed part of previous months", () => {
+		const insights = buildInsights(
+			{
+				transactions: [
+					tx(-100, "2026-03-10", "Mercado", withCategory("Food")),
+					// Last month's spend all landed after the 15th, so it is out of scope.
+					tx(-900, "2026-02-25", "Mercado", withCategory("Food")),
+				],
+			},
+			NOW,
+		);
+
+		expect(idsOf(insights)).not.toContain("categoryDrop");
+	});
+});
+
+describe("budget slack", () => {
+	it("points out room left once most of the month has gone", () => {
+		const insight = pick(
+			{ budgets: [{ id: 1, name: "Lazer", amount: 400, spent: 100 }] },
+			"budgetRoom",
+			LATE,
+		);
+
+		expect(insight).toMatchObject({ tone: "positive" });
+		expect(insight.values).toMatchObject({ name: "Lazer", amount: 300 });
+	});
+
+	it("stays quiet mid-month", () => {
+		expect(
+			pick(
+				{ budgets: [{ id: 1, name: "Lazer", amount: 400, spent: 100 }] },
+				"budgetRoom",
+			),
+		).toBeUndefined();
+	});
+});
+
+describe("goal wins", () => {
+	it("celebrates a finished goal", () => {
+		const insight = pick(
+			{ goals: [{ id: 1, name: "Notebook", target: 1000, saved: 1000 }] },
+			"goalCompleted",
+		);
+
+		expect(insight).toMatchObject({ tone: "positive" });
+		expect(insight.values.name).toBe("Notebook");
+	});
+});
+
+describe("emergency coverage", () => {
+	// 300 of expenses in each of the three months before March.
+	const history = [
+		tx(-300, "2026-02-10", "Mercado"),
+		tx(-300, "2026-01-10", "Mercado"),
+		tx(-300, "2025-12-10", "Mercado"),
+	];
+
+	const wallets = (balance) => [
+		{ id: 1, name: "Poupança", type: "savings", balance },
+	];
+
+	it("praises a comfortable cushion", () => {
+		const insight = pick(
+			{ transactions: history, wallets: wallets(1200) },
+			"emergencyStrong",
+		);
+
+		expect(insight).toMatchObject({ tone: "positive" });
+		expect(insight.values.months).toBe(4);
+	});
+
+	it("warns about less than a month of runway", () => {
+		expect(
+			pick({ transactions: history, wallets: wallets(200) }, "emergencyThin"),
+		).toMatchObject({ tone: "warning" });
+	});
+
+	it("reports the middle ground as context", () => {
+		expect(
+			pick({ transactions: history, wallets: wallets(600) }, "emergencyCoverage"),
+		).toMatchObject({ tone: "neutral" });
+	});
+
+	it("ignores credit lines and empty balances", () => {
+		const insights = buildInsights(
+			{
+				transactions: history,
+				wallets: [
+					{ id: 1, name: "Cartão", type: "credit", balance: 5000 },
+					{ id: 2, name: "Conta", type: "checking", balance: 0 },
+				],
+			},
+			NOW,
+		);
+
+		expect(idsOf(insights).join()).not.toMatch(/emergency/);
+	});
+});
+
+describe("possible duplicates", () => {
+	it("spots the same charge twice within a few days", () => {
+		const insight = pick(
+			{
+				transactions: [
+					tx(-89.9, "2026-03-10", "Farmácia"),
+					tx(-89.9, "2026-03-11", "Farmácia"),
+				],
+			},
+			"possibleDuplicate",
+		);
+
+		expect(insight).toMatchObject({ tone: "warning" });
+		expect(insight.values).toMatchObject({ description: "Farmácia", count: 1 });
+	});
+
+	it("leaves a monthly subscription alone", () => {
+		const insights = buildInsights(
+			{
+				transactions: [
+					tx(-30, "2026-03-03", "Streaming"),
+					tx(-30, "2026-02-03", "Streaming"),
+				],
+			},
+			NOW,
+		);
+
+		expect(idsOf(insights)).not.toContain("possibleDuplicate");
+	});
+
+	it("leaves the same amount with a different description alone", () => {
+		const insights = buildInsights(
+			{
+				transactions: [
+					tx(-50, "2026-03-10", "Padaria"),
+					tx(-50, "2026-03-11", "Mercado"),
+				],
+			},
+			NOW,
+		);
+
+		expect(idsOf(insights)).not.toContain("possibleDuplicate");
+	});
+});
+
+describe("uncategorized rows", () => {
+	it("asks for the missing categories", () => {
+		const insight = pick(
+			{
+				transactions: [
+					tx(-10, "2026-03-10", "Sem categoria"),
+					tx(-20, "2026-03-11", "Também sem"),
+					tx(-30, "2026-03-12", "Mercado", withCategory("Food")),
+				],
+			},
+			"uncategorized",
+		);
+
+		expect(insight).toMatchObject({ tone: "warning" });
+		expect(insight.values).toMatchObject({ count: 2, amount: 30 });
+	});
+
+	it("says nothing when everything is categorised", () => {
+		expect(
+			pick(
+				{ transactions: [tx(-30, "2026-03-12", "Mercado", withCategory("Food"))] },
+				"uncategorized",
+			),
+		).toBeUndefined();
+	});
+});
+
+describe("spending patterns", () => {
+	it("names the weekday that carries the month", () => {
+		const transactions = [
+			...Array.from({ length: 6 }, (_, index) =>
+				tx(-100, "2026-03-02", `Segunda ${index}`, withCategory("Food")),
+			),
+			...Array.from({ length: 4 }, (_, index) =>
+				tx(-10, "2026-03-04", `Quarta ${index}`, withCategory("Food")),
+			),
+		];
+
+		const insight = pick({ transactions }, "weekdayPattern");
+
+		expect(insight).toMatchObject({ tone: "neutral" });
+		// 2026-03-02 is a Monday.
+		expect(insight.values.weekday).toBe(1);
+		expect(insight.values.percent).toBe(94);
+	});
+
+	it("adds up the small charges", () => {
+		const transactions = [
+			tx(-500, "2026-03-02", "Aluguel", withCategory("Home")),
+			tx(-500, "2026-03-03", "Curso", withCategory("Education")),
+			...Array.from({ length: 8 }, (_, index) =>
+				tx(-20, `2026-03-${String(index + 5).padStart(2, "0")}`, `Café ${index}`, withCategory("Food")),
+			),
+		];
+
+		const insight = pick({ transactions }, "smallCharges");
+
+		expect(insight).toMatchObject({ tone: "neutral" });
+		expect(insight.values).toMatchObject({ count: 8, amount: 160, percent: 14 });
+	});
+
+	it("needs a real sample before reporting a pattern", () => {
+		const insights = buildInsights(
+			{ transactions: [tx(-100, "2026-03-02", "Mercado", withCategory("Food"))] },
+			NOW,
+		);
+
+		expect(idsOf(insights)).not.toContain("weekdayPattern");
+		expect(idsOf(insights)).not.toContain("smallCharges");
+	});
+});
+
+describe("wallet concentration", () => {
+	const wallet = (id, name) => ({ id, name });
+
+	const txWallet = (amount, date, name) =>
+		normalizeTransaction({
+			id: `${date}-${name}-${amount}`,
+			amount,
+			date,
+			description: name,
+			wallet: wallet(1, name),
+		});
+
+	it("names the wallet most spending flows through", () => {
+		const insight = pick(
+			{
+				transactions: [
+					txWallet(-100, "2026-03-02", "Conta"),
+					txWallet(-100, "2026-03-03", "Conta"),
+					txWallet(-50, "2026-03-04", "Cartão"),
+				],
+			},
+			"walletConcentration",
+		);
+
+		expect(insight).toMatchObject({ tone: "neutral" });
+		expect(insight.values).toMatchObject({ name: "Conta", percent: 80 });
+	});
+
+	it("says nothing when there is only one wallet in play", () => {
+		expect(
+			pick(
+				{ transactions: [txWallet(-100, "2026-03-02", "Conta")] },
+				"walletConcentration",
+			),
+		).toBeUndefined();
+	});
+});
+
+describe("groupInsights", () => {
+	it("splits the list into attention, context and wins", () => {
+		const grouped = groupInsights([
+			{ id: "a", tone: "critical" },
+			{ id: "b", tone: "warning" },
+			{ id: "c", tone: "neutral" },
+			{ id: "d", tone: "positive" },
+		]);
+
+		expect(grouped.attention.map((i) => i.id)).toEqual(["a", "b"]);
+		expect(grouped.context.map((i) => i.id)).toEqual(["c"]);
+		expect(grouped.wins.map((i) => i.id)).toEqual(["d"]);
 	});
 });

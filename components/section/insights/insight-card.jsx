@@ -33,25 +33,46 @@ const TONES = {
 	},
 };
 
+/** Values that hold money and need the locale's currency format. */
+const CURRENCY_VALUES = [
+	"amount",
+	"average",
+	"current",
+	"gap",
+	"previous",
+	"projected",
+	"saved",
+];
+
+/**
+ * 2024-01-07 was a Sunday, so adding the weekday index lands on that weekday
+ * and `Intl` can name it in the active locale.
+ */
+const WEEKDAY_EPOCH = new Date(2024, 0, 7);
+
 /**
  * One observation. The generator hands over `{id, tone, values}` and the copy
- * is looked up under `insights.items.<id>` — currency values are formatted here
- * so the dictionary only ever holds placeholders.
+ * is looked up under `insights.items.<id>` — formatting happens here so the
+ * dictionary only ever holds placeholders.
  */
 export function InsightCard({ insight }) {
-	const { t, formatCurrency } = useTranslation();
+	const { t, formatCurrency, formatDate } = useTranslation();
 
 	const tone = TONES[insight.tone] ?? TONES.neutral;
 	const Icon = tone.icon;
 
-	// Anything that reads like money gets formatted; counts and percents don't.
 	const values = Object.fromEntries(
-		Object.entries(insight.values ?? {}).map(([key, value]) => [
-			key,
-			["amount", "current", "previous", "saved", "projected"].includes(key)
-				? formatCurrency(value)
-				: value,
-		]),
+		Object.entries(insight.values ?? {}).map(([key, value]) => {
+			if (CURRENCY_VALUES.includes(key)) return [key, formatCurrency(value)];
+
+			if (key === "weekday") {
+				const date = new Date(WEEKDAY_EPOCH);
+				date.setDate(date.getDate() + value);
+				return [key, formatDate(date, { weekday: "long" })];
+			}
+
+			return [key, value];
+		}),
 	);
 
 	return (
