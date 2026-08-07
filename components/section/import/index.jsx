@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetCategories } from "@/app/api/categories/hooks";
+import { useCreateImport, useUpdateImport } from "@/app/api/imports/hooks";
 import { useCreateTransaction } from "@/app/api/transactions/hooks";
 import { useGetWallets } from "@/app/api/wallets/hooks";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -40,6 +41,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { FileDrop } from "./file-drop";
+import { UploadHistory } from "./upload-history";
 
 const PREVIEW_ROWS = 12;
 const NONE = "none";
@@ -76,6 +78,8 @@ export default function StatementImportSection() {
 	const categoriesQuery = useGetCategories();
 	const walletsQuery = useGetWallets();
 	const createMutation = useCreateTransaction();
+	const createImportMutation = useCreateImport();
+	const updateImportMutation = useUpdateImport();
 
 	const categories = categoriesQuery.data?.categories ?? [];
 	const wallets = walletsQuery.data?.wallets ?? [];
@@ -155,6 +159,20 @@ export default function StatementImportSection() {
 		setResult(null);
 		setProgress({ done: 0, total: importable.length });
 
+		// Logged up front as `processing`, so a run interrupted half way through
+		// still leaves a trace in the history.
+		let uploadId = null;
+		try {
+			const created = await createImportMutation.mutateAsync({
+				fileName,
+				totalRows: entries.length,
+				status: "processing",
+			});
+			uploadId = created.id;
+		} catch {
+			// The history is a nice-to-have; never block the actual import on it.
+		}
+
 		// Sequential on purpose: the simulated backend (and most real ones) would
 		// rather answer 90 small writes in order than all at once.
 		for (const entry of importable) {
@@ -175,6 +193,20 @@ export default function StatementImportSection() {
 
 		setProgress(null);
 		setResult({ imported, failed });
+
+		if (uploadId !== null) {
+			const status =
+				failed === 0 ? "completed" : imported === 0 ? "failed" : "partial";
+
+			try {
+				await updateImportMutation.mutateAsync({
+					id: uploadId,
+					data: { importedRows: imported, failedRows: failed, status },
+				});
+			} catch {
+				// Same again — a missing history row must not fail the import.
+			}
+		}
 
 		if (failed === 0) {
 			toast.success(t("import.imported", { count: imported }));
@@ -477,6 +509,8 @@ export default function StatementImportSection() {
 					)}
 				</>
 			)}
+
+			<UploadHistory />
 		</div>
 	);
 }

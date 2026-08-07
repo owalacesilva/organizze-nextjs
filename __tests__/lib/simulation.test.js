@@ -2,6 +2,7 @@ import { buildSeedTransactions } from "@/lib/simulation/seed";
 import {
 	resetSimulation,
 	simulatedBudgets,
+	simulatedImports,
 	simulatedTags,
 	simulatedTransactions,
 	simulatedWallets,
@@ -117,6 +118,60 @@ describe("resetSimulation", () => {
 		resetSimulation();
 
 		const { tags: after } = await simulatedTags.list();
+		expect(after).toHaveLength(before.length);
+	});
+});
+
+describe("simulatedImports", () => {
+	it("lists the seeded uploads newest first", async () => {
+		const { imports } = await simulatedImports.list();
+
+		expect(imports.length).toBeGreaterThan(0);
+
+		const dates = imports.map((upload) => new Date(upload.createdAt).getTime());
+		expect(dates).toEqual([...dates].sort((a, b) => b - a));
+	});
+
+	it("records a run as processing, then closes it out", async () => {
+		const { id } = await simulatedImports.create({
+			fileName: "extrato.csv",
+			totalRows: 10,
+		});
+
+		const started = await simulatedImports.get(id);
+		expect(started).toMatchObject({
+			fileName: "extrato.csv",
+			totalRows: 10,
+			importedRows: 0,
+			status: "processing",
+		});
+		expect(started.finishedAt).toBeNull();
+
+		await simulatedImports.update(id, {
+			importedRows: 8,
+			failedRows: 2,
+			status: "partial",
+		});
+
+		const finished = await simulatedImports.get(id);
+		expect(finished).toMatchObject({
+			importedRows: 8,
+			failedRows: 2,
+			status: "partial",
+		});
+		expect(finished.finishedAt).not.toBeNull();
+	});
+
+	it("drops an upload from the history", async () => {
+		const { imports: before } = await simulatedImports.list();
+		const { id } = await simulatedImports.create({
+			fileName: "temp.csv",
+			totalRows: 1,
+		});
+
+		await simulatedImports.remove(id);
+
+		const { imports: after } = await simulatedImports.list();
 		expect(after).toHaveLength(before.length);
 	});
 });

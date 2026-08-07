@@ -16,6 +16,29 @@ const CATEGORIES = [
 
 const WALLETS = [{ id: 1, name: "Conta principal" }];
 
+const UPLOADS = [
+	{
+		id: 1,
+		fileName: "extrato-fevereiro.csv",
+		totalRows: 48,
+		importedRows: 48,
+		failedRows: 0,
+		status: "completed",
+		createdAt: "2026-02-20T10:00:00.000Z",
+		finishedAt: "2026-02-20T10:00:05.000Z",
+	},
+	{
+		id: 2,
+		fileName: "cartao-marco.csv",
+		totalRows: 32,
+		importedRows: 29,
+		failedRows: 3,
+		status: "partial",
+		createdAt: "2026-03-09T10:00:00.000Z",
+		finishedAt: "2026-03-09T10:00:07.000Z",
+	},
+];
+
 const STATEMENT = [
 	"Data;Descrição;Valor;Categoria",
 	"09/03/2026;Padaria;-12,50;Alimentação",
@@ -23,7 +46,7 @@ const STATEMENT = [
 	"nao-e-data;;abc;",
 ].join("\n");
 
-function mockApi() {
+function mockApi({ uploads = UPLOADS } = {}) {
 	global.fetch.mockImplementation((url, init = {}) => {
 		const ok = (body) =>
 			Promise.resolve({ ok: true, json: () => Promise.resolve(body) });
@@ -31,6 +54,10 @@ function mockApi() {
 		if (String(url).includes("/api/categories")) return ok({ categories: CATEGORIES });
 		if (String(url).includes("/api/wallets")) return ok({ wallets: WALLETS });
 		if (String(url).includes("/api/transactions")) return ok({ id: 1 });
+		if (String(url).includes("/api/imports")) {
+			if ((init.method ?? "GET") === "GET") return ok({ imports: uploads });
+			return ok({ id: 99 });
+		}
 		return ok({});
 	});
 }
@@ -132,8 +159,10 @@ describe("StatementImportSection", () => {
 		await user.click(screen.getByRole("button", { name: /Importar 2/ }));
 
 		await waitFor(() => {
+			// The history row is a POST too, so scope this to the transactions endpoint.
 			const posts = global.fetch.mock.calls.filter(
-				([, init]) => init?.method === "POST",
+				([url, init]) =>
+					init?.method === "POST" && String(url).includes("/api/transactions"),
 			);
 			expect(posts).toHaveLength(2);
 
@@ -196,5 +225,86 @@ describe("StatementImportSection", () => {
 		await waitFor(() =>
 			expect(screen.getByText("1 pronta para importar")).toBeInTheDocument(),
 		);
+	});
+});
+
+describe("upload history", () => {
+	it("lists every upload with its status", async () => {
+		mockApi();
+		renderSection();
+
+		expect(await screen.findByText("extrato-fevereiro.csv")).toBeInTheDocument();
+		expect(screen.getByText("cartao-marco.csv")).toBeInTheDocument();
+
+		expect(screen.getByText("Concluído")).toBeInTheDocument();
+		expect(screen.getByText("Parcialmente importado")).toBeInTheDocument();
+
+		// Row counts come along for the ride.
+		expect(screen.getByText(/48 de 48 linhas/)).toBeInTheDocument();
+		expect(screen.getByText(/29 de 32 linhas/)).toBeInTheDocument();
+	});
+
+	it("shows an empty history", async () => {
+		mockApi({ uploads: [] });
+		renderSection();
+
+		expect(await screen.findByText("Nada foi importado ainda")).toBeInTheDocument();
+	});
+
+	it("records the run and closes it out once every row was attempted", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		const { container } = renderSection();
+
+		await user.upload(fileInput(container), csvFile());
+		await screen.findByText("Relacione as colunas");
+
+		await user.click(
+			screen.getByRole("combobox", {
+				name: "Categoria para linhas sem correspondência",
+			}),
+		);
+		await user.click(await screen.findByRole("option", { name: "Transporte" }));
+		await user.click(screen.getByRole("button", { name: /Importar 2/ }));
+
+		await waitFor(() => {
+			const calls = global.fetch.mock.calls.filter(([url]) =>
+				String(url).includes("/api/imports"),
+			);
+
+			const started = calls.find(([, init]) => init?.method === "POST");
+			expect(JSON.parse(started[1].body)).toMatchObject({
+				fileName: "extrato.csv",
+				totalRows: 3,
+				status: "processing",
+			});
+
+			const finished = calls.find(([, init]) => init?.method === "PUT");
+			expect(JSON.parse(finished[1].body)).toMatchObject({
+				importedRows: 2,
+				failedRows: 0,
+				status: "completed",
+			});
+		});
+	});
+
+	it("drops an upload from the history", async () => {
+		const user = userEvent.setup();
+		mockApi();
+		renderSection();
+
+		await user.click(
+			await screen.findByRole("button", {
+				name: "Remover do histórico: cartao-marco.csv",
+			}),
+		);
+
+		await waitFor(() => {
+			const del = global.fetch.mock.calls.find(
+				([url, init]) =>
+					String(url).includes("/api/imports/2") && init?.method === "DELETE",
+			);
+			expect(del).toBeDefined();
+		});
 	});
 });
