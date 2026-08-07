@@ -11,6 +11,7 @@ import WalletsLoading from "@/app/wallets/loading";
 import { I18nProvider } from "@/components/elements/i18n-provider";
 import { STORAGE_KEY } from "@/lib/i18n/config";
 import { render, screen } from "@testing-library/react";
+import { SessionProvider } from "next-auth/react";
 
 jest.mock("next/navigation", () => ({
 	usePathname: () => "/",
@@ -38,9 +39,11 @@ describe("route loading states", () => {
 		"%s renders the chrome and a skeleton",
 		(_path, Loading, heading) => {
 			const { container } = render(
-				<I18nProvider>
-					<Loading />
-				</I18nProvider>,
+				<SessionProvider session={null}>
+					<I18nProvider>
+						<Loading />
+					</I18nProvider>
+				</SessionProvider>,
 			);
 
 			// The sidebar and header must survive the transition, otherwise the

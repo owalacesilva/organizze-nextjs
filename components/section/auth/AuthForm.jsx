@@ -6,7 +6,6 @@ import ResetPassword from "@/components/section/auth/ResetPassword"
 import SignIn from "@/components/section/auth/SignIn"
 import SignUp from "@/components/section/auth/SignUp"
 import Success from "@/components/section/auth/Success"
-import { Card } from "@/components/ui/card"
 import { useState } from "react"
 
 // type AuthState = "signin" | "signup" | "reset" | "verify-phone" | "verify-email" | "dashboard" | "success"
@@ -35,12 +34,6 @@ export default function AuthForm({ currentState }) {
 		}
 	}
 
-	return (
-		<div className="flex items-center justify-center h-full w-full">
-			<Card className="flex h-full w-full flex-col border-0 md:border">
-				{renderAuthComponent()}
-			</Card>
-		</div>
-	)
+	return <div className="flex w-full flex-col">{renderAuthComponent()}</div>
 }
 
