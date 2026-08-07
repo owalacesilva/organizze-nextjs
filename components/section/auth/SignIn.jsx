@@ -10,17 +10,38 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "@/hooks/useTranslation";
+import { MOCK_USER_CREDENTIALS, SIMULATION_ENABLED } from "@/lib/simulation";
+import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
-export default function SignIn({ onStateChange, setEmail }) {
+export default function SignIn({ onStateChange }) {
 	const { t } = useTranslation();
-	const [emailInput, setEmailInput] = useState("");
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [submitting, setSubmitting] = useState(false);
 
-	const handleSubmit = (event) => {
+	const handleSubmit = async (event) => {
 		event.preventDefault();
-		setEmail(emailInput);
-		onStateChange("verify-email");
+		setSubmitting(true);
+
+		const result = await signIn("credentials", {
+			email,
+			password,
+			redirect: false,
+		});
+
+		setSubmitting(false);
+
+		if (result?.error) {
+			toast.error(t("auth.signIn.error"));
+			return;
+		}
+
+		router.push(searchParams.get("callbackUrl") || "/");
 	};
 
 	return (
@@ -37,8 +58,8 @@ export default function SignIn({ onStateChange, setEmail }) {
 							id="signin-email"
 							type="email"
 							placeholder={t("auth.fields.emailPlaceholder")}
-							value={emailInput}
-							onChange={(event) => setEmailInput(event.target.value)}
+							value={email}
+							onChange={(event) => setEmail(event.target.value)}
 							required
 						/>
 					</div>
@@ -55,19 +76,27 @@ export default function SignIn({ onStateChange, setEmail }) {
 						/>
 					</div>
 
-					<Button className="w-full" type="submit">
-						{t("auth.signIn.submit")}
+					<Button className="w-full" type="submit" disabled={submitting}>
+						{submitting ? t("auth.signIn.submitting") : t("auth.signIn.submit")}
 					</Button>
 				</form>
 			</CardContent>
 
-			<CardFooter className="mt-auto flex-col justify-between gap-2 border-t pt-3 sm:flex-row">
-				<Button variant="link" onClick={() => onStateChange("signup")}>
-					{t("auth.signIn.noAccount")}
-				</Button>
-				<Button variant="link" onClick={() => onStateChange("reset")}>
-					{t("auth.signIn.forgot")}
-				</Button>
+			<CardFooter className="mt-auto flex-col gap-2 border-t pt-3">
+				<div className="flex w-full flex-col justify-between gap-2 sm:flex-row">
+					<Button variant="link" onClick={() => onStateChange("signup")}>
+						{t("auth.signIn.noAccount")}
+					</Button>
+					<Button variant="link" onClick={() => onStateChange("reset")}>
+						{t("auth.signIn.forgot")}
+					</Button>
+				</div>
+
+				{SIMULATION_ENABLED && (
+					<p className="text-center text-xs text-muted-foreground">
+						{t("auth.signIn.mockHint", MOCK_USER_CREDENTIALS)}
+					</p>
+				)}
 			</CardFooter>
 		</div>
 	);

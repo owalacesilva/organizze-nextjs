@@ -11,18 +11,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTranslation } from "@/hooks/useTranslation";
 import { LogOut, Settings, User } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
-// Placeholder identity until authentication lands.
-const CURRENT_USER = {
-	name: "Hafsa Humaira",
-	email: "hello@email.com",
-	initials: "HH",
-	avatar: "/images/avatar/1.jpg",
-};
+function initialsOf(name) {
+	if (!name) return "";
+	return name
+		.split(" ")
+		.map((part) => part[0])
+		.slice(0, 2)
+		.join("")
+		.toUpperCase();
+}
 
 export function UserNav() {
 	const { t } = useTranslation();
+	const { data: session } = useSession();
+
+	const CURRENT_USER = {
+		name: session?.user?.name ?? "",
+		email: session?.user?.email ?? "",
+		initials: initialsOf(session?.user?.name),
+		avatar: session?.user?.avatar,
+	};
 
 	return (
 		<DropdownMenu>
@@ -73,13 +84,11 @@ export function UserNav() {
 				<DropdownMenuSeparator />
 
 				<DropdownMenuItem
-					asChild
 					className="gap-2 text-destructive focus:text-destructive"
+					onClick={() => signOut({ callbackUrl: "/login" })}
 				>
-					<Link href="/signin">
-						<LogOut />
-						{t("layout.logout")}
-					</Link>
+					<LogOut />
+					{t("layout.logout")}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
