@@ -134,3 +134,52 @@
 		}
 	}
 }
+
+@layer base {
+	/*
+	 * Marketplace accent themes.
+	 *
+	 * Buying one writes `data-accent` onto <html>; repointing `--primary` from
+	 * there recolours every button, chart and progress bar at once, and works
+	 * in light and dark mode without a second palette to keep in step.
+	 */
+	[data-accent="emerald"] {
+		--primary: 160 84% 32%;
+	}
+
+	[data-accent="amber"] {
+		--primary: 32 95% 44%;
+	}
+
+	[data-accent="violet"] {
+		--primary: 271 81% 56%;
+	}
+
+	[data-accent="rose"] {
+		--primary: 347 77% 50%;
+	}
+}
+
+@layer utilities {
+	/* Used by <Confetti>; the drift is set per piece as an inline variable. */
+	@keyframes confetti-fall {
+		0% {
+			opacity: 1;
+			transform: translate3d(0, -10%, 0) rotate(0deg);
+		}
+		100% {
+			opacity: 0;
+			transform: translate3d(var(--confetti-drift, 0px), 460%, 0) rotate(540deg);
+		}
+	}
+
+	.confetti-piece {
+		animation: confetti-fall 1.6s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.confetti-piece {
+			display: none;
+		}
+	}
+}

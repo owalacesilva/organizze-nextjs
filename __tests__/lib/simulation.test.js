@@ -1,7 +1,9 @@
+import { THEMES } from "@/lib/gamification";
 import { buildSeedTransactions } from "@/lib/simulation/seed";
 import {
 	resetSimulation,
 	simulatedBudgets,
+	simulatedGamification,
 	simulatedImports,
 	simulatedQuotes,
 	simulatedTags,
@@ -226,3 +228,87 @@ describe("simulatedQuotes", () => {
 		expect(fresh[0].price).toBeGreaterThan(0);
 	});
 });
+<<<<<<< HEAD
+=======
+
+describe("simulatedGamification", () => {
+	it("starts with nothing bought and the leaderboard off", async () => {
+		const { state, peers } = await simulatedGamification.get();
+
+		expect(state).toEqual({
+			purchases: [],
+			activeTheme: "default",
+			leaderboardOptIn: false,
+			celebratedBadges: [],
+		});
+		expect(peers.length).toBeGreaterThan(0);
+	});
+
+	it("never puts a name or an amount on a leaderboard peer", async () => {
+		const { peers } = await simulatedGamification.get();
+
+		for (const peer of peers) {
+			expect(Object.keys(peer).sort()).toEqual(["handle", "rate"]);
+			expect(peer.handle).toMatch(/^User\d{4}$/);
+		}
+	});
+
+	it("records the leaderboard opt-in", async () => {
+		const { state } = await simulatedGamification.update({
+			leaderboardOptIn: true,
+		});
+
+		expect(state.leaderboardOptIn).toBe(true);
+	});
+
+	it("buys a theme the seeded account can afford and makes it active", async () => {
+		const { state } = await simulatedGamification.purchase("emerald");
+
+		expect(state.purchases).toContain("emerald");
+		expect(state.activeTheme).toBe("emerald");
+	});
+
+	it("refuses to sell the same theme twice", async () => {
+		await simulatedGamification.purchase("emerald");
+
+		await expect(simulatedGamification.purchase("emerald")).rejects.toThrow(
+			/already owned/,
+		);
+	});
+
+	it("checks affordability itself rather than trusting the caller", async () => {
+		// The catalogue costs more than the seeded account has earned, so
+		// buying it dearest-first is guaranteed to hit the guard. Asserting on
+		// the refusal rather than on a price keeps this honest if the seed moves.
+		const dearestFirst = THEMES.filter((theme) => theme.price > 0).sort(
+			(a, b) => b.price - a.price,
+		);
+
+		let refusal = null;
+		for (const theme of dearestFirst) {
+			try {
+				await simulatedGamification.purchase(theme.id);
+			} catch (error) {
+				refusal = error;
+				break;
+			}
+		}
+
+		expect(refusal).not.toBeNull();
+		expect(refusal.message).toMatch(/Not enough tokens/);
+	});
+
+	it("rejects an unknown theme", async () => {
+		await expect(simulatedGamification.purchase("chartreuse")).rejects.toThrow(
+			/Unknown theme/,
+		);
+	});
+
+	it("records a celebration once, however many times it is reported", async () => {
+		await simulatedGamification.celebrate("firstStep");
+		const { state } = await simulatedGamification.celebrate("firstStep");
+
+		expect(state.celebratedBadges).toEqual(["firstStep"]);
+	});
+});
+>>>>>>> 3db3392 (Issue/5 (#9))

@@ -2,6 +2,10 @@ import { I18nProvider } from "@/components/elements/i18n-provider";
 import { DashboardHeader } from "@/components/layout/header";
 import { SidebarProvider } from "@/components/layout/sidebar-context";
 import { STORAGE_KEY } from "@/lib/i18n/config";
+<<<<<<< HEAD
+=======
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+>>>>>>> 3db3392 (Issue/5 (#9))
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SessionProvider } from "next-auth/react";
@@ -16,6 +20,7 @@ jest.mock("next/navigation", () => ({
 function renderHeader() {
 	window.localStorage.setItem(STORAGE_KEY, "pt-BR");
 
+<<<<<<< HEAD
 	return render(
 		<SessionProvider session={null}>
 			<I18nProvider>
@@ -23,6 +28,22 @@ function renderHeader() {
 					<DashboardHeader />
 				</SidebarProvider>
 			</I18nProvider>
+=======
+	// The header now carries a token balance, so it needs a query client.
+	const queryClient = new QueryClient({
+		defaultOptions: { queries: { retry: false } },
+	});
+
+	return render(
+		<SessionProvider session={null}>
+			<QueryClientProvider client={queryClient}>
+				<I18nProvider>
+					<SidebarProvider>
+						<DashboardHeader />
+					</SidebarProvider>
+				</I18nProvider>
+			</QueryClientProvider>
+>>>>>>> 3db3392 (Issue/5 (#9))
 		</SessionProvider>,
 	);
 }
