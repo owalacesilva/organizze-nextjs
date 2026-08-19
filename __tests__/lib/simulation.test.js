@@ -25,7 +25,9 @@ describe("seed data", () => {
 	});
 
 	it("stores expenses as negative amounts and income as positive", () => {
-		const transactions = buildSeedTransactions(new Date("2026-08-06T00:00:00Z"));
+		const transactions = buildSeedTransactions(
+			new Date("2026-08-06T00:00:00Z"),
+		);
 		const salary = transactions.find(
 			(transaction) => transaction.category.id === 7,
 		);
@@ -228,8 +230,6 @@ describe("simulatedQuotes", () => {
 		expect(fresh[0].price).toBeGreaterThan(0);
 	});
 });
-<<<<<<< HEAD
-=======
 
 describe("simulatedGamification", () => {
 	it("starts with nothing bought and the leaderboard off", async () => {
@@ -311,4 +311,3 @@ describe("simulatedGamification", () => {
 		expect(state.celebratedBadges).toEqual(["firstStep"]);
 	});
 });
->>>>>>> 3db3392 (Issue/5 (#9))

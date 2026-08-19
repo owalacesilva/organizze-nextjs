@@ -2,10 +2,7 @@ import { I18nProvider } from "@/components/elements/i18n-provider";
 import { DashboardHeader } from "@/components/layout/header";
 import { SidebarProvider } from "@/components/layout/sidebar-context";
 import { STORAGE_KEY } from "@/lib/i18n/config";
-<<<<<<< HEAD
-=======
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
->>>>>>> 3db3392 (Issue/5 (#9))
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SessionProvider } from "next-auth/react";
@@ -20,15 +17,6 @@ jest.mock("next/navigation", () => ({
 function renderHeader() {
 	window.localStorage.setItem(STORAGE_KEY, "pt-BR");
 
-<<<<<<< HEAD
-	return render(
-		<SessionProvider session={null}>
-			<I18nProvider>
-				<SidebarProvider>
-					<DashboardHeader />
-				</SidebarProvider>
-			</I18nProvider>
-=======
 	// The header now carries a token balance, so it needs a query client.
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { retry: false } },
@@ -43,7 +31,6 @@ function renderHeader() {
 					</SidebarProvider>
 				</I18nProvider>
 			</QueryClientProvider>
->>>>>>> 3db3392 (Issue/5 (#9))
 		</SessionProvider>,
 	);
 }
@@ -74,7 +61,9 @@ describe("global search", () => {
 			within(dialog).getByText("Encontre funcionalidades do sistema"),
 		).toBeInTheDocument();
 		expect(
-			within(dialog).getByText("Use a busca para ir direto ao que você precisa"),
+			within(dialog).getByText(
+				"Use a busca para ir direto ao que você precisa",
+			),
 		).toBeInTheDocument();
 		expect(
 			within(dialog).getByText("Tente pesquisar palavras como:"),
@@ -140,7 +129,9 @@ describe("global search", () => {
 		const dialog = await openSearch(user);
 		await user.type(within(dialog).getByRole("combobox"), "zzzzz");
 
-		expect(await within(dialog).findByText("Nada encontrado")).toBeInTheDocument();
+		expect(
+			await within(dialog).findByText("Nada encontrado"),
+		).toBeInTheDocument();
 		expect(within(dialog).queryAllByRole("option")).toHaveLength(0);
 	});
 

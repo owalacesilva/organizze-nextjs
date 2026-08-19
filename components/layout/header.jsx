@@ -3,10 +3,7 @@
 import { LanguageToggle } from "@/components/elements/language-toggle";
 import { ModeToggle } from "@/components/elements/mode-toggle";
 import { SearchDialog } from "@/components/elements/search-dialog";
-<<<<<<< HEAD
-=======
 import { TokenBalance } from "@/components/elements/token-balance";
->>>>>>> 3db3392 (Issue/5 (#9))
 import { UserNav } from "@/components/elements/user-nav";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Search } from "lucide-react";

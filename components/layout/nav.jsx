@@ -12,10 +12,7 @@ import {
 	ArrowLeftRight,
 	BarChart3,
 	CandlestickChart,
-<<<<<<< HEAD
-=======
 	Gift,
->>>>>>> 3db3392 (Issue/5 (#9))
 	LayoutDashboard,
 	Lightbulb,
 	PiggyBank,
@@ -36,10 +33,7 @@ const items = [
 	{ key: "budgets", icon: PiggyBank, href: "/budgets" },
 	{ key: "goals", icon: Target, href: "/goals" },
 	{ key: "quotes", icon: CandlestickChart, href: "/quotes" },
-<<<<<<< HEAD
-=======
 	{ key: "rewards", icon: Gift, href: "/rewards" },
->>>>>>> 3db3392 (Issue/5 (#9))
 	{ key: "analytics", icon: BarChart3, href: "/analytics" },
 	{ key: "insights", icon: Lightbulb, href: "/insights" },
 	{ key: "import", icon: Upload, href: "/import" },
