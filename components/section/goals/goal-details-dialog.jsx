@@ -1,5 +1,6 @@
 "use client";
 
+import { Confetti } from "@/components/elements/confetti";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -91,7 +92,12 @@ export function GoalDetailsDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent closeLabel={t("common.close")}>
+			<DialogContent closeLabel={t("common.close")} className="overflow-hidden">
+				<Confetti
+					active={progress.isComplete}
+					runKey={`${goal.id}-${progress.saved}`}
+				/>
+
 				<DialogHeader>
 					<DialogTitle>{goal.name}</DialogTitle>
 					<DialogDescription>
@@ -109,7 +115,10 @@ export function GoalDetailsDialog({
 								/ {formatCurrency(progress.target)}
 							</span>
 						</p>
-						<Progress value={Math.min(100, progress.percent)} />
+						<Progress
+								value={Math.min(100, progress.percent)}
+								indicatorClassName={cn(progress.isComplete && "bg-emerald-500")}
+							/>
 						<div className="flex items-center justify-between gap-2">
 							<span className="text-[11px] text-muted-foreground">
 								{t("goals.progress", { percent: Math.round(progress.percent) })}

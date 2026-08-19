@@ -9,9 +9,11 @@ import { useMemo } from "react";
 import { BalanceTrends } from "./balance-trends";
 import { ExpensesBreakdown } from "./expenses-breakdown";
 import { IncomeExpensesChart } from "./income-expenses-chart";
+import { LaunchpadQuest } from "./launchpad-quest";
 import { MetricCard } from "./metric-card";
 import { MonthlyBudgets } from "./monthly-budgets";
 import { SavingGoals } from "./saving-goals";
+import { StreakCard } from "./streak-card";
 import { TransactionHistory } from "./transaction-history";
 import {
 	comparePeriods,
@@ -70,7 +72,12 @@ export default function DashboardSection() {
 				{t("dashboard.periodLabel")}
 			</p>
 
-			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+			<LaunchpadQuest />
+
+			{/* Five across once there is room: the streak earns a place beside the
+			    headline figures, but not at the cost of one of them. */}
+			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+				<StreakCard />
 				<MetricCard
 					title={t("dashboard.totalBalance")}
 					value={formatCurrency(totalBalance)}

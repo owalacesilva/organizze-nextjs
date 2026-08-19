@@ -7,6 +7,7 @@ import {
 	useUpdateGoal,
 } from "@/app/api/goals/hooks";
 import { useGetWallets } from "@/app/api/wallets/hooks";
+import { Confetti } from "@/components/elements/confetti";
 import { GoalsSkeleton } from "@/components/section/goals/skeleton";
 import {
 	AlertDialog,
@@ -54,8 +55,14 @@ function GoalCard({ goal, onSelect, onEdit, onDelete }) {
 	return (
 		<Card
 			onClick={() => onSelect(goal)}
-			className="cursor-pointer transition-colors hover:border-primary/50"
+			className={cn(
+				"relative overflow-hidden cursor-pointer transition-colors hover:border-primary/50",
+				isComplete && "border-emerald-500/50",
+			)}
 		>
+			{/* Fires as the bar lands on 100%; `runKey` keeps it to one burst. */}
+			<Confetti active={isComplete} runKey={`${goal.id}-${goal.saved}`} />
+
 			<CardContent className="space-y-2 p-3">
 				<div className="flex items-start gap-2">
 					<div className="min-w-0 flex-1">
@@ -112,7 +119,11 @@ function GoalCard({ goal, onSelect, onEdit, onDelete }) {
 					</span>
 				</div>
 
-				<Progress value={Math.min(100, percent)} className="h-1.5" />
+				<Progress
+					value={Math.min(100, percent)}
+					className="h-1.5"
+					indicatorClassName={cn(isComplete && "bg-emerald-500")}
+				/>
 
 				<div className="flex justify-between text-[11px] text-muted-foreground">
 					<span>{t("goals.progress", { percent: Math.round(percent) })}</span>

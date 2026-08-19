@@ -3,6 +3,7 @@
 import { LanguageToggle } from "@/components/elements/language-toggle";
 import { ModeToggle } from "@/components/elements/mode-toggle";
 import { SearchDialog } from "@/components/elements/search-dialog";
+import { TokenBalance } from "@/components/elements/token-balance";
 import { UserNav } from "@/components/elements/user-nav";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Search } from "lucide-react";
@@ -47,6 +48,7 @@ export function DashboardHeader() {
 				</button>
 
 				<div className="ml-auto flex shrink-0 items-center gap-1">
+					<TokenBalance />
 					<LanguageToggle />
 					<ModeToggle />
 					<UserNotification />

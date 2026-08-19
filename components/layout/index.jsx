@@ -1,5 +1,8 @@
 "use client";
 
+import { AccentTheme } from "@/components/elements/accent-theme";
+import { MilestoneModal } from "@/components/elements/milestone-modal";
+import { StreakReminder } from "@/components/elements/streak-reminder";
 import { SiteFooter } from "@/components/layout/footer";
 import { DashboardHeader } from "@/components/layout/header";
 import { DashboardSidebar } from "@/components/layout/sidebar";
@@ -54,6 +57,11 @@ function LayoutShell({
 			</div>
 
 			<SiteFooter />
+
+			{/* App-wide: a milestone can be met on any page. */}
+			<AccentTheme />
+			<MilestoneModal />
+			<StreakReminder />
 		</div>
 	);
 }

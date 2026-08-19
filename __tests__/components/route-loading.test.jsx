@@ -11,6 +11,7 @@ import TransactionsLoading from "@/app/transactions/loading";
 import WalletsLoading from "@/app/wallets/loading";
 import { I18nProvider } from "@/components/elements/i18n-provider";
 import { STORAGE_KEY } from "@/lib/i18n/config";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { SessionProvider } from "next-auth/react";
 
@@ -44,9 +45,11 @@ describe("route loading states", () => {
 		(_path, Loading, heading) => {
 			const { container } = render(
 				<SessionProvider session={null}>
-					<I18nProvider>
-						<Loading />
-					</I18nProvider>
+					<QueryClientProvider client={new QueryClient()}>
+						<I18nProvider>
+							<Loading />
+						</I18nProvider>
+					</QueryClientProvider>
 				</SessionProvider>,
 			);
 
