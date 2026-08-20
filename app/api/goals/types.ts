@@ -1,9 +1,7 @@
 export interface GoalByIdResponse {
 	id: number;
 	name: string;
-	/** Amount the user wants to reach. */
 	target: number;
-	/** Amount put aside so far. */
 	saved: number;
 	deadline?: string | null;
 	walletId?: number | null;

@@ -4,7 +4,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 
-/** Below this a move rounds to nothing and reads as flat rather than as a gain. */
 const FLAT_THRESHOLD = 0.005;
 
 export function changeTone(percent) {
@@ -24,17 +23,10 @@ const TONE_ICON = {
 	flat: Minus,
 };
 
-/**
- * Signed percentage move with a direction arrow.
- *
- * Colour alone would not carry the meaning for everyone, so the arrow and the
- * explicit `+`/`−` sign say the same thing three ways.
- */
 export function ChangeIndicator({ percent, className }) {
 	const { formatNumber } = useTranslation();
 	const tone = changeTone(percent);
 	const Icon = TONE_ICON[tone];
-	// Snap sub-threshold moves to zero so they don't render as "-0.00%".
 	const value = tone === "flat" ? 0 : percent;
 
 	return (

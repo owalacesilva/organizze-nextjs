@@ -5,10 +5,6 @@ import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-/**
- * @param items - `{ href, title }` or `{ href, titleKey }` when the label
- *                should come from the dictionary.
- */
 export function Breadcrumb({ title, subtitle, items = [] }) {
 	const { t } = useTranslation();
 

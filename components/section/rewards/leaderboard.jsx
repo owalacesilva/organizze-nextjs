@@ -19,13 +19,6 @@ import { cn } from "@/lib/utils";
 import { EyeOff, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
-/**
- * Anonymous savings-rate leaderboard.
- *
- * Opting out is not a display filter — `buildLeaderboard` never ranks a rate
- * that was not opted in, so there is no hidden row to leak. Rows carry a handle
- * and a percentage and nothing else; see `lib/gamification/leaderboard.js`.
- */
 export function Leaderboard({ profile, state, peers }) {
 	const { t, formatNumber } = useTranslation();
 	const update = useUpdateGamification();

@@ -60,7 +60,6 @@ function GoalCard({ goal, onSelect, onEdit, onDelete }) {
 				isComplete && "border-emerald-500/50",
 			)}
 		>
-			{/* Fires as the bar lands on 100%; `runKey` keeps it to one burst. */}
 			<Confetti active={isComplete} runKey={`${goal.id}-${goal.saved}`} />
 
 			<CardContent className="space-y-2 p-3">
@@ -172,7 +171,6 @@ export function Goals() {
 		setFormOpen(true);
 	};
 
-	// Leaving the details panel open behind the form would stack two panels.
 	const openEdit = (goal) => {
 		setDetailsOpen(false);
 		setEditing(goal);

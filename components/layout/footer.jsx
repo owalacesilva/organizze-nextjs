@@ -13,8 +13,6 @@ const socials = [
 	{ label: "YouTube", icon: Youtube, href: "#" },
 ];
 
-// Lets the brand name keep its accent colour while the rest of the sentence
-// stays a single translatable string.
 const BRAND_SLOT = "\u0000";
 
 export function SiteFooter({ className, ...props }) {

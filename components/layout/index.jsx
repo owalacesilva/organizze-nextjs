@@ -10,11 +10,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Breadcrumb } from "./breadcrumb";
 import { SidebarProvider, useSidebar } from "./sidebar-context";
 
-/**
- * @param breadcrumbTitle     Literal heading text.
- * @param breadcrumbTitleKey  Dictionary key — preferred, and lets server
- *                            components stay server components.
- */
 function LayoutShell({
 	children,
 	breadcrumbTitle,
@@ -31,8 +26,6 @@ function LayoutShell({
 		: breadcrumbSubtitle;
 
 	return (
-		// `data-sidebar-state` drives --sidebar-w, which the header, footer and
-		// main content all read so their offsets animate together.
 		<div
 			data-sidebar-state={collapsed ? "collapsed" : "expanded"}
 			className="relative min-h-screen"
@@ -57,8 +50,6 @@ function LayoutShell({
 			</div>
 
 			<SiteFooter />
-
-			{/* App-wide: a milestone can be met on any page. */}
 			<AccentTheme />
 			<MilestoneModal />
 			<StreakReminder />

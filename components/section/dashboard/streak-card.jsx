@@ -10,7 +10,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { STREAK_MILESTONES } from "@/lib/gamification";
 import { AlertTriangle, Check } from "lucide-react";
 
-/** The next milestone the run is working towards, or `null` once all are past. */
 function nextMilestone(current) {
 	return STREAK_MILESTONES.find((milestone) => milestone > current) ?? null;
 }
@@ -59,9 +58,6 @@ export function StreakCard() {
 				</div>
 
 				<StreakFlame days={streak.current} atRisk={streak.atRisk} size="large" />
-
-				{/* The flame already announces the count; only the empty state
-				    has something extra to say. */}
 				{streak.current === 0 && (
 					<p className="text-[11px] text-muted-foreground">
 						{t("gamification.streak.empty")}

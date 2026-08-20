@@ -16,7 +16,6 @@ export default function EmailVerification({ email }) {
 	const [verified, setVerified] = useState(false);
 	const [progress, setProgress] = useState(0);
 
-	// Stands in for polling the backend for the verification result.
 	useEffect(() => {
 		const steps = DURATION_MS / TICK_MS;
 		let step = 0;

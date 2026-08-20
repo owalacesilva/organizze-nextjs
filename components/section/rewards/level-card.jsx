@@ -22,7 +22,6 @@ function Stat({ icon: Icon, label, value, tone }) {
 	);
 }
 
-/** Level, XP bar and the three headline counters. */
 export function LevelCard({ profile }) {
 	const { t, formatNumber } = useTranslation();
 	const { level, tokens, streak, unlockedCount, totalBadges } = profile;

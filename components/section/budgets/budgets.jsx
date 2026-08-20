@@ -146,7 +146,6 @@ function BudgetCard({ budget, onSelect, onEdit, onDelete }) {
 	);
 }
 
-/** Six-month expense curve, computed from the statement rather than mocked. */
 function SpendingTrend({ transactions }) {
 	const { t, formatCurrency, formatDate } = useTranslation();
 
@@ -270,7 +269,6 @@ export function Budgets() {
 		setFormOpen(true);
 	};
 
-	// Leaving the details panel open behind the form would stack two panels.
 	const openEdit = (budget) => {
 		setDetailsOpen(false);
 		setEditing(budget);

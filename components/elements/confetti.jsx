@@ -14,17 +14,6 @@ const COLORS = [
 	"bg-sky-400",
 ];
 
-/**
- * A short burst of confetti, drawn with divs.
- *
- * Deliberately not a dependency: two dozen absolutely-positioned squares on a
- * CSS keyframe cost nothing and cannot break the bundle.
- *
- * Honours `prefers-reduced-motion` by not rendering at all — a celebration is
- * decorative, and the badge or completed bar already says the same thing.
- *
- * @param active Flip to `true` to fire. Re-firing needs a new `runKey`.
- */
 export function Confetti({ active, runKey, className }) {
 	const [visible, setVisible] = useState(false);
 
@@ -42,7 +31,6 @@ export function Confetti({ active, runKey, className }) {
 		return () => clearTimeout(id);
 	}, [active, runKey]);
 
-	// Positions are fixed per mount so a re-render does not reshuffle mid-flight.
 	const pieces = useMemo(
 		() =>
 			Array.from({ length: PIECE_COUNT }, (_, index) => ({

@@ -5,7 +5,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import { ArrowDownLeft, ArrowUpRight, Wallet } from "lucide-react";
 
-/** Totals for the currently filtered set, so the numbers track the table. */
 export function TransactionSummary({ summary, count, className }) {
 	const { t, formatCurrency } = useTranslation();
 

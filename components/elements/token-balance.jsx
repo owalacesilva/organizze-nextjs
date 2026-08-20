@@ -5,12 +5,6 @@ import { useGamification } from "@/hooks/useGamification";
 import { Coins } from "lucide-react";
 import Link from "next/link";
 
-/**
- * Token balance in the header, linking to where they can be spent.
- *
- * Renders nothing until the profile has loaded — a balance that flashes zero
- * and then corrects itself reads as tokens being taken away.
- */
 export function TokenBalance() {
 	const { t, formatNumber } = useTranslation();
 	const { profile, isPending, isError } = useGamification();

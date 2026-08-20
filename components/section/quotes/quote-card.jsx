@@ -5,16 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ChangeIndicator } from "./change-indicator";
 import { RangeBar } from "./range-bar";
 
-/**
- * Card form of a quote — the primary view of this page.
- *
- * It carries what the table row carries plus the shape of the move: the change
- * in currency under the percentage, and the position of the price within the
- * session's range. Supporting stats are named by column key so the card and
- * the table always format the same figures the same way.
- *
- * The whole card opens the details dialog, the same way a goal card does.
- */
 export function QuoteCard({ quote, card, columns, range, format, onSelect }) {
 	const { t } = format;
 	const change = card.change?.(quote, format);
@@ -23,8 +13,6 @@ export function QuoteCard({ quote, card, columns, range, format, onSelect }) {
 		.map((key) => columns.find((column) => column.key === key))
 		.filter(Boolean);
 
-	// The card is the whole hit area, so it has to answer to the keyboard as
-	// well as the pointer — this is the primary way into the details dialog.
 	const open = () => onSelect(quote);
 	const handleKeyDown = (event) => {
 		if (event.key !== "Enter" && event.key !== " ") return;

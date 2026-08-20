@@ -16,7 +16,6 @@ import {
 import { useTranslation } from "@/hooks/useTranslation";
 import { Trash2 } from "lucide-react";
 
-// Placeholder keys until the API-key endpoint exists.
 const API_KEYS = [
 	{ id: 1, key: "69e3871f-31c3-45ad-9c68-5a5fa5e78b43", active: true },
 	{ id: 2, key: "b1c1d2e3-4f56-4789-9abc-0123456789ab", active: false },

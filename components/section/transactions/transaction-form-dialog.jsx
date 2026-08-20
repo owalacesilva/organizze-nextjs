@@ -46,7 +46,6 @@ function toFormState(transaction) {
 		amount: String(Math.abs(transaction.amount)),
 		categoryId:
 			transaction.categoryId === null ? "" : String(transaction.categoryId),
-		// <input type="date"> needs a bare YYYY-MM-DD value.
 		date: String(transaction.date ?? "").slice(0, 10),
 		description: transaction.description ?? "",
 	};
@@ -71,10 +70,6 @@ function validate(form, t) {
 	return errors;
 }
 
-/**
- * Create/edit panel. `transaction` being set switches it to edit mode.
- * `onSubmit` receives the API payload and may return a promise.
- */
 export function TransactionFormDialog({
 	open,
 	onOpenChange,
@@ -87,7 +82,6 @@ export function TransactionFormDialog({
 	const [form, setForm] = useState(() => toFormState(transaction));
 	const [errors, setErrors] = useState({});
 
-	// Reload the form whenever the panel opens for a different row.
 	useEffect(() => {
 		if (open) {
 			setForm(toFormState(transaction));
@@ -107,7 +101,6 @@ export function TransactionFormDialog({
 		const magnitude = Math.abs(Number(form.amount));
 
 		await onSubmit({
-			// Expenses are stored as negative amounts.
 			amount: form.type === "expense" ? -magnitude : magnitude,
 			description: form.description.trim(),
 			date: form.date,

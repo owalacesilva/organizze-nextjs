@@ -40,7 +40,6 @@ export default function Tags() {
 
 	const tags = tagsQuery.data?.tags ?? [];
 
-	// The duplicate check must not trip over the tag currently being edited.
 	const existingNames = tags
 		.filter((tag) => tag.id !== editing?.id)
 		.map((tag) => tag.name);

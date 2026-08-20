@@ -18,7 +18,6 @@ import Fiis from "./fiis";
 import Stocks from "./stocks";
 import Treasury from "./treasury";
 
-/** `value` doubles as the dictionary key under `quotes.tabs`. */
 const TABS = [
 	{ value: "stocks", Component: Stocks },
 	{ value: "fiis", Component: Fiis },
@@ -30,17 +29,12 @@ const TABS = [
 export default function QuotesSection() {
 	const { t } = useTranslation();
 	const [activeTab, setActiveTab] = useState(TABS[0].value);
-	// Cards lead: they carry the shape of a move — the change in currency and
-	// where the price sits in the day's range — which a row can only list.
-	// Owned here rather than per tab, since preferring one view is a preference
-	// about quotes and not about stocks in particular.
 	const [view, setView] = useState("cards");
 
 	const activeLabel = t(`quotes.tabs.${activeTab}`);
 
 	return (
 		<Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-			{/* Mobile: the tab strip collapses into a dropdown. */}
 			<div className="mb-3 w-full md:hidden">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>

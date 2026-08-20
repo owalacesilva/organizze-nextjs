@@ -132,7 +132,6 @@ export default function StatementImportSection() {
 		setMapping(checked ? guessColumns(rows[0] ?? []) : EMPTY_MAPPING);
 	};
 
-	// A column can only feed one field, so picking it elsewhere clears the old one.
 	const assignColumn = (field) => (value) => {
 		const index = value === NONE ? null : Number(value);
 
@@ -159,8 +158,6 @@ export default function StatementImportSection() {
 		setResult(null);
 		setProgress({ done: 0, total: importable.length });
 
-		// Logged up front as `processing`, so a run interrupted half way through
-		// still leaves a trace in the history.
 		let uploadId = null;
 		try {
 			const created = await createImportMutation.mutateAsync({
@@ -169,12 +166,8 @@ export default function StatementImportSection() {
 				status: "processing",
 			});
 			uploadId = created.id;
-		} catch {
-			// The history is a nice-to-have; never block the actual import on it.
-		}
+		} catch {}
 
-		// Sequential on purpose: the simulated backend (and most real ones) would
-		// rather answer 90 small writes in order than all at once.
 		for (const entry of importable) {
 			try {
 				await createMutation.mutateAsync({
@@ -203,9 +196,7 @@ export default function StatementImportSection() {
 					id: uploadId,
 					data: { importedRows: imported, failedRows: failed, status },
 				});
-			} catch {
-				// Same again — a missing history row must not fail the import.
-			}
+			} catch {}
 		}
 
 		if (failed === 0) {

@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-/** Icon and colouring per import status. */
 const STATUS = {
 	processing: {
 		icon: Loader2,
@@ -42,7 +41,6 @@ const STATUS = {
 	},
 };
 
-/** Log of every statement that has been brought in, newest first. */
 export function UploadHistory() {
 	const { t, formatDate } = useTranslation();
 

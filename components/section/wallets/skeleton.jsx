@@ -4,7 +4,6 @@ import { SkeletonPage } from "@/components/elements/skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors the wallets page: toolbar, three summary cards, then the card grid. */
 export function WalletsSkeleton() {
 	return (
 		<SkeletonPage className="space-y-3">

@@ -41,7 +41,6 @@ const items = [
 	{ key: "settings", icon: Settings, href: "/settings" },
 ];
 
-/** Mobile bottom bar shows only the primary destinations. */
 const mobileItems = items.slice(0, 5);
 
 export function MainNav({ variant = "desktop" }) {
@@ -99,7 +98,6 @@ export function MainNav({ variant = "desktop" }) {
 						</Link>
 					);
 
-					// Tooltips only earn their place when the label is hidden.
 					return collapsed ? (
 						<Tooltip key={item.href}>
 							<TooltipTrigger asChild>{link}</TooltipTrigger>

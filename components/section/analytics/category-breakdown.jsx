@@ -4,11 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useTranslation } from "@/hooks/useTranslation";
 
-/**
- * Shared list used by the income and expenses tabs.
- *
- * @param rows `{ name, amount, percentage }[]`, already sorted.
- */
 export function CategoryBreakdown({ title, rows }) {
 	const { t, formatCurrency } = useTranslation();
 

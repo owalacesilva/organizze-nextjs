@@ -1,10 +1,3 @@
-/**
- * Example usage of the Categories API
- *
- * This file demonstrates how to use the categories API hooks and actions.
- * You can use this as a reference when implementing category features.
- */
-
 import React from "react";
 import {
 	useGetCategories,
@@ -17,7 +10,6 @@ import type {
 	UpdateCategoryRequest,
 } from "@/app/api/categories/types";
 
-// Example: Display categories list
 export function CategoriesList() {
 	const { data, isLoading, error } = useGetCategories();
 
@@ -36,7 +28,6 @@ export function CategoriesList() {
 	);
 }
 
-// Example: Create a new category
 export function CreateCategoryForm() {
 	const createCategoryMutation = useCreateCategory();
 
@@ -76,7 +67,6 @@ export function CreateCategoryForm() {
 	);
 }
 
-// Example: Update category
 export function EditCategory({ categoryId }: { categoryId: number }) {
 	const updateCategoryMutation = useUpdateCategory();
 
@@ -89,11 +79,9 @@ export function EditCategory({ categoryId }: { categoryId: number }) {
 		}
 	};
 
-	// Implementation would include form for editing
 	return <div>Edit form implementation...</div>;
 }
 
-// Example: Delete category
 export function DeleteCategoryButton({ categoryId }: { categoryId: number }) {
 	const deleteCategoryMutation = useDeleteCategory();
 
@@ -115,15 +103,12 @@ export function DeleteCategoryButton({ categoryId }: { categoryId: number }) {
 	);
 }
 
-// Example: Using actions directly (if needed outside of React components)
 import { createCategory, getCategories } from "@/app/api/categories/actions";
 
 export async function exampleDirectUsage() {
-	// Get all categories
 	const categories = await getCategories();
 	console.log("Categories:", categories);
 
-	// Create new category
 	const newCategory = await createCategory({
 		name: "Food",
 		description: "Food and dining expenses",

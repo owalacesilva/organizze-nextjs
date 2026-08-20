@@ -16,7 +16,6 @@ import {
 	Wallet,
 } from "lucide-react";
 
-/** One icon per badge id, so a medal is recognisable before it is read. */
 const ICONS = {
 	firstStep: Footprints,
 	weekStreak: Flame,
@@ -38,13 +37,6 @@ const TIER_CLASS = {
 	gold: "bg-yellow-500/15 text-yellow-700 ring-yellow-500/30 dark:text-yellow-400",
 };
 
-/**
- * A badge medal.
- *
- * Locked medals keep the badge's own icon rather than swapping to a padlock —
- * seeing what you are working towards is the point — and go flat grey so the
- * unlocked ones still read at a glance.
- */
 export function BadgeMedal({ id, tier = "bronze", unlocked = false, size = "default" }) {
 	const Icon = ICONS[id] ?? Award;
 	const large = size === "large";

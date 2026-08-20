@@ -29,14 +29,6 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-/**
- * Everything the search can take you to.
- *
- * `labelKey` and `descriptionKey` reuse the headings each page already shows,
- * so the results read exactly like the destination. `keywords` is a translated
- * comma-separated list — it is what lets "bitcoin" or "gastos" land somewhere
- * sensible even though neither word appears in a page title.
- */
 const FEATURES = [
 	{ href: "/", icon: LayoutDashboard, labelKey: "nav.dashboard", descriptionKey: "dashboard.subtitle", key: "dashboard" },
 	{ href: "/transactions", icon: ArrowLeftRight, labelKey: "nav.transactions", descriptionKey: "transactions.subtitle", key: "transactions" },
@@ -52,7 +44,6 @@ const FEATURES = [
 	{ href: "/settings", icon: Settings, labelKey: "nav.settings", descriptionKey: "settings.subtitle", key: "settings" },
 ];
 
-/** Words the empty state offers. Each one is chosen to return results. */
 const SUGGESTIONS = ["quotes", "budgets", "goals"];
 
 export function SearchDialog({ open, onOpenChange }) {
@@ -60,7 +51,6 @@ export function SearchDialog({ open, onOpenChange }) {
 	const router = useRouter();
 	const [query, setQuery] = useState("");
 
-	// A stale query behind a reopened dialog would hide the intro state.
 	useEffect(() => {
 		if (!open) setQuery("");
 	}, [open]);
@@ -93,14 +83,9 @@ export function SearchDialog({ open, onOpenChange }) {
 			<DialogContent
 				className="overflow-hidden p-0 shadow-lg"
 				closeLabel={t("common.close")}
-				// The panel describes itself — an sr-only description here would
-				// only repeat the intro text that is already read out.
 				aria-describedby={undefined}
 			>
 				<DialogTitle className="sr-only">{t("search.title")}</DialogTitle>
-
-				{/* Filtering happens in `searchFeatures`, which is accent-insensitive
-				    and ranks label hits first — cmdk's own matcher is neither. */}
 				<Command shouldFilter={false}>
 					<div className="relative">
 						<CommandInput
@@ -109,7 +94,6 @@ export function SearchDialog({ open, onOpenChange }) {
 							placeholder={t("search.placeholder")}
 							className="pr-28"
 						/>
-						{/* Clears the dialog's own close button, which sits at right-3. */}
 						<Badge
 							variant="secondary"
 							className="pointer-events-none absolute right-9 top-1/2 -translate-y-1/2"

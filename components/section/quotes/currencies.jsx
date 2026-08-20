@@ -4,7 +4,6 @@ import { useGetCurrencyQuotes } from "@/app/api/quotes/hooks";
 import { ChangeIndicator } from "./change-indicator";
 import { QuotesPanel } from "./quotes-panel";
 
-/** FX moves in the fourth decimal, so rates get more precision than prices. */
 const RATE_DIGITS = { minimumFractionDigits: 4, maximumFractionDigits: 4 };
 
 const COLUMNS = [
@@ -83,7 +82,6 @@ const DETAILS = {
 			render: changeAmount,
 		},
 		{
-			// What the round trip costs you, before any bank spread on top.
 			key: "spread",
 			labelKey: "quotes.columns.spread",
 			render: (quote, { formatBRL }) =>

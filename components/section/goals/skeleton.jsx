@@ -4,7 +4,6 @@ import { SkeletonPage } from "@/components/elements/skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors the goals page: toolbar then a grid of goal cards with progress. */
 export function GoalsSkeleton() {
 	return (
 		<SkeletonPage className="space-y-3">

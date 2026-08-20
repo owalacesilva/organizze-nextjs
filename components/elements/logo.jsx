@@ -8,29 +8,25 @@ import { useEffect, useState } from "react"
 export function Logo({
 	className,
 	size = "md",
-	variant = "auto", // "light", "dark", or "auto"
+	variant = "auto",
 	vertical = false,
 	iconOnly = false,
 	companyName = "Evank",
-	// Background customization props
-	bgShape = "rounded", // "rounded", "square", "circle"
-	bgGradient = false, // false or true (uses theme colors)
-	bgOpacity = 1, // 0 to 1
-	bgPattern = null, // null or "dots", "lines", "grid"
-	bgBorder = false, // false or true (uses theme colors)
+	bgShape = "rounded",
+	bgGradient = false,
+	bgOpacity = 1,
+	bgPattern = null,
+	bgBorder = false,
 }) {
 	const { theme, resolvedTheme } = useTheme()
 	const [mounted, setMounted] = useState(false)
 
-	// Only access the theme after component has mounted to avoid hydration mismatch
 	useEffect(() => {
 		setMounted(true)
 	}, [])
 
-	// Determine if we should use dark mode - only use client-side detection after mounting
 	const isDark = variant === "dark" || (variant === "auto" && mounted && resolvedTheme === "dark")
 
-	// Simplified size mappings
 	const iconSize = {
 		sm: { container: "h-6 w-6", icon: 14 },
 		md: { container: "h-8 w-8", icon: 18 },
@@ -45,20 +41,17 @@ export function Logo({
 		xl: "text-3xl",
 	}[size]
 
-	// Shape classes
 	const shapeClasses = {
 		rounded: "rounded-md",
 		square: "rounded-none",
 		circle: "rounded-full",
 	}
 
-	// Theme-based color classes - use Tailwind's dark mode classes for consistent server/client rendering
 	const bgColorClass = "bg-primary dark:bg-slate-800"
 	const iconColorClass = "text-primary-foreground dark:text-white"
 	const textColorClass = "text-slate-900 dark:text-slate-100"
 	const borderColorClass = "border-primary/80 dark:border-slate-700"
 
-	// Pattern classes
 	const getPatternClass = () => {
 		if (!bgPattern) return ""
 
@@ -74,18 +67,14 @@ export function Logo({
 		}
 	}
 
-	// Gradient classes
 	const gradientClass = bgGradient
 		? "bg-gradient-to-r from-primary to-primary/80 dark:from-slate-800 dark:to-slate-900"
 		: ""
 
-	// Border classes
 	const borderClass = bgBorder ? "border border-primary/80 dark:border-slate-700" : ""
 
-	// Opacity classes
 	const opacityClass = bgOpacity < 1 ? `opacity-${Math.round(bgOpacity * 100)}` : ""
 
-	// Icon component
 	const IconComponent = (
 		<div
 			className={cn(
@@ -97,12 +86,10 @@ export function Logo({
 				opacityClass,
 				getPatternClass(),
 				iconOnly ? className : "",
-				// Apply variant-specific classes
 				variant === "dark" && "bg-slate-800",
 				variant === "light" && "bg-primary",
 			)}
 		>
-			{/* Pattern overlay if needed */}
 			{bgPattern && <div className="absolute inset-0 opacity-10 mix-blend-overlay" />}
 
 			<WalletIcon
@@ -110,7 +97,6 @@ export function Logo({
 				className={cn(
 					"relative z-10",
 					iconColorClass,
-					// Apply variant-specific classes
 					variant === "dark" && "text-white",
 					variant === "light" && "text-primary-foreground",
 				)}
@@ -118,12 +104,10 @@ export function Logo({
 		</div>
 	)
 
-	// If icon only, return just the icon
 	if (iconOnly) {
 		return IconComponent
 	}
 
-	// Full logo with text
 	return (
 		<div className={cn("flex items-center", vertical ? "flex-col gap-2" : "flex-row gap-3", className)}>
 			{IconComponent}
@@ -132,7 +116,6 @@ export function Logo({
 					"font-bold tracking-tight",
 					textSize,
 					textColorClass,
-					// Apply variant-specific classes
 					variant === "dark" && "text-slate-100",
 					variant === "light" && "text-slate-900",
 				)}

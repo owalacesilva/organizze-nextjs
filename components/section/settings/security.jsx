@@ -29,7 +29,6 @@ const ID_TYPES = ["passport", "driver", "national"];
 const PURPOSES = ["primary", "work", "personal", "recovery"];
 const COUNTRIES = ["br", "us", "pt", "ca", "uk"];
 
-// Placeholder contact points until the verification endpoints exist.
 const EMAILS = [
 	{ value: "hello@example.com", verified: true },
 	{ value: "work@example.com", verified: true },

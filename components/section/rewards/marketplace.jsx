@@ -13,12 +13,6 @@ import { cn } from "@/lib/utils";
 import { Check, Coins, Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 
-/**
- * Spend tokens on accent themes.
- *
- * Affordability is re-checked by the store on purchase; the disabled button
- * here is a courtesy, not the rule.
- */
 export function Marketplace({ profile, state }) {
 	const { t, formatNumber } = useTranslation();
 	const purchase = usePurchaseTheme();

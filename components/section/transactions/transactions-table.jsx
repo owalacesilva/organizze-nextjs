@@ -44,7 +44,6 @@ function TypeBadge({ type }) {
 	);
 }
 
-/** One label/value pair inside an expanded row. */
 function DetailItem({ label, children }) {
 	return (
 		<div className="flex flex-col gap-0.5">
@@ -69,8 +68,6 @@ export function TransactionsTable({
 	const pagination = usePagination(transactions, { resetKey });
 	const [expandedIds, setExpandedIds] = useState(() => new Set());
 
-	// Rows that leave the viewport (filter or page change) shouldn't come back
-	// expanded, so the open set is dropped whenever the visible slice changes.
 	useEffect(() => {
 		setExpandedIds(new Set());
 	}, [resetKey, pagination.page]);
@@ -97,8 +94,6 @@ export function TransactionsTable({
 				: new Set(pagination.pageItems.map((transaction) => transaction.id)),
 		);
 
-	// A skeleton in the table's own shape keeps the card from collapsing and
-	// re-expanding the way a centred spinner does.
 	if (isLoading) {
 		return (
 			<div role="status" aria-busy="true">
@@ -180,8 +175,6 @@ export function TransactionsTable({
 										)}
 									>
 										<TableCell className="px-1">
-											{/* The chevron expands in place; the rest of the row
-											    still opens the detail panel. */}
 											<Button
 												variant="ghost"
 												size="icon-xs"
@@ -228,7 +221,6 @@ export function TransactionsTable({
 										<TableCell className="px-1">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													{/* Row click opens the detail panel; stop it here. */}
 													<Button
 														variant="ghost"
 														size="icon-xs"

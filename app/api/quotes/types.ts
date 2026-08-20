@@ -1,10 +1,7 @@
-/** Fields every quote carries, whatever the asset class. */
 interface BaseQuote {
-	/** ISO timestamp of the last feed update. */
 	updatedAt: string;
 }
 
-/** Price movement over the quote's reference window (a session, or 24h). */
 interface MovingQuote extends BaseQuote {
 	price: number;
 	change: number;
@@ -47,10 +44,8 @@ export interface FiiQuote extends MovingQuote {
 	name: string;
 	segment: FiiSegment;
 	previousClose: number;
-	/** Trailing twelve-month yield, as a percentage. */
 	dividendYield: number;
 	lastDividend: number;
-	/** P/VP — price over book value. */
 	priceToBook: number;
 }
 
@@ -60,16 +55,13 @@ export interface TreasuryQuote extends BaseQuote {
 	id: number;
 	name: string;
 	indexer: TreasuryIndexer;
-	/** ISO date the bond matures. */
 	maturity: string;
-	/** Annual buy rate. Read against `indexer`: a spread, or a flat rate. */
 	rate: number;
 	unitPrice: number;
 	minimumInvestment: number;
 }
 
 export interface CurrencyQuote extends BaseQuote {
-	/** ISO 4217 code, always quoted against BRL. */
 	code: string;
 	bid: number;
 	ask: number;

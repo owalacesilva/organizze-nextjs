@@ -4,7 +4,6 @@ import { SkeletonChartCard, SkeletonPage } from "@/components/elements/skeletons
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors the budgets page: toolbar, budget cards with progress, trend chart. */
 export function BudgetsSkeleton() {
 	return (
 		<SkeletonPage className="space-y-3">

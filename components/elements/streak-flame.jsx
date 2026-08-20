@@ -4,12 +4,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import { Flame } from "lucide-react";
 
-/**
- * The streak flame and its day count.
- *
- * Goes cold and grey at zero rather than disappearing, so the streak has a
- * visible place to come back to.
- */
 export function StreakFlame({ days = 0, atRisk = false, size = "default" }) {
 	const { t, formatNumber } = useTranslation();
 	const alight = days > 0;

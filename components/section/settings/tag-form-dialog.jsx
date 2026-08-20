@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-/** Swatches offered before falling back to the native colour picker. */
 export const TAG_COLORS = [
 	"#6366f1",
 	"#0ea5e9",
@@ -37,10 +36,6 @@ function toFormState(tag) {
 	return { name: tag.name ?? "", color: tag.color ?? TAG_COLORS[0] };
 }
 
-/**
- * Create/edit panel for a tag. Passing `tag` switches it to edit mode.
- * `existingNames` powers the duplicate check and excludes the tag being edited.
- */
 export function TagFormDialog({
 	open,
 	onOpenChange,

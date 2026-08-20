@@ -4,7 +4,6 @@ import { useGetTreasuryQuotes } from "@/app/api/quotes/hooks";
 import { Badge } from "@/components/ui/badge";
 import { QuotesPanel } from "./quotes-panel";
 
-/** The annual rate reads as a spread over an index, or as a flat rate. */
 const rateLabel = (quote, { t, formatNumber }) =>
 	t(`quotes.rateFormat.${quote.indexer}`, {
 		rate: formatNumber(quote.rate, {
@@ -13,10 +12,6 @@ const rateLabel = (quote, { t, formatNumber }) =>
 		}),
 	});
 
-/**
- * Treasury bonds do not tick like a share does — brokers list the annual rate,
- * the maturity and what a slice costs — so this tab carries no change column.
- */
 const COLUMNS = [
 	{
 		key: "name",
@@ -61,8 +56,6 @@ const COLUMNS = [
 const CARD = {
 	title: (quote) => quote.name,
 	subtitle: (quote, { t }) => t(`quotes.indexers.${quote.indexer}`),
-	// The annual rate is what bonds are shopped on, so it takes the hero slot
-	// that a price occupies everywhere else. There is no daily tick to show.
 	value: rateLabel,
 	stats: ["maturity", "unitPrice", "minimumInvestment"],
 };

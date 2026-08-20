@@ -4,7 +4,6 @@ import { SkeletonPage } from "@/components/elements/skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors InsightsSection: summary tiles, insight cards, then the two lists. */
 export function InsightsSkeleton() {
 	return (
 		<SkeletonPage className="space-y-3">

@@ -9,15 +9,6 @@ import { useRef, useState } from "react";
 
 export const MAX_FILE_SIZE_MB = 5;
 
-/**
- * Drop zone that only ever hands back a `.csv`.
- *
- * The extension is checked on top of the `accept` attribute because `accept`
- * is a filter, not a guarantee — drag and drop bypasses it entirely.
- *
- * @param onFile  Called with the accepted File.
- * @param onError Called with a dictionary key when the file is rejected.
- */
 export function FileDrop({ onFile, onError, fileName }) {
 	const { t } = useTranslation();
 	const inputRef = useRef(null);
@@ -77,7 +68,6 @@ export function FileDrop({ onFile, onError, fileName }) {
 				className="hidden"
 				onChange={(event) => {
 					accept(event.target.files?.[0]);
-					// Let the same file be picked again after a reset.
 					event.target.value = "";
 				}}
 			/>

@@ -96,10 +96,6 @@ const ICONS = {
 
 const ICON_NAMES = Object.keys(ICONS);
 
-/**
- * Categories carry no icon of their own, so one is inferred from the name.
- * Keywords are listed in both languages the app ships with.
- */
 const NAME_TO_ICON = [
 	[["beleza", "beauty"], "sparkles"],
 	[["conta", "bill", "fatura", "document"], "file"],

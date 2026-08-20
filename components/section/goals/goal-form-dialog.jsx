@@ -41,7 +41,6 @@ function toFormState(goal) {
 		name: goal.name ?? "",
 		target: String(goal.target ?? ""),
 		saved: String(goal.saved ?? ""),
-		// <input type="date"> needs a bare YYYY-MM-DD value.
 		deadline: String(goal.deadline ?? "").slice(0, 10),
 		walletId:
 			goal.walletId === null || goal.walletId === undefined
@@ -64,10 +63,6 @@ function validate(form, t) {
 	return errors;
 }
 
-/**
- * Create/edit panel for a goal. Passing `goal` switches it to edit mode.
- * `onSubmit` receives the API payload and may return a promise.
- */
 export function GoalFormDialog({
 	open,
 	onOpenChange,

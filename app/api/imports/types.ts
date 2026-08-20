@@ -1,9 +1,3 @@
-/**
- * `processing` — rows are still being sent.
- * `completed`  — every row landed.
- * `partial`    — some rows landed, some failed.
- * `failed`     — nothing landed.
- */
 export type ImportStatus = "processing" | "completed" | "partial" | "failed";
 
 export interface ImportByIdResponse {

@@ -7,12 +7,6 @@ import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-/**
- * Every modal in the app is a right-anchored side panel: the primitive keeps the
- * `Dialog*` names (and Radix's focus trap / escape handling) but slides in from
- * the right instead of appearing centred. Layout inside a panel is a flex column
- * — sticky header, scrolling body, sticky footer — so long forms behave.
- */
 const Dialog = DialogPrimitive.Root
 
 const DialogTrigger = DialogPrimitive.Trigger
@@ -41,8 +35,6 @@ const dialogPanelVariants = cva(
     "fixed inset-y-0 right-0 z-50 flex w-full flex-col gap-3 overflow-y-auto border-l bg-background p-3 shadow-lg",
     "transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:duration-300",
     "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
-    // A form dropped straight into the panel becomes the flex column itself so
-    // its footer can still stick to the bottom.
     "[&>form]:flex [&>form]:h-full [&>form]:flex-col [&>form]:gap-3",
   ],
   {
@@ -63,7 +55,6 @@ const dialogPanelVariants = cva(
 interface DialogContentProps
   extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
     VariantProps<typeof dialogPanelVariants> {
-  /** Accessible label for the close button — pass a translated string. */
   closeLabel?: string
 }
 
@@ -88,7 +79,6 @@ const DialogContent = React.forwardRef<
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-/** Full-bleed, sticky header. Negative margins cancel the panel padding. */
 const DialogHeader = ({
   className,
   ...props
@@ -103,7 +93,6 @@ const DialogHeader = ({
 )
 DialogHeader.displayName = "DialogHeader"
 
-/** Optional scroll region between header and footer. */
 const DialogBody = ({
   className,
   ...props

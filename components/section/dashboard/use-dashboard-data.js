@@ -5,12 +5,6 @@ import { useGetWallets } from "@/app/api/wallets/hooks";
 import { normalizeTransaction, sortByDateDesc } from "@/lib/transactions";
 import { useMemo } from "react";
 
-/**
- * Shared dashboard dataset.
- *
- * Every widget calls this; React Query dedupes by key, so the page still makes
- * one request per resource no matter how many cards ask for it.
- */
 export function useDashboardData() {
 	const transactionsQuery = useGetTransactions();
 	const walletsQuery = useGetWallets();
@@ -39,7 +33,6 @@ export function useDashboardData() {
 	};
 }
 
-/** Totals for the last `days` days and for the `days` before that. */
 export function comparePeriods(transactions, days = 30, now = new Date()) {
 	const currentStart = new Date(now);
 	currentStart.setDate(currentStart.getDate() - days);
@@ -70,7 +63,6 @@ export function comparePeriods(transactions, days = 30, now = new Date()) {
 	return { current, previous };
 }
 
-/** Percentage change, guarding against a zero baseline. */
 export function percentChange(current, previous) {
 	if (!previous) return current ? 100 : 0;
 	return ((current - previous) / Math.abs(previous)) * 100;

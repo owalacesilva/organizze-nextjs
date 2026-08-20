@@ -9,7 +9,6 @@ import {
 	SkeletonProgressList,
 } from "@/components/elements/skeletons";
 
-/** Mirrors DashboardSection: metric row, then four 3/1 and 1/3 splits. */
 export function DashboardSkeleton() {
 	return (
 		<SkeletonPage className="space-y-2 sm:space-y-3">

@@ -4,7 +4,6 @@ import { SkeletonChartCard, SkeletonPage } from "@/components/elements/skeletons
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors ProfileSection: overview card beside the per-wallet spending panel. */
 export function ProfileSkeleton() {
 	return (
 		<SkeletonPage className="grid grid-cols-1 gap-2 space-y-0 sm:gap-3 lg:grid-cols-12">

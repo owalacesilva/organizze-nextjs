@@ -66,7 +66,6 @@ export default function InsightsSection() {
 		[transactions, budgets, goals, wallets],
 	);
 
-	// Grouped by urgency so a long list still reads top-down.
 	const groups = useMemo(() => groupInsights(insights), [insights]);
 
 	const summary = useMemo(() => insightSummary(transactions), [transactions]);

@@ -30,7 +30,6 @@ const ACCOUNT_TYPES = ["checking", "savings", "business"];
 const CARD_TYPES = ["visa", "mastercard", "amex", "elo"];
 const BILLING_ADDRESSES = ["home", "work", "other"];
 
-// Placeholder payment methods until a banking endpoint exists.
 const BANK = { name: "Banco do Brasil", digits: "5421" };
 const CARD = { name: "Mastercard", digits: "5478" };
 
@@ -44,7 +43,6 @@ export default function AddBank() {
 	const [addBankOpen, setAddBankOpen] = useState(false);
 	const [addCardOpen, setAddCardOpen] = useState(false);
 
-	// Swap the manage panel for the edit panel so only one is on screen.
 	const openEditBank = () => {
 		setManageBankOpen(false);
 		setEditBankOpen(true);

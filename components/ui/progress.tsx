@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils"
 
 interface ProgressProps
   extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
-  /** Recolours the filled part — e.g. green once a goal is met. */
   indicatorClassName?: string
 }
 

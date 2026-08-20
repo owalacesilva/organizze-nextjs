@@ -19,13 +19,6 @@ import {
 	MoreHorizontal,
 } from "lucide-react";
 
-/**
- * Pagination bar for tables. Spread a `usePagination()` result straight into it:
- *
- * @example
- * const pagination = usePagination(rows);
- * <DataTablePagination {...pagination} />
- */
 export function DataTablePagination({
 	page,
 	pageSize,

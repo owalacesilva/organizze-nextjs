@@ -23,7 +23,6 @@ import Security from "./security";
 import Session from "./session";
 import Tags from "./tags";
 
-/** `value` doubles as the dictionary key under `settings.tabs`. */
 const TABS = [
 	{ value: "account", Component: Account },
 	{ value: "general", Component: General },
@@ -45,7 +44,6 @@ export default function SettingsSection() {
 
 	return (
 		<Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-			{/* Mobile: the tab strip collapses into a dropdown. */}
 			<div className="mb-3 w-full md:hidden">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>

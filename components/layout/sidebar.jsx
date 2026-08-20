@@ -10,11 +10,6 @@ import { Logo } from "../elements/logo";
 import { MainNav } from "./nav";
 import { useSidebar } from "./sidebar-context";
 
-/**
- * Toggles the desktop sidebar between the icon rail and the labelled panel.
- * Rendered in the sidebar itself and in the header, so it stays reachable in
- * both states.
- */
 export function SidebarToggle({ className, variant = "ghost" }) {
 	const { collapsed, toggle } = useSidebar();
 	const { t } = useTranslation();
@@ -43,7 +38,6 @@ export function DashboardSidebar() {
 
 	return (
 		<>
-			{/* Desktop rail / panel */}
 			<aside className="sidebar-transition fixed inset-y-0 left-0 z-50 hidden w-[var(--sidebar-w)] flex-col bg-primary md:flex">
 				<div
 					className={cn(
@@ -74,8 +68,6 @@ export function DashboardSidebar() {
 					</div>
 				)}
 			</aside>
-
-			{/* Mobile bottom bar, docked above the footer */}
 			<nav className="fixed inset-x-0 bottom-[var(--footer-height)] z-50 flex h-[var(--mobile-nav-height)] bg-primary md:hidden">
 				<MainNav variant="mobile" />
 			</nav>

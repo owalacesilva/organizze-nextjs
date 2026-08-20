@@ -5,14 +5,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 
-/**
- * Building blocks for page-level loading states. Each one mirrors the shape of
- * the real content it stands in for, so the layout does not jump when the data
- * arrives.
- *
- * Wrap a page skeleton in <SkeletonPage> once — it owns the single live region
- * so assistive tech announces "loading" rather than reading empty boxes.
- */
 export function SkeletonPage({ children, className }) {
 	const { t } = useTranslation();
 
@@ -29,7 +21,6 @@ export function SkeletonPage({ children, className }) {
 	);
 }
 
-/** Stacked text lines; the last one is short so it reads like a paragraph. */
 export function SkeletonText({ lines = 3, className }) {
 	return (
 		<div className={cn("space-y-2", className)}>
@@ -44,7 +35,6 @@ export function SkeletonText({ lines = 3, className }) {
 	);
 }
 
-/** Row of compact stat tiles — icon, caption, value. */
 export function SkeletonMetricCards({ count = 4, className }) {
 	return (
 		<div
@@ -69,7 +59,6 @@ export function SkeletonMetricCards({ count = 4, className }) {
 	);
 }
 
-/** Card with a title and a plot area. */
 export function SkeletonChartCard({ height = "h-56", className, title = true }) {
 	return (
 		<Card className={cn("shadow-none", className)}>
@@ -86,7 +75,6 @@ export function SkeletonChartCard({ height = "h-56", className, title = true }) 
 	);
 }
 
-/** Donut/pie placeholder with a small legend. */
 export function SkeletonDonutCard({ className, legendItems = 4 }) {
 	return (
 		<Card className={cn("shadow-none", className)}>
@@ -110,10 +98,6 @@ export function SkeletonDonutCard({ className, legendItems = 4 }) {
 	);
 }
 
-/**
- * Table placeholder. Column widths cycle so the rows read as a table rather
- * than a block of identical bars.
- */
 const COLUMN_WIDTHS = ["w-32", "w-24", "w-20", "w-28", "w-16"];
 
 export function SkeletonTable({
@@ -162,7 +146,6 @@ export function SkeletonTable({
 	);
 }
 
-/** Table wrapped in a card, with the toolbar and pagination bar around it. */
 export function SkeletonTableCard({
 	rows = 8,
 	columns = 5,
@@ -202,7 +185,6 @@ export function SkeletonTableCard({
 	);
 }
 
-/** Vertical list of avatar/icon + two-line rows. */
 export function SkeletonList({ items = 5, title = true, className }) {
 	return (
 		<Card className={cn("shadow-none", className)}>
@@ -228,7 +210,6 @@ export function SkeletonList({ items = 5, title = true, className }) {
 	);
 }
 
-/** List of labelled progress bars (budgets, goals, category spend). */
 export function SkeletonProgressList({ items = 4, title = true, className }) {
 	return (
 		<Card className={cn("shadow-none", className)}>
@@ -253,7 +234,6 @@ export function SkeletonProgressList({ items = 4, title = true, className }) {
 	);
 }
 
-/** Card of stacked label + input pairs. */
 export function SkeletonFormCard({ fields = 4, columns = 2, className }) {
 	return (
 		<Card className={cn("shadow-none", className)}>
@@ -282,7 +262,6 @@ export function SkeletonFormCard({ fields = 4, columns = 2, className }) {
 	);
 }
 
-/** Horizontal tab strip. */
 export function SkeletonTabs({ count = 5, className }) {
 	return (
 		<div className={cn("flex gap-2 overflow-hidden border-b pb-2", className)}>

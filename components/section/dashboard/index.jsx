@@ -73,9 +73,6 @@ export default function DashboardSection() {
 			</p>
 
 			<LaunchpadQuest />
-
-			{/* Five across once there is room: the streak earns a place beside the
-			    headline figures, but not at the cost of one of them. */}
 			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
 				<StreakCard />
 				<MetricCard

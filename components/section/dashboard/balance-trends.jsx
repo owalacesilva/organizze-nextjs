@@ -15,7 +15,6 @@ import {
 } from "recharts";
 import { useDashboardData } from "./use-dashboard-data";
 
-/** Running balance across the last six months, rebuilt from the statement. */
 export function BalanceTrends() {
 	const { t, formatCurrency, formatDate } = useTranslation();
 	const { transactions, totalBalance } = useDashboardData();
@@ -24,7 +23,6 @@ export function BalanceTrends() {
 		const months = monthlyTotals(transactions, 6);
 		const net = months.map((month) => month.income - month.expenses);
 
-		// Walk backwards from today's balance so the last point matches the wallets.
 		const balances = [];
 		let running = totalBalance;
 		for (let index = net.length - 1; index >= 0; index--) {

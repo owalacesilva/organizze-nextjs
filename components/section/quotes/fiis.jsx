@@ -90,7 +90,6 @@ const DETAILS = {
 			render: (quote, { formatBRL }) => formatBRL(quote.previousClose),
 		},
 		{
-			// What twelve months at the latest payout would return on today's price.
 			key: "annualisedDividend",
 			labelKey: "quotes.columns.annualisedDividend",
 			render: (quote, { formatBRL }) => formatBRL(quote.lastDividend * 12),

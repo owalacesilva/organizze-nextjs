@@ -15,8 +15,6 @@ import { usePagination } from "@/hooks/usePagination";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CheckCircle, FileText, XCircle } from "lucide-react";
 
-// Placeholder data until a sessions endpoint exists. `hoursAgo` keeps the
-// relative timestamps translatable instead of baking English strings in.
 const WEB_SESSIONS = [
 	{ id: 1, hoursAgo: 2, browser: "Chrome (Windows)", ip: "187.54.239.254", location: "São Paulo, BR", current: true },
 	{ id: 2, hoursAgo: 26, browser: "Safari (macOS)", ip: "187.54.239.211", location: "São Paulo, BR", current: false },

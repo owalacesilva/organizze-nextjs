@@ -41,12 +41,6 @@ function Stat({ label, value, tone = "default" }) {
 	);
 }
 
-/**
- * Detail view for a goal: how far along it is, what it needs per month to land
- * on time, and a shortcut to put more money aside.
- *
- * @param onContribute Receives the new `saved` total; may return a promise.
- */
 export function GoalDetailsDialog({
 	goal,
 	open,

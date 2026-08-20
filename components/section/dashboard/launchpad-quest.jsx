@@ -12,13 +12,6 @@ import { cn } from "@/lib/utils";
 import { ArrowRight, Check, Circle, Coins, Rocket } from "lucide-react";
 import Link from "next/link";
 
-/**
- * The "Financial Launchpad" onboarding quest.
- *
- * Disappears from the dashboard once complete rather than sitting there ticked
- * forever — the Trophy Room keeps the Founding Member badge, which is the part
- * worth keeping.
- */
 export function LaunchpadQuest() {
 	const { t, formatNumber } = useTranslation();
 	const { profile, isPending, isError } = useGamification();

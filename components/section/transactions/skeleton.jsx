@@ -7,7 +7,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors TransactionsSection: three summary tiles above the table card. */
 export function TransactionsSkeleton() {
 	return (
 		<SkeletonPage className="space-y-3">

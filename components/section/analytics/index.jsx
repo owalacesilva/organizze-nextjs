@@ -9,7 +9,6 @@ import { Income } from "./income";
 import { IncomeVsExpenses } from "./income-vs-expenes";
 import { TransactionHistory } from "./transaction-history";
 
-/** `value` doubles as the dictionary key under `analytics.tabs`. */
 const TABS = [
 	{ value: "overview", Component: Analytics },
 	{ value: "expenses", Component: Expenses },

@@ -7,7 +7,6 @@ import {
 } from "@/components/elements/skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors AnalyticsSection: tab strip, stat tiles, then the main chart. */
 export function AnalyticsSkeleton() {
 	return (
 		<SkeletonPage className="space-y-3">

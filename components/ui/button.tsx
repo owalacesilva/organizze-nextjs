@@ -19,7 +19,6 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
-      // Compact scale: `default` is the old `sm`, and `xs` covers dense toolbars.
       size: {
         default: "h-8 px-2.5",
         xs: "h-6 px-1.5 text-[11px] [&_svg]:size-3",

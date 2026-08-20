@@ -4,7 +4,6 @@ export interface BudgetByIdResponse {
 	id: number;
 	name: string;
 	amount: number;
-	/** Consumed in the current period, derived from the statement. */
 	spent: number;
 	period: BudgetPeriod;
 	categoryId: number | null;

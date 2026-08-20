@@ -19,7 +19,6 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
 	return (
-		// `lang` is kept in sync with the active locale by <I18nProvider>.
 		<html lang={defaultLocale} suppressHydrationWarning>
 			<body className={rubik.className}>
 				<ThemeProvider

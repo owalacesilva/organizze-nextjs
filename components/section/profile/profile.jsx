@@ -23,7 +23,6 @@ import {
 	YAxis,
 } from "recharts";
 
-// Placeholder identity until authentication lands.
 const USER = {
 	name: "Hafsa Humaira",
 	email: "hello@example.com",
@@ -34,7 +33,6 @@ const USER = {
 
 const CHART_DAYS = 14;
 
-/** Daily expense totals for the last `CHART_DAYS`, optionally for one wallet. */
 function useDailySpending(transactions, walletId) {
 	const { formatDate } = useTranslation();
 

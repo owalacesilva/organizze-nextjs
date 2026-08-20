@@ -14,7 +14,6 @@ import {
 } from "recharts";
 import { useDashboardData } from "./use-dashboard-data";
 
-/** Expenses of the last seven days, one bar per day. */
 export function WeeklyExpenses() {
 	const { t, formatCurrency, formatDate } = useTranslation();
 	const { transactions } = useDashboardData();

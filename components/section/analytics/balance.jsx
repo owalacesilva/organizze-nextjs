@@ -27,7 +27,6 @@ export function Balance() {
 		0,
 	);
 
-	// Same trick as the dashboard: walk today's balance backwards month by month.
 	const series = useMemo(() => {
 		const net = months.map((month) => month.income - month.expenses);
 		const balances = [];

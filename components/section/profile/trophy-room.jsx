@@ -15,7 +15,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import { Coins } from "lucide-react";
 
-/** Unlocked first — a trophy room should lead with the trophies. */
 function byUnlockedThenProgress(a, b) {
 	if (a.unlocked !== b.unlocked) return a.unlocked ? -1 : 1;
 	return b.percent - a.percent;
@@ -71,8 +70,6 @@ function BadgeTile({ badge }) {
 					)}
 				</div>
 			</TooltipTrigger>
-
-			{/* Locked badges have to say plainly what unlocks them. */}
 			<TooltipContent side="top" className="max-w-56 text-center">
 				<p className="font-medium">{name}</p>
 				<p className="text-[11px] opacity-90">

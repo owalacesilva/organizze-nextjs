@@ -86,8 +86,6 @@ const CARD = {
 };
 
 const DETAILS = {
-	// Identity, sector, price and change are already in the header and hero;
-	// the range gets its own bar below them.
 	omit: ["symbol", "sector", "price", "change", "range"],
 	stats: [
 		{

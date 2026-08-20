@@ -12,17 +12,6 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 
-/**
- * Collapsible container for filter controls, so a dense filter area can be
- * folded away when it is not in use.
- *
- * Renders uncontrolled by default; pass `open` + `onOpenChange` to control it.
- *
- * @example
- * <FilterPanel activeCount={2} onClear={reset}>
- *   <FilterField label="Category">…</FilterField>
- * </FilterPanel>
- */
 export function FilterPanel({
 	children,
 	title,
@@ -106,7 +95,6 @@ export function FilterPanel({
 	);
 }
 
-/** Label + control pair sized for the FilterPanel grid. */
 export function FilterField({ label, htmlFor, children, className }) {
 	return (
 		<div className={cn("space-y-1", className)}>

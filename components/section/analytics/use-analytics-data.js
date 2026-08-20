@@ -10,10 +10,6 @@ import { useMemo } from "react";
 
 const MONTHS = 6;
 
-/**
- * Everything the analytics tabs chart, derived from the statement so the
- * numbers agree with the transactions page.
- */
 export function useAnalyticsData() {
 	const transactionsQuery = useGetTransactions();
 
@@ -43,12 +39,6 @@ export function useAnalyticsData() {
 	};
 }
 
-/**
- * Group by category name for one side of the ledger.
- *
- * @param {"income"|"expense"} type
- * @returns {Array<{name: string, amount: number, percentage: number}>} sorted desc
- */
 export function groupByCategory(transactions, type, fallbackName) {
 	const byCategory = new Map();
 	let total = 0;
@@ -71,7 +61,6 @@ export function groupByCategory(transactions, type, fallbackName) {
 		}));
 }
 
-/** Largest single entry of a given type, or `null` when there is none. */
 export function biggest(transactions, type) {
 	return transactions
 		.filter((transaction) => transaction.type === type)

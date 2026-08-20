@@ -80,7 +80,6 @@ function WalletCard({ wallet, onEdit, onDelete }) {
 	const Icon = TYPE_ICONS[wallet.type] ?? WalletIcon;
 	const currency = wallet.currency;
 
-	// A credit card's "usage" is how much of the limit is already committed.
 	const usage =
 		wallet.type === "credit" && wallet.creditLimit
 			? Math.min(100, (Math.abs(wallet.balance) / wallet.creditLimit) * 100)

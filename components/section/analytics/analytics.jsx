@@ -42,7 +42,6 @@ export function Analytics() {
 		[transactions],
 	);
 
-	// Share of income that was not spent.
 	const savingsRate =
 		totals.income > 0 ? (totals.balance / totals.income) * 100 : 0;
 

@@ -8,8 +8,6 @@ import SignUp from "@/components/section/auth/SignUp"
 import Success from "@/components/section/auth/Success"
 import { useState } from "react"
 
-// type AuthState = "signin" | "signup" | "reset" | "verify-phone" | "verify-email" | "dashboard" | "success"
-
 export default function AuthForm({ currentState }) {
 	const [authState, setAuthState] = useState(currentState ?? "signin")
 	const [phoneNumber, setPhoneNumber] = useState("")
@@ -36,4 +34,3 @@ export default function AuthForm({ currentState }) {
 
 	return <div className="flex w-full flex-col">{renderAuthComponent()}</div>
 }
-

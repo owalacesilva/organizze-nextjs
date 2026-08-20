@@ -4,7 +4,6 @@ import { SkeletonPage, SkeletonTabs } from "@/components/elements/skeletons";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors QuotesSection: tab strip, then the panel's header and quote table. */
 export function QuotesSkeleton() {
 	return (
 		<SkeletonPage>
@@ -24,7 +23,6 @@ export function QuotesSkeleton() {
 				</CardHeader>
 
 				<CardContent>
-					{/* Cards are the default view, so the route skeleton shows a grid. */}
 					<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
 						{Array.from({ length: 6 }).map((_, index) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder

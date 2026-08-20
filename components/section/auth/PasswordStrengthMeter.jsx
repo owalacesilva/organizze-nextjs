@@ -10,7 +10,6 @@ const LEVELS = {
 	strong: { width: "100%", tone: "bg-emerald-500" },
 };
 
-/** Cheap heuristic: length first, then character variety. */
 function scorePassword(password) {
 	if (password.length < 6) return "tooWeak";
 	if (password.length < 10) return "weak";

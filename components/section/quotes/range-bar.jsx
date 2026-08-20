@@ -2,12 +2,6 @@
 
 import { cn } from "@/lib/utils";
 
-/**
- * Where the current value sits between the low and the high of its window.
- *
- * The marker is centred on its position, so it keeps its full width at either
- * extreme instead of half-disappearing off the end of the track.
- */
 export function RangeBar({
 	low,
 	high,

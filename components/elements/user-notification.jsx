@@ -16,11 +16,6 @@ import { cn } from "@/lib/utils";
 import { AlertTriangle, ArrowLeftRight, Bell, PiggyBank, Target } from "lucide-react";
 import { useState } from "react";
 
-/**
- * Placeholder feed until a notifications endpoint exists. `key` resolves to
- * `notifications.samples.<key>.title` / `.description` so the copy is translated
- * like the rest of the UI.
- */
 const SAMPLE_NOTIFICATIONS = [
 	{ id: "1", key: "transactionCreated", icon: ArrowLeftRight, minutesAgo: 2 },
 	{ id: "2", key: "budgetExceeded", icon: PiggyBank, minutesAgo: 55 },

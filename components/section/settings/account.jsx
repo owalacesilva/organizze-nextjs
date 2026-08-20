@@ -42,7 +42,6 @@ const ACCOUNT_TYPES = ["personal", "business", "corporate"];
 const COUNTRIES = ["br", "us", "pt", "ca", "uk"];
 const ID_TYPES = ["passport", "driving", "national"];
 
-// Placeholder identity until authentication lands.
 const USER = { name: "Hafsa Humaira", id: "818778", joinedAt: "2020-10-20" };
 
 function UploadBox({ id }) {
@@ -84,7 +83,6 @@ export default function Account() {
 	const setField = (field) => (value) =>
 		setUserInfo((previous) => ({ ...previous, [field]: value }));
 
-	// Reset the wizard once the closing animation has finished.
 	const closeVerify = (open) => {
 		setVerifyOpen(open);
 		if (!open) setTimeout(() => setStep(1), 300);

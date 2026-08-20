@@ -7,7 +7,6 @@ import {
 } from "@/components/elements/skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors SettingsSection: tab strip on desktop, a select on mobile. */
 export function SettingsSkeleton() {
 	return (
 		<SkeletonPage>

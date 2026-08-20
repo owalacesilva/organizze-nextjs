@@ -12,13 +12,6 @@ import {
 import { useTranslation } from "@/hooks/useTranslation";
 import { Coins, Sparkles } from "lucide-react";
 
-/**
- * Where the XP and tokens came from.
- *
- * Worth showing because the numbers are derived rather than banked: if the
- * matrix says 10 XP a day, the user can check the arithmetic against their own
- * statement.
- */
 export function RewardLedger({ profile }) {
 	const { t, formatNumber } = useTranslation();
 	const { entries } = profile.rewards;

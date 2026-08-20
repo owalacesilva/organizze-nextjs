@@ -4,7 +4,6 @@ import { SkeletonPage } from "@/components/elements/skeletons";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors the categories manager: create form beside the two lists. */
 export function CategoriesSkeleton() {
 	return (
 		<SkeletonPage className="space-y-3">

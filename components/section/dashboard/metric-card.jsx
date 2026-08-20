@@ -5,10 +5,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 
-/**
- * @param change   Percentage difference against the comparison period.
- * @param inverted Set for "expenses"-like metrics, where growth is bad news.
- */
 export function MetricCard({ title, value, change = 0, inverted = false }) {
 	const { t } = useTranslation();
 

@@ -72,7 +72,6 @@ export default function TransactionsSection() {
 
 	const summary = useMemo(() => summarizeTransactions(visible), [visible]);
 
-	// Any filter change sends the table back to page 1.
 	const paginationResetKey = useMemo(
 		() => JSON.stringify(filters),
 		[filters],
@@ -92,7 +91,6 @@ export default function TransactionsSection() {
 		setFormOpen(true);
 	};
 
-	// Close the detail dialog first so the confirmation is the only modal open.
 	const openDelete = (transaction) => {
 		setDetailOpen(false);
 		setPendingDelete(transaction);

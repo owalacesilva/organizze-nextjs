@@ -61,10 +61,6 @@ function validate(form, t) {
 	return errors;
 }
 
-/**
- * Create/edit panel for a budget. Passing `budget` switches it to edit mode.
- * `onSubmit` receives the API payload and may return a promise.
- */
 export function BudgetFormDialog({
 	open,
 	onOpenChange,

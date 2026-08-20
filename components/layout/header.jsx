@@ -15,7 +15,6 @@ export function DashboardHeader() {
 	const { t } = useTranslation();
 	const [searchOpen, setSearchOpen] = useState(false);
 
-	// ⌘K / Ctrl+K is what people reach for before they reach for the mouse.
 	useEffect(() => {
 		const onKeyDown = (event) => {
 			if (event.key !== "k" || !(event.metaKey || event.ctrlKey)) return;
@@ -31,9 +30,6 @@ export function DashboardHeader() {
 		<header className="sidebar-transition fixed inset-x-0 top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:left-[var(--sidebar-w)]">
 			<div className="container mx-auto flex h-[var(--header-height)] items-center gap-3">
 				<SidebarToggle className="hidden shrink-0 md:inline-flex" />
-
-				{/* A button rather than a field: typing happens in the dialog, and a
-				    real input here would take focus only to hand it straight over. */}
 				<button
 					type="button"
 					onClick={() => setSearchOpen(true)}

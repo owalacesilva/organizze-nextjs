@@ -56,7 +56,6 @@ export const useCreateCategory = (): UseMutationResult<
 	return useMutation({
 		mutationFn: createCategory,
 		onSuccess: () => {
-			// Invalidate and refetch categories list
 			queryClient.invalidateQueries({ queryKey: ["categories"] });
 		},
 	});
@@ -72,7 +71,6 @@ export const useUpdateCategory = (): UseMutationResult<
 	return useMutation({
 		mutationFn: ({ id, data }) => updateCategory(id, data),
 		onSuccess: (_, variables) => {
-			// Invalidate the specific category and categories list
 			queryClient.invalidateQueries({
 				queryKey: ["categories", variables.id],
 			});
@@ -91,7 +89,6 @@ export const useEditCategory = (): UseMutationResult<
 	return useMutation({
 		mutationFn: ({ id, data }) => editCategory(id, data),
 		onSuccess: (_, variables) => {
-			// Invalidate the specific category and categories list
 			queryClient.invalidateQueries({
 				queryKey: ["categories", variables.id],
 			});
@@ -110,7 +107,6 @@ export const useDeleteCategory = (): UseMutationResult<
 	return useMutation({
 		mutationFn: deleteCategory,
 		onSuccess: (_, id) => {
-			// Remove the specific category from cache and invalidate categories list
 			queryClient.removeQueries({ queryKey: ["categories", id] });
 			queryClient.invalidateQueries({ queryKey: ["categories"] });
 		},

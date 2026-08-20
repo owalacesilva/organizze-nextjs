@@ -18,16 +18,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Coins } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-/**
- * Fires the "milestone achieved" celebration the moment a badge unlocks.
- *
- * Mounted once in the authenticated layout, so it can fire wherever the user
- * happens to be when the condition is met.
- *
- * The first load establishes a baseline instead of celebrating: an account
- * that already satisfies eight badges should not be met with eight modals, and
- * "the moment a condition is met" means during this session, not retroactively.
- */
 export function MilestoneModal() {
 	const { t, formatNumber } = useTranslation();
 	const { profile, state, isPending } = useGamification();

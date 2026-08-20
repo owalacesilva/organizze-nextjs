@@ -40,12 +40,6 @@ function Stat({ label, value, tone = "default" }) {
 	);
 }
 
-/**
- * Read-only view of a single budget: how it is tracking and what has been
- * charged to it this month.
- *
- * @param transactions Normalised transactions; filtered to the budget's category.
- */
 export function BudgetDetailsDialog({
 	budget,
 	open,

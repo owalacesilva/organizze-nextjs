@@ -56,7 +56,6 @@ export const useCreateTransaction = (): UseMutationResult<
 	return useMutation({
 		mutationFn: createTransaction,
 		onSuccess: () => {
-			// Invalidate and refetch transactions list
 			queryClient.invalidateQueries({ queryKey: ["transactions"] });
 		},
 	});
@@ -72,7 +71,6 @@ export const useUpdateTransaction = (): UseMutationResult<
 	return useMutation({
 		mutationFn: ({ id, data }) => updateTransaction(id, data),
 		onSuccess: (_, variables) => {
-			// Invalidate the specific transaction and transactions list
 			queryClient.invalidateQueries({
 				queryKey: ["transactions", variables.id],
 			});
@@ -91,7 +89,6 @@ export const useEditTransaction = (): UseMutationResult<
 	return useMutation({
 		mutationFn: ({ id, data }) => editTransaction(id, data),
 		onSuccess: (_, variables) => {
-			// Invalidate the specific transaction and transactions list
 			queryClient.invalidateQueries({
 				queryKey: ["transactions", variables.id],
 			});
@@ -110,7 +107,6 @@ export const useDeleteTransaction = (): UseMutationResult<
 	return useMutation({
 		mutationFn: deleteTransaction,
 		onSuccess: (_, id) => {
-			// Remove the specific transaction from cache and invalidate transactions list
 			queryClient.removeQueries({ queryKey: ["transactions", id] });
 			queryClient.invalidateQueries({ queryKey: ["transactions"] });
 		},

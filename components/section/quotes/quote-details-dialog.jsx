@@ -25,19 +25,6 @@ function Stat({ label, value }) {
 	);
 }
 
-/**
- * Everything known about a single quote.
- *
- * The stat grid is assembled from the tab's own table columns — minus the ones
- * already spoken for by the header and the hero — so a column added to a table
- * shows up here too, formatted the same way. `details.stats` adds the figures
- * that earn a place in the dialog but not in the table.
- *
- * @param card     The tab's card descriptor; supplies the identity and hero.
- * @param columns  The tab's table columns.
- * @param range    Optional low/high window, drawn as a position bar.
- * @param details  `{ omit?, stats? }`.
- */
 export function QuoteDetailsDialog({
 	quote,
 	open,

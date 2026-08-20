@@ -3,7 +3,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-/** Compact metric tile shared by the analytics tabs. */
 export function StatCard({ label, value, hint, icon: Icon, tone = "default" }) {
 	return (
 		<Card>

@@ -33,7 +33,6 @@ const TONES = {
 	},
 };
 
-/** Values that hold money and need the locale's currency format. */
 const CURRENCY_VALUES = [
 	"amount",
 	"average",
@@ -44,17 +43,8 @@ const CURRENCY_VALUES = [
 	"saved",
 ];
 
-/**
- * 2024-01-07 was a Sunday, so adding the weekday index lands on that weekday
- * and `Intl` can name it in the active locale.
- */
 const WEEKDAY_EPOCH = new Date(2024, 0, 7);
 
-/**
- * One observation. The generator hands over `{id, tone, values}` and the copy
- * is looked up under `insights.items.<id>` — formatting happens here so the
- * dictionary only ever holds placeholders.
- */
 export function InsightCard({ insight }) {
 	const { t, formatCurrency, formatDate } = useTranslation();
 

@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { useDashboardData } from "./use-dashboard-data";
 
-/** Deterministic palette so a category keeps its colour between renders. */
 const COLORS = [
 	"bg-indigo-500",
 	"bg-sky-500",

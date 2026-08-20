@@ -7,16 +7,6 @@ import { topExpenses } from "@/lib/transactions";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
-/**
- * The month's largest expenses, ranked, each with its share of the month.
- *
- * Presentational on purpose — it takes already-normalised transactions so both
- * the dashboard and the insights page can render it from their own query.
- *
- * @param transactions Normalised transactions (see lib/transactions).
- * @param limit        How many rows to show.
- * @param reference    Month to report on; defaults to the current one.
- */
 export function TopExpenses({
 	transactions = [],
 	limit = 5,

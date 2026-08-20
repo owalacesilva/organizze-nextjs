@@ -5,7 +5,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Profile } from "./profile";
 import { TrophyRoom } from "./trophy-room";
 
-/** `value` doubles as the dictionary key under `profile.tabs`. */
 const TABS = [
 	{ value: "overview", Component: Profile },
 	{ value: "trophyRoom", Component: TrophyRoom },

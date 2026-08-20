@@ -15,7 +15,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { DollarSign, Euro, PoundSterling } from "lucide-react";
 import { useState } from "react";
 
-/** Static reference rates against BRL until a rates endpoint exists. */
 const RATES = [
 	{ code: "USD", rate: 5.42, icon: DollarSign, tone: "bg-blue-500" },
 	{ code: "EUR", rate: 5.88, icon: Euro, tone: "bg-emerald-500" },

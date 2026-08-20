@@ -4,11 +4,6 @@ import { useGetCryptoQuotes } from "@/app/api/quotes/hooks";
 import { ChangeIndicator } from "./change-indicator";
 import { QuotesPanel } from "./quotes-panel";
 
-/**
- * Coins span six orders of magnitude — BTC in the hundreds of thousands of
- * reais, DOGE around one — so cheap coins get extra decimals rather than
- * collapsing to "R$ 1,04" for every sub-cent move.
- */
 function priceDigits(value) {
 	return Math.abs(value) < 10
 		? { minimumFractionDigits: 4, maximumFractionDigits: 4 }

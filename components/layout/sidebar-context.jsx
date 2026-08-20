@@ -13,31 +13,25 @@ import {
 const SidebarContext = createContext(null);
 
 const STORAGE_KEY = "organizze.sidebar.collapsed";
-const TOGGLE_SHORTCUT = "b"; // Ctrl/Cmd + B
+const TOGGLE_SHORTCUT = "b";
 
 const useIsomorphicLayoutEffect =
 	typeof window === "undefined" ? () => {} : useLayoutEffect;
 
 export function SidebarProvider({ children, defaultCollapsed = false }) {
-	// Matches the server render first, then adopts the stored preference in a
-	// layout effect so hydration stays clean and the sidebar does not flicker.
 	const [collapsed, setCollapsed] = useState(defaultCollapsed);
 
 	useIsomorphicLayoutEffect(() => {
 		try {
 			const stored = window.localStorage.getItem(STORAGE_KEY);
 			if (stored !== null) setCollapsed(stored === "true");
-		} catch {
-			// Storage unavailable — keep the default.
-		}
+		} catch {}
 	}, []);
 
 	const persist = useCallback((next) => {
 		try {
 			window.localStorage.setItem(STORAGE_KEY, String(next));
-		} catch {
-			// Best-effort persistence.
-		}
+		} catch {}
 	}, []);
 
 	const toggle = useCallback(() => {

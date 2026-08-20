@@ -30,30 +30,6 @@ import { useQuoteFormat } from "./use-quote-format";
 
 const SKELETON_ROWS = 6;
 
-/**
- * Shared shell for every quotes tab.
- *
- * The five asset classes list different figures but behave identically —
- * search, pagination, loading/error/empty states, a manual refresh, and a
- * table/cards switch — so each tab only describes its data and hands over the
- * query.
- *
- * @param titleKey    Dictionary key for the card heading.
- * @param columns     `{ key, labelKey, align?, className?, render(row, format) }`.
- *                    `render` receives `useQuoteFormat()`, so cells format in
- *                    the active locale with `formatBRL` already bound.
- * @param card        Card/dialog descriptor: `{ title, subtitle, badge?, value,
- *                    change?, stats }`, where `stats` names column keys.
- * @param range       Optional low/high window shown as a position bar on the
- *                    card and in the dialog.
- * @param details     Extra dialog config: `{ omit?, stats? }`.
- * @param rowKey      Picks a stable React key out of a row.
- * @param searchable  `(row, format)` → the string the search box matches
- *                    against, so translated labels stay searchable too.
- * @param query       A `useGet*Quotes()` result.
- * @param view        `"table"` or `"cards"`, owned by the section so the choice
- *                    survives switching tabs.
- */
 export function QuotesPanel({
 	titleKey,
 	columns,
@@ -85,7 +61,6 @@ export function QuotesPanel({
 
 	const pagination = usePagination(filtered, { resetKey: search });
 
-	// Every row in a response shares the same feed timestamp.
 	const updatedAt = quotes[0]?.updatedAt;
 	const isCards = view === "cards";
 
@@ -242,8 +217,6 @@ export function QuotesPanel({
 								className="h-8 pl-8"
 							/>
 						</div>
-
-						{/* The icon shows the view you get, not the one you are in. */}
 						<Button
 							variant="outline"
 							size="icon"

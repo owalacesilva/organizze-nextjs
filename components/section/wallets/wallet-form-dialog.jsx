@@ -76,10 +76,6 @@ function validate(form, t) {
 	return errors;
 }
 
-/**
- * Create/edit panel for a wallet. Passing `wallet` switches it to edit mode.
- * `onSubmit` receives the API payload and may return a promise.
- */
 export function WalletFormDialog({
 	open,
 	onOpenChange,
@@ -93,7 +89,6 @@ export function WalletFormDialog({
 	);
 	const [errors, setErrors] = useState({});
 
-	// Reload the form whenever the panel opens for a different wallet.
 	useEffect(() => {
 		if (open) {
 			setForm(toFormState(wallet, localeConfig.currency));
@@ -210,8 +205,6 @@ export function WalletFormDialog({
 							/>
 							{fieldError("balance")}
 						</div>
-
-						{/* Only a credit card has a limit to declare. */}
 						{form.type === "credit" && (
 							<div className="space-y-1">
 								<Label htmlFor="wallet-credit-limit">

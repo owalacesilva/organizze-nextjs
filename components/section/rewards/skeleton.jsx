@@ -3,7 +3,6 @@
 import { SkeletonPage } from "@/components/elements/skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors RewardsSection: level card, ledger + market, then the board. */
 export function RewardsSkeleton() {
 	return (
 		<SkeletonPage className="space-y-3">
